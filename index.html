@@ -4,325 +4,361 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LoanNex Automation Portal</title>
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone@7.23.5/babel.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Fallback loading message */
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        .hidden { display: none !important; }
         .loading { 
             display: flex; 
             justify-content: center; 
             align-items: center; 
             height: 100vh; 
-            font-family: Arial, sans-serif;
             font-size: 18px;
             color: #666;
         }
+        .progress-bar {
+            transition: width 0.3s ease;
+        }
     </style>
 </head>
-<body>
-    <div id="root">
-        <div class="loading">🏦 Loading LoanNex Automation Portal...</div>
+<body class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div id="app" class="p-6">
+        <div class="max-w-6xl mx-auto">
+            <!-- Header -->
+            <div class="text-center mb-8">
+                <h1 class="text-4xl font-bold text-gray-900 mb-2">🏦 LoanNex Automation Portal</h1>
+                <p class="text-lg text-gray-600">Upload Excel file to automatically process and lock loans</p>
+            </div>
+
+            <!-- Upload Section -->
+            <div class="bg-white rounded-xl shadow-lg p-8 mb-6">
+                <h2 class="text-2xl font-semibold mb-4 flex items-center">
+                    <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                    </svg>
+                    Upload Loan Data
+                </h2>
+                
+                <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+                    <svg class="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                    <div class="mb-4">
+                        <label for="file-upload" class="cursor-pointer">
+                            <span class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors inline-block">
+                                Choose Excel File
+                            </span>
+                            <input id="file-upload" type="file" class="hidden" accept=".xlsx,.xls">
+                        </label>
+                    </div>
+                    <p class="text-sm text-gray-500">Upload an Excel file with loan data (XLSX format)</p>
+                </div>
+
+                <div id="file-status" class="hidden mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+                    <p class="text-green-800" id="file-name"></p>
+                    <p class="text-green-600 text-sm" id="loan-count"></p>
+                </div>
+            </div>
+
+            <!-- Process Section -->
+            <div id="process-section" class="hidden bg-white rounded-xl shadow-lg p-8 mb-6">
+                <h2 class="text-2xl font-semibold mb-4">📋 Ready to Process</h2>
+                <div class="text-center">
+                    <button id="process-btn" class="bg-green-600 text-white px-8 py-3 rounded-lg hover:bg-green-700 transition-colors flex items-center mx-auto">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        <span id="process-text">Process Loans</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Progress Section -->
+            <div id="progress-section" class="hidden bg-white rounded-xl shadow-lg p-8 mb-6">
+                <h2 class="text-2xl font-semibold mb-4">🤖 Processing Loans</h2>
+                <div class="mb-4">
+                    <div class="flex justify-between text-sm text-gray-600 mb-2">
+                        <span id="progress-text">Processing loan 0 of 0</span>
+                        <span id="progress-percent">0%</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-3">
+                        <div id="progress-bar" class="bg-blue-600 h-3 rounded-full progress-bar" style="width: 0%"></div>
+                    </div>
+                </div>
+                <div class="flex items-center text-blue-600">
+                    <svg class="w-5 h-5 mr-2 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                    </svg>
+                    <span>Triggering GitHub Actions workflow...</span>
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            <div id="results-section" class="hidden bg-white rounded-xl shadow-lg p-8">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-semibold">📊 Processing Results</h2>
+                    <button id="download-btn" class="hidden bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                        Download Results
+                    </button>
+                </div>
+
+                <!-- Summary Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                        <div class="flex items-center">
+                            <svg class="h-8 w-8 text-green-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <div>
+                                <p class="text-2xl font-bold text-green-800" id="success-count">0</p>
+                                <p class="text-green-600">Successful</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                        <div class="flex items-center">
+                            <svg class="h-8 w-8 text-red-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <div>
+                                <p class="text-2xl font-bold text-red-800" id="failure-count">0</p>
+                                <p class="text-red-600">Failed</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <div class="flex items-center">
+                            <svg class="h-8 w-8 text-blue-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                            <div>
+                                <p class="text-2xl font-bold text-blue-800" id="total-count">0</p>
+                                <p class="text-blue-600">Total</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Results List -->
+                <div id="results-list" class="space-y-2"></div>
+            </div>
+        </div>
     </div>
 
-    <script type="text/babel">
-        const { useState, useCallback, createElement: h } = React;
+    <script>
+        // Global variables
+        let loans = [];
+        let results = [];
+        let processing = false;
 
-        // Simple icons as SVG strings since lucide might not load
-        const UploadIcon = () => h('svg', {className: "w-6 h-6", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24"}, 
-            h('path', {strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"})
-        );
-        
-        const FileIcon = () => h('svg', {className: "w-12 h-12", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24"}, 
-            h('path', {strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"})
-        );
+        // DOM elements
+        const fileUpload = document.getElementById('file-upload');
+        const fileStatus = document.getElementById('file-status');
+        const fileName = document.getElementById('file-name');
+        const loanCount = document.getElementById('loan-count');
+        const processSection = document.getElementById('process-section');
+        const processBtn = document.getElementById('process-btn');
+        const processText = document.getElementById('process-text');
+        const progressSection = document.getElementById('progress-section');
+        const progressText = document.getElementById('progress-text');
+        const progressPercent = document.getElementById('progress-percent');
+        const progressBar = document.getElementById('progress-bar');
+        const resultsSection = document.getElementById('results-section');
+        const downloadBtn = document.getElementById('download-btn');
+        const successCount = document.getElementById('success-count');
+        const failureCount = document.getElementById('failure-count');
+        const totalCount = document.getElementById('total-count');
+        const resultsList = document.getElementById('results-list');
 
-        const PlayIcon = () => h('svg', {className: "w-5 h-5", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24"}, 
-            h('path', {strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"})
-        );
+        // File upload handler
+        fileUpload.addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (!file) return;
 
-        const CheckIcon = () => h('svg', {className: "w-8 h-8", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24"}, 
-            h('path', {strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"})
-        );
-
-        const XIcon = () => h('svg', {className: "w-8 h-8", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24"}, 
-            h('path', {strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"})
-        );
-
-        const LoanNexAutomationApp = () => {
-          const [file, setFile] = useState(null);
-          const [loans, setLoans] = useState([]);
-          const [processing, setProcessing] = useState(false);
-          const [currentLoan, setCurrentLoan] = useState(0);
-          const [results, setResults] = useState([]);
-          const [showResults, setShowResults] = useState(false);
-
-          const handleFileUpload = useCallback((event) => {
-            const uploadedFile = event.target.files[0];
-            if (!uploadedFile) return;
-
-            setFile(uploadedFile);
-            
             const reader = new FileReader();
-            reader.onload = (e) => {
-              try {
-                const data = new Uint8Array(e.target.result);
-                const workbook = XLSX.read(data, { type: 'array' });
-                const sheetName = workbook.SheetNames[0];
-                const worksheet = workbook.Sheets[sheetName];
-                const jsonData = XLSX.utils.sheet_to_json(worksheet);
-                
-                setLoans(jsonData);
-                setResults([]);
-                setShowResults(false);
-                console.log('File uploaded successfully:', jsonData);
-              } catch (error) {
-                console.error('Error reading Excel file:', error);
-                alert('Error reading Excel file. Please check the format.');
-              }
+            reader.onload = function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const sheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[sheetName];
+                    const jsonData = XLSX.utils.sheet_to_json(worksheet);
+                    
+                    loans = jsonData;
+                    results = [];
+                    
+                    // Update UI
+                    fileName.textContent = `✅ File uploaded: ${file.name}`;
+                    loanCount.textContent = `Found ${loans.length} loan(s) to process`;
+                    fileStatus.classList.remove('hidden');
+                    processSection.classList.remove('hidden');
+                    processText.textContent = `Process ${loans.length} Loan(s)`;
+                    
+                    console.log('File uploaded successfully:', jsonData);
+                } catch (error) {
+                    console.error('Error reading Excel file:', error);
+                    alert('Error reading Excel file. Please check the format.');
+                }
             };
-            reader.readAsArrayBuffer(uploadedFile);
-          }, []);
+            reader.readAsArrayBuffer(file);
+        });
 
-          const triggerGitHubAction = async (loanData, loanIndex) => {
+        // GitHub Actions trigger function
+        async function triggerGitHubAction(loanData, loanIndex) {
             console.log('Triggering GitHub Actions for loan:', loanIndex);
             
             try {
-              const BACKEND_URL = 'https://loannex-backend.vercel.app/api/trigger-loan';
-              console.log('Calling backend:', BACKEND_URL);
-              
-              const response = await fetch(BACKEND_URL, {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                  loanData: loanData,
-                  loanIndex: loanIndex
-                })
-              });
-              
-              if (!response.ok) {
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-              }
-              
-              const result = await response.json();
-              console.log('Backend response:', result);
-              
-              if (result.success) {
-                console.log('GitHub Actions triggered successfully!');
-                // Wait for GitHub Actions to complete
-                await new Promise(resolve => setTimeout(resolve, Math.random() * 10000 + 25000));
-                return {
-                  success: true,
-                  message: 'Loan processed and locked successfully!'
-                };
-              } else {
-                throw new Error(result.message || 'Backend trigger failed');
-              }
-              
+                const BACKEND_URL = 'https://loannex-backend.vercel.app/api/trigger-loan';
+                console.log('Calling backend:', BACKEND_URL);
+                
+                const response = await fetch(BACKEND_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        loanData: loanData,
+                        loanIndex: loanIndex
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const result = await response.json();
+                console.log('Backend response:', result);
+                
+                if (result.success) {
+                    console.log('GitHub Actions triggered successfully!');
+                    // Wait for GitHub Actions to complete
+                    await new Promise(resolve => setTimeout(resolve, Math.random() * 10000 + 25000));
+                    return {
+                        success: true,
+                        message: 'Loan processed and locked successfully!'
+                    };
+                } else {
+                    throw new Error(result.message || 'Backend trigger failed');
+                }
+                
             } catch (error) {
-              console.error('Backend trigger failed:', error);
-              
-              const manualUrl = `https://github.com/crendy22/llpa-rate-comparator/actions/workflows/loannex-automation.yml`;
-              const loanDataStr = JSON.stringify(loanData);
-              
-              return {
-                success: false,
-                message: `Backend error: ${error.message}. Manual trigger: Go to ${manualUrl}, click "Run workflow", paste: ${loanDataStr.substring(0, 100)}...`
-              };
+                console.error('Backend trigger failed:', error);
+                
+                const manualUrl = `https://github.com/crendy22/llpa-rate-comparator/actions/workflows/loannex-automation.yml`;
+                const loanDataStr = JSON.stringify(loanData);
+                
+                return {
+                    success: false,
+                    message: `Backend error: ${error.message}. Manual trigger: Go to ${manualUrl}, click "Run workflow", paste: ${loanDataStr.substring(0, 100)}...`
+                };
             }
-          };
+        }
 
-          const processLoans = async () => {
-            setProcessing(true);
-            setCurrentLoan(0);
-            setResults([]);
-            setShowResults(true);
-
-            const processResults = [];
+        // Process loans function
+        async function processLoans() {
+            if (processing) return;
+            
+            processing = true;
+            results = [];
+            
+            // Update UI
+            processSection.classList.add('hidden');
+            progressSection.classList.remove('hidden');
+            resultsSection.classList.remove('hidden');
+            
+            // Reset counters
+            updateCounts();
 
             for (let i = 0; i < loans.length; i++) {
-              setCurrentLoan(i + 1);
-              
-              try {
-                const result = await triggerGitHubAction(loans[i], i);
+                // Update progress
+                const progress = Math.round(((i + 1) / loans.length) * 100);
+                progressText.textContent = `Processing loan ${i + 1} of ${loans.length}`;
+                progressPercent.textContent = `${progress}%`;
+                progressBar.style.width = `${progress}%`;
                 
-                processResults.push({
-                  loanIndex: i + 1,
-                  status: result.success ? 'success' : 'failed',
-                  message: result.message,
-                  data: loans[i]
-                });
-                
-                setResults([...processResults]);
-              } catch (error) {
-                processResults.push({
-                  loanIndex: i + 1,
-                  status: 'error',
-                  message: 'Unexpected error occurred',
-                  data: loans[i]
-                });
-                setResults([...processResults]);
-              }
+                try {
+                    const result = await triggerGitHubAction(loans[i], i);
+                    
+                    results.push({
+                        loanIndex: i + 1,
+                        status: result.success ? 'success' : 'failed',
+                        message: result.message,
+                        data: loans[i]
+                    });
+                    
+                    // Add result to list
+                    addResultToList(results[results.length - 1]);
+                    updateCounts();
+                    
+                } catch (error) {
+                    results.push({
+                        loanIndex: i + 1,
+                        status: 'error',
+                        message: 'Unexpected error occurred',
+                        data: loans[i]
+                    });
+                    addResultToList(results[results.length - 1]);
+                    updateCounts();
+                }
             }
 
-            setProcessing(false);
-            setCurrentLoan(0);
-          };
+            // Hide progress, show download
+            progressSection.classList.add('hidden');
+            downloadBtn.classList.remove('hidden');
+            processing = false;
+        }
 
-          const downloadResults = () => {
+        // Update result counts
+        function updateCounts() {
+            const successful = results.filter(r => r.status === 'success').length;
+            const failed = results.filter(r => r.status === 'failed' || r.status === 'error').length;
+            
+            successCount.textContent = successful;
+            failureCount.textContent = failed;
+            totalCount.textContent = results.length;
+        }
+
+        // Add result to list
+        function addResultToList(result) {
+            const div = document.createElement('div');
+            const statusColor = result.status === 'success' ? 'text-green-600' : 'text-red-600';
+            const statusIcon = result.status === 'success' ? '✅' : '❌';
+            
+            div.className = 'flex justify-between items-center p-3 bg-gray-50 rounded border-l-4 border-l-gray-300';
+            div.innerHTML = `
+                <div>
+                    <span class="font-medium">Loan ${result.loanIndex}</span>
+                    <span class="${statusColor} ml-2">${statusIcon} ${result.status}</span>
+                </div>
+                <div class="text-sm text-gray-600 max-w-md truncate">${result.message}</div>
+            `;
+            
+            resultsList.appendChild(div);
+        }
+
+        // Download results
+        function downloadResults() {
             const resultsData = results.map(result => ({
-              'Loan #': result.loanIndex,
-              'Status': result.status,
-              'Message': result.message,
-              ...result.data
+                'Loan #': result.loanIndex,
+                'Status': result.status,
+                'Message': result.message,
+                ...result.data
             }));
 
             const ws = XLSX.utils.json_to_sheet(resultsData);
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, 'Results');
             XLSX.writeFile(wb, 'loan_processing_results.xlsx');
-          };
-
-          const successCount = results.filter(r => r.status === 'success').length;
-          const failureCount = results.filter(r => r.status === 'failed' || r.status === 'error').length;
-
-          return h('div', { className: "min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6" },
-            h('div', { className: "max-w-6xl mx-auto" },
-              // Header
-              h('div', { className: "text-center mb-8" },
-                h('h1', { className: "text-4xl font-bold text-gray-900 mb-2" },
-                  '🏦 LoanNex Automation Portal'
-                ),
-                h('p', { className: "text-lg text-gray-600" },
-                  'Upload Excel file to automatically process and lock loans'
-                )
-              ),
-
-              // Upload Section
-              h('div', { className: "bg-white rounded-xl shadow-lg p-8 mb-6" },
-                h('h2', { className: "text-2xl font-semibold mb-4 flex items-center" },
-                  h(UploadIcon, { className: "mr-2" }),
-                  'Upload Loan Data'
-                ),
-                
-                h('div', { className: "border-2 border-dashed border-gray-300 rounded-lg p-8 text-center" },
-                  h(FileIcon, { className: "mx-auto text-gray-400 mb-4" }),
-                  h('div', { className: "mb-4" },
-                    h('label', { htmlFor: "file-upload", className: "cursor-pointer" },
-                      h('span', { className: "bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors inline-block" },
-                        'Choose Excel File'
-                      ),
-                      h('input', {
-                        id: "file-upload",
-                        type: "file",
-                        className: "hidden",
-                        accept: ".xlsx,.xls",
-                        onChange: handleFileUpload
-                      })
-                    )
-                  ),
-                  h('p', { className: "text-sm text-gray-500" },
-                    'Upload an Excel file with loan data (XLSX format)'
-                  )
-                ),
-
-                file && h('div', { className: "mt-4 p-4 bg-green-50 border border-green-200 rounded-lg" },
-                  h('p', { className: "text-green-800" },
-                    `✅ File uploaded: ${file.name}`
-                  ),
-                  h('p', { className: "text-green-600 text-sm" },
-                    `Found ${loans.length} loan(s) to process`
-                  )
-                )
-              ),
-
-              // Process Button
-              loans.length > 0 && !showResults && h('div', { className: "bg-white rounded-xl shadow-lg p-8 mb-6" },
-                h('h2', { className: "text-2xl font-semibold mb-4" }, '📋 Ready to Process'),
-                h('div', { className: "text-center" },
-                  h('button', {
-                    onClick: processLoans,
-                    disabled: processing,
-                    className: "bg-green-600 text-white px-8 py-3 rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center mx-auto"
-                  },
-                    h(PlayIcon, { className: "mr-2" }),
-                    processing ? 'Processing...' : `Process ${loans.length} Loan(s)`
-                  )
-                )
-              ),
-
-              // Processing Status
-              processing && h('div', { className: "bg-white rounded-xl shadow-lg p-8 mb-6" },
-                h('h2', { className: "text-2xl font-semibold mb-4" }, '🤖 Processing Loans'),
-                h('div', { className: "mb-4" },
-                  h('div', { className: "flex justify-between text-sm text-gray-600 mb-2" },
-                    h('span', null, `Processing loan ${currentLoan} of ${loans.length}`),
-                    h('span', null, `${Math.round((currentLoan / loans.length) * 100)}%`)
-                  ),
-                  h('div', { className: "w-full bg-gray-200 rounded-full h-3" },
-                    h('div', {
-                      className: "bg-blue-600 h-3 rounded-full transition-all duration-300",
-                      style: { width: `${(currentLoan / loans.length) * 100}%` }
-                    })
-                  )
-                )
-              ),
-
-              // Results
-              showResults && h('div', { className: "bg-white rounded-xl shadow-lg p-8" },
-                h('div', { className: "flex justify-between items-center mb-6" },
-                  h('h2', { className: "text-2xl font-semibold" }, '📊 Processing Results'),
-                  !processing && results.length > 0 && h('button', {
-                    onClick: downloadResults,
-                    className: "bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-                  }, 'Download Results')
-                ),
-
-                // Summary Cards
-                h('div', { className: "grid grid-cols-1 md:grid-cols-3 gap-4 mb-6" },
-                  h('div', { className: "bg-green-50 border border-green-200 rounded-lg p-4" },
-                    h('div', { className: "flex items-center" },
-                      h(CheckIcon, { className: "text-green-600 mr-3" }),
-                      h('div', null,
-                        h('p', { className: "text-2xl font-bold text-green-800" }, successCount),
-                        h('p', { className: "text-green-600" }, 'Successful')
-                      )
-                    )
-                  ),
-                  h('div', { className: "bg-red-50 border border-red-200 rounded-lg p-4" },
-                    h('div', { className: "flex items-center" },
-                      h(XIcon, { className: "text-red-600 mr-3" }),
-                      h('div', null,
-                        h('p', { className: "text-2xl font-bold text-red-800" }, failureCount),
-                        h('p', { className: "text-red-600" }, 'Failed')
-                      )
-                    )
-                  ),
-                  h('div', { className: "bg-blue-50 border border-blue-200 rounded-lg p-4" },
-                    h('div', { className: "flex items-center" },
-                      h(FileIcon, { className: "text-blue-600 mr-3 w-8 h-8" }),
-                      h('div', null,
-                        h('p', { className: "text-2xl font-bold text-blue-800" }, results.length),
-                        h('p', { className: "text-blue-600" }, 'Total')
-                      )
-                    )
-                  )
-                )
-              )
-            )
-          );
-        };
-
-        // Only render when everything is loaded
-        if (typeof React !== 'undefined' && typeof XLSX !== 'undefined') {
-          ReactDOM.render(React.createElement(LoanNexAutomationApp), document.getElementById('root'));
-        } else {
-          console.error('Required libraries not loaded');
         }
+
+        // Event listeners
+        processBtn.addEventListener('click', processLoans);
+        downloadBtn.addEventListener('click', downloadResults);
+
+        console.log('LoanNex Automation Portal loaded successfully!');
     </script>
 </body>
 </html>
