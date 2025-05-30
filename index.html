@@ -4,19 +4,52 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LoanNex Automation Portal</title>
-    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone@7.23.5/babel.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Fallback loading message */
+        .loading { 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            font-family: Arial, sans-serif;
+            font-size: 18px;
+            color: #666;
+        }
+    </style>
 </head>
 <body>
-    <div id="root"></div>
+    <div id="root">
+        <div class="loading">🏦 Loading LoanNex Automation Portal...</div>
+    </div>
 
     <script type="text/babel">
-        const { useState, useCallback } = React;
-        const { Upload, FileSpreadsheet, Play, CheckCircle, XCircle, Download, Github } = lucide;
+        const { useState, useCallback, createElement: h } = React;
+
+        // Simple icons as SVG strings since lucide might not load
+        const UploadIcon = () => h('svg', {className: "w-6 h-6", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24"}, 
+            h('path', {strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"})
+        );
+        
+        const FileIcon = () => h('svg', {className: "w-12 h-12", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24"}, 
+            h('path', {strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"})
+        );
+
+        const PlayIcon = () => h('svg', {className: "w-5 h-5", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24"}, 
+            h('path', {strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"})
+        );
+
+        const CheckIcon = () => h('svg', {className: "w-8 h-8", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24"}, 
+            h('path', {strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"})
+        );
+
+        const XIcon = () => h('svg', {className: "w-8 h-8", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24"}, 
+            h('path', {strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"})
+        );
 
         const LoanNexAutomationApp = () => {
           const [file, setFile] = useState(null);
@@ -44,7 +77,9 @@
                 setLoans(jsonData);
                 setResults([]);
                 setShowResults(false);
+                console.log('File uploaded successfully:', jsonData);
               } catch (error) {
+                console.error('Error reading Excel file:', error);
                 alert('Error reading Excel file. Please check the format.');
               }
             };
@@ -55,9 +90,7 @@
             console.log('Triggering GitHub Actions for loan:', loanIndex);
             
             try {
-              // Use your Vercel backend endpoint
               const BACKEND_URL = 'https://loannex-backend.vercel.app/api/trigger-loan';
-              
               console.log('Calling backend:', BACKEND_URL);
               
               const response = await fetch(BACKEND_URL, {
@@ -71,16 +104,20 @@
                 })
               });
               
+              if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+              }
+              
               const result = await response.json();
               console.log('Backend response:', result);
               
               if (result.success) {
-                console.log('GitHub Actions triggered successfully via backend!');
-                // Wait for GitHub Actions to complete (realistic timing)
-                await new Promise(resolve => setTimeout(resolve, Math.random() * 10000 + 25000)); // 25-35 seconds
+                console.log('GitHub Actions triggered successfully!');
+                // Wait for GitHub Actions to complete
+                await new Promise(resolve => setTimeout(resolve, Math.random() * 10000 + 25000));
                 return {
                   success: true,
-                  message: 'Loan processed and locked successfully via GitHub Actions!'
+                  message: 'Loan processed and locked successfully!'
                 };
               } else {
                 throw new Error(result.message || 'Backend trigger failed');
@@ -89,10 +126,7 @@
             } catch (error) {
               console.error('Backend trigger failed:', error);
               
-              // Fallback to manual trigger instructions
-              const GITHUB_OWNER = 'crendy22';
-              const GITHUB_REPO = 'llpa-rate-comparator';
-              const manualUrl = `https://github.com/${GITHUB_OWNER}/${GITHUB_REPO}/actions/workflows/loannex-automation.yml`;
+              const manualUrl = `https://github.com/crendy22/llpa-rate-comparator/actions/workflows/loannex-automation.yml`;
               const loanDataStr = JSON.stringify(loanData);
               
               return {
@@ -156,33 +190,33 @@
           const successCount = results.filter(r => r.status === 'success').length;
           const failureCount = results.filter(r => r.status === 'failed' || r.status === 'error').length;
 
-          return React.createElement('div', { className: "min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6" },
-            React.createElement('div', { className: "max-w-6xl mx-auto" },
+          return h('div', { className: "min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6" },
+            h('div', { className: "max-w-6xl mx-auto" },
               // Header
-              React.createElement('div', { className: "text-center mb-8" },
-                React.createElement('h1', { className: "text-4xl font-bold text-gray-900 mb-2" },
+              h('div', { className: "text-center mb-8" },
+                h('h1', { className: "text-4xl font-bold text-gray-900 mb-2" },
                   '🏦 LoanNex Automation Portal'
                 ),
-                React.createElement('p', { className: "text-lg text-gray-600" },
+                h('p', { className: "text-lg text-gray-600" },
                   'Upload Excel file to automatically process and lock loans'
                 )
               ),
 
               // Upload Section
-              React.createElement('div', { className: "bg-white rounded-xl shadow-lg p-8 mb-6" },
-                React.createElement('h2', { className: "text-2xl font-semibold mb-4 flex items-center" },
-                  React.createElement(Upload, { className: "mr-2" }),
+              h('div', { className: "bg-white rounded-xl shadow-lg p-8 mb-6" },
+                h('h2', { className: "text-2xl font-semibold mb-4 flex items-center" },
+                  h(UploadIcon, { className: "mr-2" }),
                   'Upload Loan Data'
                 ),
                 
-                React.createElement('div', { className: "border-2 border-dashed border-gray-300 rounded-lg p-8 text-center" },
-                  React.createElement(FileSpreadsheet, { className: "mx-auto h-12 w-12 text-gray-400 mb-4" }),
-                  React.createElement('div', { className: "mb-4" },
-                    React.createElement('label', { htmlFor: "file-upload", className: "cursor-pointer" },
-                      React.createElement('span', { className: "bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors inline-block" },
+                h('div', { className: "border-2 border-dashed border-gray-300 rounded-lg p-8 text-center" },
+                  h(FileIcon, { className: "mx-auto text-gray-400 mb-4" }),
+                  h('div', { className: "mb-4" },
+                    h('label', { htmlFor: "file-upload", className: "cursor-pointer" },
+                      h('span', { className: "bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors inline-block" },
                         'Choose Excel File'
                       ),
-                      React.createElement('input', {
+                      h('input', {
                         id: "file-upload",
                         type: "file",
                         className: "hidden",
@@ -191,46 +225,46 @@
                       })
                     )
                   ),
-                  React.createElement('p', { className: "text-sm text-gray-500" },
+                  h('p', { className: "text-sm text-gray-500" },
                     'Upload an Excel file with loan data (XLSX format)'
                   )
                 ),
 
-                file && React.createElement('div', { className: "mt-4 p-4 bg-green-50 border border-green-200 rounded-lg" },
-                  React.createElement('p', { className: "text-green-800" },
+                file && h('div', { className: "mt-4 p-4 bg-green-50 border border-green-200 rounded-lg" },
+                  h('p', { className: "text-green-800" },
                     `✅ File uploaded: ${file.name}`
                   ),
-                  React.createElement('p', { className: "text-green-600 text-sm" },
+                  h('p', { className: "text-green-600 text-sm" },
                     `Found ${loans.length} loan(s) to process`
                   )
                 )
               ),
 
-              // Data Preview and Process Button
-              loans.length > 0 && !showResults && React.createElement('div', { className: "bg-white rounded-xl shadow-lg p-8 mb-6" },
-                React.createElement('h2', { className: "text-2xl font-semibold mb-4" }, '📋 Ready to Process'),
-                React.createElement('div', { className: "text-center" },
-                  React.createElement('button', {
+              // Process Button
+              loans.length > 0 && !showResults && h('div', { className: "bg-white rounded-xl shadow-lg p-8 mb-6" },
+                h('h2', { className: "text-2xl font-semibold mb-4" }, '📋 Ready to Process'),
+                h('div', { className: "text-center" },
+                  h('button', {
                     onClick: processLoans,
                     disabled: processing,
                     className: "bg-green-600 text-white px-8 py-3 rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center mx-auto"
                   },
-                    React.createElement(Play, { className: "mr-2" }),
+                    h(PlayIcon, { className: "mr-2" }),
                     processing ? 'Processing...' : `Process ${loans.length} Loan(s)`
                   )
                 )
               ),
 
               // Processing Status
-              processing && React.createElement('div', { className: "bg-white rounded-xl shadow-lg p-8 mb-6" },
-                React.createElement('h2', { className: "text-2xl font-semibold mb-4" }, '🤖 Processing Loans'),
-                React.createElement('div', { className: "mb-4" },
-                  React.createElement('div', { className: "flex justify-between text-sm text-gray-600 mb-2" },
-                    React.createElement('span', null, `Processing loan ${currentLoan} of ${loans.length}`),
-                    React.createElement('span', null, `${Math.round((currentLoan / loans.length) * 100)}%`)
+              processing && h('div', { className: "bg-white rounded-xl shadow-lg p-8 mb-6" },
+                h('h2', { className: "text-2xl font-semibold mb-4" }, '🤖 Processing Loans'),
+                h('div', { className: "mb-4" },
+                  h('div', { className: "flex justify-between text-sm text-gray-600 mb-2" },
+                    h('span', null, `Processing loan ${currentLoan} of ${loans.length}`),
+                    h('span', null, `${Math.round((currentLoan / loans.length) * 100)}%`)
                   ),
-                  React.createElement('div', { className: "w-full bg-gray-200 rounded-full h-3" },
-                    React.createElement('div', {
+                  h('div', { className: "w-full bg-gray-200 rounded-full h-3" },
+                    h('div', {
                       className: "bg-blue-600 h-3 rounded-full transition-all duration-300",
                       style: { width: `${(currentLoan / loans.length) * 100}%` }
                     })
@@ -239,44 +273,41 @@
               ),
 
               // Results
-              showResults && React.createElement('div', { className: "bg-white rounded-xl shadow-lg p-8" },
-                React.createElement('div', { className: "flex justify-between items-center mb-6" },
-                  React.createElement('h2', { className: "text-2xl font-semibold" }, '📊 Processing Results'),
-                  !processing && results.length > 0 && React.createElement('button', {
+              showResults && h('div', { className: "bg-white rounded-xl shadow-lg p-8" },
+                h('div', { className: "flex justify-between items-center mb-6" },
+                  h('h2', { className: "text-2xl font-semibold" }, '📊 Processing Results'),
+                  !processing && results.length > 0 && h('button', {
                     onClick: downloadResults,
-                    className: "bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center"
-                  },
-                    React.createElement(Download, { className: "mr-2 h-4 w-4" }),
-                    'Download Results'
-                  )
+                    className: "bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                  }, 'Download Results')
                 ),
 
                 // Summary Cards
-                React.createElement('div', { className: "grid grid-cols-1 md:grid-cols-3 gap-4 mb-6" },
-                  React.createElement('div', { className: "bg-green-50 border border-green-200 rounded-lg p-4" },
-                    React.createElement('div', { className: "flex items-center" },
-                      React.createElement(CheckCircle, { className: "h-8 w-8 text-green-600 mr-3" }),
-                      React.createElement('div', null,
-                        React.createElement('p', { className: "text-2xl font-bold text-green-800" }, successCount),
-                        React.createElement('p', { className: "text-green-600" }, 'Successful Locks')
+                h('div', { className: "grid grid-cols-1 md:grid-cols-3 gap-4 mb-6" },
+                  h('div', { className: "bg-green-50 border border-green-200 rounded-lg p-4" },
+                    h('div', { className: "flex items-center" },
+                      h(CheckIcon, { className: "text-green-600 mr-3" }),
+                      h('div', null,
+                        h('p', { className: "text-2xl font-bold text-green-800" }, successCount),
+                        h('p', { className: "text-green-600" }, 'Successful')
                       )
                     )
                   ),
-                  React.createElement('div', { className: "bg-red-50 border border-red-200 rounded-lg p-4" },
-                    React.createElement('div', { className: "flex items-center" },
-                      React.createElement(XCircle, { className: "h-8 w-8 text-red-600 mr-3" }),
-                      React.createElement('div', null,
-                        React.createElement('p', { className: "text-2xl font-bold text-red-800" }, failureCount),
-                        React.createElement('p', { className: "text-red-600" }, 'Failed Locks')
+                  h('div', { className: "bg-red-50 border border-red-200 rounded-lg p-4" },
+                    h('div', { className: "flex items-center" },
+                      h(XIcon, { className: "text-red-600 mr-3" }),
+                      h('div', null,
+                        h('p', { className: "text-2xl font-bold text-red-800" }, failureCount),
+                        h('p', { className: "text-red-600" }, 'Failed')
                       )
                     )
                   ),
-                  React.createElement('div', { className: "bg-blue-50 border border-blue-200 rounded-lg p-4" },
-                    React.createElement('div', { className: "flex items-center" },
-                      React.createElement(FileSpreadsheet, { className: "h-8 w-8 text-blue-600 mr-3" }),
-                      React.createElement('div', null,
-                        React.createElement('p', { className: "text-2xl font-bold text-blue-800" }, results.length),
-                        React.createElement('p', { className: "text-blue-600" }, 'Total Processed')
+                  h('div', { className: "bg-blue-50 border border-blue-200 rounded-lg p-4" },
+                    h('div', { className: "flex items-center" },
+                      h(FileIcon, { className: "text-blue-600 mr-3 w-8 h-8" }),
+                      h('div', null,
+                        h('p', { className: "text-2xl font-bold text-blue-800" }, results.length),
+                        h('p', { className: "text-blue-600" }, 'Total')
                       )
                     )
                   )
@@ -286,7 +317,12 @@
           );
         };
 
-        ReactDOM.render(React.createElement(LoanNexAutomationApp), document.getElementById('root'));
+        // Only render when everything is loaded
+        if (typeof React !== 'undefined' && typeof XLSX !== 'undefined') {
+          ReactDOM.render(React.createElement(LoanNexAutomationApp), document.getElementById('root'));
+        } else {
+          console.error('Required libraries not loaded');
+        }
     </script>
 </body>
 </html>
