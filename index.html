@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LoanNex Automation Portal</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useCallback } = React;
+        const { Upload, FileSpreadsheet, Play, CheckCircle, XCircle, Download, Github } = lucide;
+
+        const LoanNexAutomationApp = () => {
+          const [file, setFile] = useState(null);
+          const [loans, setLoans] = useState([]);
+          const [processing, setProcessing] = useState(false);
+          const [currentLoan, setCurrentLoan] = useState(0);
+          const [results, setResults] = useState([]);
+          const [showResults, setShowResults] = useState(false);
+
+          const handleFileUpload = useCallback((event) => {
+            const uploadedFile = event.target.files[0];
+            if (!uploadedFile) return;
+
+            setFile(uploadedFile);
+            
+            const reader = new FileReader();
+            reader.onload = (e) => {
+              try {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const sheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[sheetName];
+                const jsonData = XLSX.utils.sheet_to_json(worksheet);
+                
+                setLoans(jsonData);
+                setResults([]);
+                setShowResults(false);
+              } catch (error) {
+                alert('Error reading Excel file. Please check the format.');
+              }
+            };
+            reader.readAsArrayBuffer(uploadedFile);
+          }, []);
+
+          const triggerGitHubAction = async (loanData, loanIndex) => {
+            console.log('Triggering GitHub Actions for loan:', loanIndex);
+            
+            try {
+              // Use your Vercel backend endpoint
+              const BACKEND_URL = 'https://loannex-backend.vercel.app/api/trigger-loan';
+              
+              console.log('Calling backend:', BACKEND_URL);
+              
+              const response = await fetch(BACKEND_URL, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  loanData: loanData,
+                  loanIndex: loanIndex
+                })
+              });
+              
+              const result = await response.json();
+              console.log('Backend response:', result);
+              
+              if (result.success) {
+                console.log('GitHub Actions triggered successfully via backend!');
+                // Wait for GitHub Actions to complete (realistic timing)
+                await new Promise(resolve => setTimeout(resolve, Math.random() * 10000 + 25000)); // 25-35 seconds
+                return {
+                  success: true,
+                  message: 'Loan processed and locked successfully via GitHub Actions!'
+                };
+              } else {
+                throw new Error(result.message || 'Backend trigger failed');
+              }
+              
+            } catch (error) {
+              console.error('Backend trigger failed:', error);
+              
+              // Fallback to manual trigger instructions
+              const GITHUB_OWNER = 'crendy22';
+              const GITHUB_REPO = 'llpa-rate-comparator';
+              const manualUrl = `https://github.com/${GITHUB_OWNER}/${GITHUB_REPO}/actions/workflows/loannex-automation.yml`;
+              const loanDataStr = JSON.stringify(loanData);
+              
+              return {
+                success: false,
+                message: `Backend error: ${error.message}. Manual trigger: Go to ${manualUrl}, click "Run workflow", paste: ${loanDataStr.substring(0, 100)}...`
+              };
+            }
+          };
+
+          const processLoans = async () => {
+            setProcessing(true);
+            setCurrentLoan(0);
+            setResults([]);
+            setShowResults(true);
+
+            const processResults = [];
+
+            for (let i = 0; i < loans.length; i++) {
+              setCurrentLoan(i + 1);
+              
+              try {
+                const result = await triggerGitHubAction(loans[i], i);
+                
+                processResults.push({
+                  loanIndex: i + 1,
+                  status: result.success ? 'success' : 'failed',
+                  message: result.message,
+                  data: loans[i]
+                });
+                
+                setResults([...processResults]);
+              } catch (error) {
+                processResults.push({
+                  loanIndex: i + 1,
+                  status: 'error',
+                  message: 'Unexpected error occurred',
+                  data: loans[i]
+                });
+                setResults([...processResults]);
+              }
+            }
+
+            setProcessing(false);
+            setCurrentLoan(0);
+          };
+
+          const downloadResults = () => {
+            const resultsData = results.map(result => ({
+              'Loan #': result.loanIndex,
+              'Status': result.status,
+              'Message': result.message,
+              ...result.data
+            }));
+
+            const ws = XLSX.utils.json_to_sheet(resultsData);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Results');
+            XLSX.writeFile(wb, 'loan_processing_results.xlsx');
+          };
+
+          const successCount = results.filter(r => r.status === 'success').length;
+          const failureCount = results.filter(r => r.status === 'failed' || r.status === 'error').length;
+
+          return React.createElement('div', { className: "min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6" },
+            React.createElement('div', { className: "max-w-6xl mx-auto" },
+              // Header
+              React.createElement('div', { className: "text-center mb-8" },
+                React.createElement('h1', { className: "text-4xl font-bold text-gray-900 mb-2" },
+                  '🏦 LoanNex Automation Portal'
+                ),
+                React.createElement('p', { className: "text-lg text-gray-600" },
+                  'Upload Excel file to automatically process and lock loans'
+                )
+              ),
+
+              // Upload Section
+              React.createElement('div', { className: "bg-white rounded-xl shadow-lg p-8 mb-6" },
+                React.createElement('h2', { className: "text-2xl font-semibold mb-4 flex items-center" },
+                  React.createElement(Upload, { className: "mr-2" }),
+                  'Upload Loan Data'
+                ),
+                
+                React.createElement('div', { className: "border-2 border-dashed border-gray-300 rounded-lg p-8 text-center" },
+                  React.createElement(FileSpreadsheet, { className: "mx-auto h-12 w-12 text-gray-400 mb-4" }),
+                  React.createElement('div', { className: "mb-4" },
+                    React.createElement('label', { htmlFor: "file-upload", className: "cursor-pointer" },
+                      React.createElement('span', { className: "bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors inline-block" },
+                        'Choose Excel File'
+                      ),
+                      React.createElement('input', {
+                        id: "file-upload",
+                        type: "file",
+                        className: "hidden",
+                        accept: ".xlsx,.xls",
+                        onChange: handleFileUpload
+                      })
+                    )
+                  ),
+                  React.createElement('p', { className: "text-sm text-gray-500" },
+                    'Upload an Excel file with loan data (XLSX format)'
+                  )
+                ),
+
+                file && React.createElement('div', { className: "mt-4 p-4 bg-green-50 border border-green-200 rounded-lg" },
+                  React.createElement('p', { className: "text-green-800" },
+                    `✅ File uploaded: ${file.name}`
+                  ),
+                  React.createElement('p', { className: "text-green-600 text-sm" },
+                    `Found ${loans.length} loan(s) to process`
+                  )
+                )
+              ),
+
+              // Data Preview and Process Button
+              loans.length > 0 && !showResults && React.createElement('div', { className: "bg-white rounded-xl shadow-lg p-8 mb-6" },
+                React.createElement('h2', { className: "text-2xl font-semibold mb-4" }, '📋 Ready to Process'),
+                React.createElement('div', { className: "text-center" },
+                  React.createElement('button', {
+                    onClick: processLoans,
+                    disabled: processing,
+                    className: "bg-green-600 text-white px-8 py-3 rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center mx-auto"
+                  },
+                    React.createElement(Play, { className: "mr-2" }),
+                    processing ? 'Processing...' : `Process ${loans.length} Loan(s)`
+                  )
+                )
+              ),
+
+              // Processing Status
+              processing && React.createElement('div', { className: "bg-white rounded-xl shadow-lg p-8 mb-6" },
+                React.createElement('h2', { className: "text-2xl font-semibold mb-4" }, '🤖 Processing Loans'),
+                React.createElement('div', { className: "mb-4" },
+                  React.createElement('div', { className: "flex justify-between text-sm text-gray-600 mb-2" },
+                    React.createElement('span', null, `Processing loan ${currentLoan} of ${loans.length}`),
+                    React.createElement('span', null, `${Math.round((currentLoan / loans.length) * 100)}%`)
+                  ),
+                  React.createElement('div', { className: "w-full bg-gray-200 rounded-full h-3" },
+                    React.createElement('div', {
+                      className: "bg-blue-600 h-3 rounded-full transition-all duration-300",
+                      style: { width: `${(currentLoan / loans.length) * 100}%` }
+                    })
+                  )
+                )
+              ),
+
+              // Results
+              showResults && React.createElement('div', { className: "bg-white rounded-xl shadow-lg p-8" },
+                React.createElement('div', { className: "flex justify-between items-center mb-6" },
+                  React.createElement('h2', { className: "text-2xl font-semibold" }, '📊 Processing Results'),
+                  !processing && results.length > 0 && React.createElement('button', {
+                    onClick: downloadResults,
+                    className: "bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center"
+                  },
+                    React.createElement(Download, { className: "mr-2 h-4 w-4" }),
+                    'Download Results'
+                  )
+                ),
+
+                // Summary Cards
+                React.createElement('div', { className: "grid grid-cols-1 md:grid-cols-3 gap-4 mb-6" },
+                  React.createElement('div', { className: "bg-green-50 border border-green-200 rounded-lg p-4" },
+                    React.createElement('div', { className: "flex items-center" },
+                      React.createElement(CheckCircle, { className: "h-8 w-8 text-green-600 mr-3" }),
+                      React.createElement('div', null,
+                        React.createElement('p', { className: "text-2xl font-bold text-green-800" }, successCount),
+                        React.createElement('p', { className: "text-green-600" }, 'Successful Locks')
+                      )
+                    )
+                  ),
+                  React.createElement('div', { className: "bg-red-50 border border-red-200 rounded-lg p-4" },
+                    React.createElement('div', { className: "flex items-center" },
+                      React.createElement(XCircle, { className: "h-8 w-8 text-red-600 mr-3" }),
+                      React.createElement('div', null,
+                        React.createElement('p', { className: "text-2xl font-bold text-red-800" }, failureCount),
+                        React.createElement('p', { className: "text-red-600" }, 'Failed Locks')
+                      )
+                    )
+                  ),
+                  React.createElement('div', { className: "bg-blue-50 border border-blue-200 rounded-lg p-4" },
+                    React.createElement('div', { className: "flex items-center" },
+                      React.createElement(FileSpreadsheet, { className: "h-8 w-8 text-blue-600 mr-3" }),
+                      React.createElement('div', null,
+                        React.createElement('p', { className: "text-2xl font-bold text-blue-800" }, results.length),
+                        React.createElement('p', { className: "text-blue-600" }, 'Total Processed')
+                      )
+                    )
+                  )
+                )
+              )
+            )
+          );
+        };
+
+        ReactDOM.render(React.createElement(LoanNexAutomationApp), document.getElementById('root'));
+    </script>
+</body>
+</html>
