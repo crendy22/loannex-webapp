@@ -20,6 +20,18 @@
         .progress-bar {
             transition: width 0.3s ease;
         }
+        .status-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 6px;
+        }
+        .status-running { background-color: #3b82f6; animation: pulse 2s infinite; }
+        .status-success { background-color: #10b981; }
+        .status-failed { background-color: #ef4444; }
+        .status-waiting { background-color: #f59e0b; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
     </style>
 </head>
 <body class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
@@ -62,6 +74,24 @@
                             required
                         >
                     </div>
+                </div>
+
+                <!-- GitHub Token Section -->
+                <div class="mb-6">
+                    <label for="github-token" class="block text-sm font-medium text-gray-700 mb-2">
+                        GitHub Personal Access Token 
+                        <span class="text-xs text-gray-500">(required for real-time status checking)</span>
+                    </label>
+                    <input 
+                        type="password" 
+                        id="github-token" 
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                        placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"
+                        required
+                    >
+                    <p class="text-xs text-gray-500 mt-1">
+                        Create at: GitHub → Settings → Developer settings → Personal access tokens → Generate new token (workflow permissions needed)
+                    </p>
                 </div>
                 
                 <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
@@ -137,18 +167,16 @@
                         <div id="progress-bar" class="bg-blue-600 h-3 rounded-full progress-bar" style="width: 0%"></div>
                     </div>
                 </div>
-                <div class="flex items-center text-blue-600">
-                    <svg class="w-5 h-5 mr-2 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-                    </svg>
-                    <span>Triggering GitHub Actions workflow...</span>
+                <div id="current-status" class="flex items-center text-blue-600">
+                    <div class="status-indicator status-running"></div>
+                    <span>Starting automation workflow...</span>
                 </div>
             </div>
 
             <!-- Results Section -->
             <div id="results-section" class="hidden bg-white rounded-xl shadow-lg p-8">
                 <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-2xl font-semibent">📊 Processing Results</h2>
+                    <h2 class="text-2xl font-semibold">📊 Processing Results</h2>
                     <button id="download-btn" class="hidden bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
                         Download Results
                     </button>
@@ -205,6 +233,7 @@
         let results = [];
         let processing = false;
         let credentials = {};
+        let githubToken = '';
 
         // DOM elements
         const fileUpload = document.getElementById('file-upload');
@@ -221,6 +250,7 @@
         const progressText = document.getElementById('progress-text');
         const progressPercent = document.getElementById('progress-percent');
         const progressBar = document.getElementById('progress-bar');
+        const currentStatus = document.getElementById('current-status');
         const resultsSection = document.getElementById('results-section');
         const downloadBtn = document.getElementById('download-btn');
         const successCount = document.getElementById('success-count');
@@ -232,14 +262,30 @@
         function validateCredentials() {
             const username = document.getElementById('username').value.trim();
             const password = document.getElementById('password').value.trim();
+            const token = document.getElementById('github-token').value.trim();
             
             if (!username || !password) {
-                alert('Please enter both username and password before uploading a file.');
+                alert('Please enter both LoanNex username and password.');
+                return false;
+            }
+            
+            if (!token || !token.startsWith('ghp_')) {
+                alert('Please enter a valid GitHub Personal Access Token (starts with ghp_).');
                 return false;
             }
             
             credentials = { username, password };
+            githubToken = token;
             return true;
+        }
+
+        // Update status indicator
+        function updateStatus(message, type = 'running') {
+            const indicator = currentStatus.querySelector('.status-indicator');
+            const text = currentStatus.querySelector('span');
+            
+            indicator.className = `status-indicator status-${type}`;
+            text.textContent = message;
         }
 
         // File upload handler
@@ -320,18 +366,114 @@
             });
         }
 
-        // Simplified results - assume success if GitHub Actions triggered
-        async function checkWorkflowResults(loanIndex) {
+        // Check GitHub Actions workflow status
+        async function checkWorkflowStatus(runId, maxAttempts = 30) {
+            const REPO_OWNER = 'YOUR_GITHUB_USERNAME'; // Replace with your GitHub username
+            const REPO_NAME = 'YOUR_REPO_NAME'; // Replace with your repository name
+            
+            for (let attempt = 0; attempt < maxAttempts; attempt++) {
+                try {
+                    const response = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/actions/runs/${runId}`, {
+                        headers: {
+                            'Authorization': `Bearer ${githubToken}`,
+                            'Accept': 'application/vnd.github.v3+json'
+                        }
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`GitHub API error: ${response.status}`);
+                    }
+                    
+                    const run = await response.json();
+                    console.log(`Workflow status check ${attempt + 1}: ${run.status} / ${run.conclusion}`);
+                    
+                    if (run.status === 'completed') {
+                        // Get workflow logs for detailed error info
+                        const logsResponse = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/actions/runs/${runId}/logs`, {
+                            headers: {
+                                'Authorization': `Bearer ${githubToken}`,
+                                'Accept': 'application/vnd.github.v3+json'
+                            }
+                        });
+                        
+                        let errorDetails = '';
+                        if (logsResponse.ok) {
+                            const logs = await logsResponse.text();
+                            errorDetails = extractErrorFromLogs(logs);
+                        }
+                        
+                        return {
+                            success: run.conclusion === 'success',
+                            status: run.status,
+                            conclusion: run.conclusion,
+                            message: run.conclusion === 'success' ? 
+                                'Loan successfully processed and locked in LoanNex' : 
+                                `Automation failed: ${errorDetails || 'Check GitHub Actions logs for details'}`,
+                            details: errorDetails,
+                            runUrl: run.html_url
+                        };
+                    }
+                    
+                    // Update status for running workflow
+                    updateStatus(`Workflow running... (${attempt + 1}/${maxAttempts})`, 'running');
+                    
+                    // Wait before next check
+                    await new Promise(resolve => setTimeout(resolve, 10000)); // 10 seconds
+                    
+                } catch (error) {
+                    console.error(`Workflow status check failed:`, error);
+                    if (attempt === maxAttempts - 1) {
+                        return {
+                            success: false,
+                            message: 'Failed to get workflow status - check GitHub token permissions',
+                            details: error.message
+                        };
+                    }
+                    await new Promise(resolve => setTimeout(resolve, 5000));
+                }
+            }
+            
             return {
-                success: true,
-                message: 'Loan processing completed - check LoanNex to verify lock status',
-                details: 'GitHub Actions workflow executed successfully'
+                success: false,
+                message: 'Workflow timed out - may still be running',
+                details: 'Check GitHub Actions page manually'
             };
         }
 
-        // GitHub Actions trigger function with enhanced error handling
+        // Extract error information from GitHub Actions logs
+        function extractErrorFromLogs(logs) {
+            // Look for common error patterns
+            const errorPatterns = [
+                /FAILED: Could not select investor '([^']+)'/,
+                /Could not click Lock button/,
+                /Login failed for/,
+                /Error in lock workflow:/,
+                /Failed to apply.*filter/,
+                /Rate.*filtered out all available loans/
+            ];
+            
+            for (const pattern of errorPatterns) {
+                const match = logs.match(pattern);
+                if (match) {
+                    return match[0];
+                }
+            }
+            
+            // Look for any line containing "FAILED:" or "ERROR:"
+            const lines = logs.split('\n');
+            const errorLine = lines.find(line => 
+                line.includes('FAILED:') || 
+                line.includes('ERROR:') || 
+                line.includes('Could not')
+            );
+            
+            return errorLine ? errorLine.trim() : 'Unknown error occurred';
+        }
+
+        // Enhanced GitHub Actions trigger with real status checking
         async function triggerGitHubAction(loanData, loanIndex) {
             console.log('Triggering GitHub Actions for loan:', loanIndex);
+            updateStatus(`Starting automation for loan ${loanIndex + 1}...`, 'running');
             
             try {
                 const BACKEND_URL = 'https://loannex-backend.vercel.app/api/trigger-loan';
@@ -356,45 +498,32 @@
                 const result = await response.json();
                 console.log('Backend response:', result);
                 
-                if (result.success) {
-                    console.log('GitHub Actions triggered successfully!');
+                if (result.success && result.workflowRunId) {
+                    console.log('GitHub Actions triggered successfully, run ID:', result.workflowRunId);
+                    updateStatus(`Monitoring workflow progress...`, 'running');
                     
-                    // Wait for GitHub Actions to complete
-                    await new Promise(resolve => setTimeout(resolve, Math.random() * 10000 + 35000));
+                    // Check actual workflow status
+                    const workflowResult = await checkWorkflowStatus(result.workflowRunId);
                     
-                    // Try to get detailed results
-                    try {
-                        const detailedResult = await checkWorkflowResults(loanIndex);
-                        
-                        if (detailedResult.success) {
-                            return {
-                                success: true,
-                                message: detailedResult.message || 'Loan processed and locked successfully!',
-                                details: detailedResult.details || ''
-                            };
-                        } else {
-                            return {
-                                success: false,
-                                message: detailedResult.message || 'Loan processing failed',
-                                details: detailedResult.details || 'No detailed error information available',
-                                errorType: detailedResult.errorType || 'unknown'
-                            };
-                        }
-                        
-                    } catch (detailError) {
-                        console.log('Could not get detailed results, using basic success');
-                        return {
-                            success: true,
-                            message: 'Loan processed successfully (details unavailable)',
-                            details: ''
-                        };
-                    }
+                    updateStatus(
+                        workflowResult.success ? 'Loan processed successfully!' : 'Processing failed',
+                        workflowResult.success ? 'success' : 'failed'
+                    );
+                    
+                    return {
+                        success: workflowResult.success,
+                        message: workflowResult.message,
+                        details: workflowResult.details || '',
+                        errorType: workflowResult.success ? '' : 'automation',
+                        runUrl: workflowResult.runUrl
+                    };
                 } else {
                     throw new Error(result.message || 'Backend trigger failed');
                 }
                 
             } catch (error) {
                 console.error('Backend trigger failed:', error);
+                updateStatus('Failed to start automation', 'failed');
                 
                 return {
                     success: false,
@@ -405,7 +534,7 @@
             }
         }
 
-        // Enhanced processLoans function with detailed error tracking
+        // Enhanced processLoans function with real status tracking
         async function processLoans() {
             if (processing) return;
             
@@ -430,7 +559,7 @@
                 try {
                     const result = await triggerGitHubAction(loans[i], i);
                     
-                    // Enhanced result tracking with detailed error information
+                    // Enhanced result tracking with real status information
                     const resultEntry = {
                         loanIndex: i + 1,
                         status: result.success ? 'success' : 'failed',
@@ -439,6 +568,7 @@
                         errorType: result.errorType || '',
                         data: loans[i],
                         timestamp: new Date().toISOString(),
+                        runUrl: result.runUrl || '',
                         // Include the filter values that were attempted
                         attemptedFilters: {
                             interestRate: loans[i]['Interest Rate'] || 'Not specified',
@@ -479,6 +609,7 @@
             // Hide progress, show download
             progressSection.classList.add('hidden');
             downloadBtn.classList.remove('hidden');
+            updateStatus('All loans processed!', 'success');
             processing = false;
         }
 
@@ -492,7 +623,7 @@
             totalCount.textContent = results.length;
         }
 
-        // Enhanced addResultToList function to show more detail
+        // Enhanced addResultToList function with GitHub Actions links
         function addResultToList(result) {
             const div = document.createElement('div');
             const statusColor = result.status === 'success' ? 'text-green-600' : 'text-red-600';
@@ -503,6 +634,9 @@
             const filtersText = result.attemptedFilters ? 
                 ` | Rate: ${result.attemptedFilters.interestRate} | Investor: ${result.attemptedFilters.investor} | Type: ${result.attemptedFilters.amortizingType}` : '';
             
+            const githubLink = result.runUrl ? 
+                `<a href="${result.runUrl}" target="_blank" class="text-blue-500 hover:text-blue-700 text-xs">View Logs</a>` : '';
+            
             div.className = 'flex justify-between items-start p-3 bg-gray-50 rounded border-l-4 border-l-gray-300 mb-2';
             div.innerHTML = `
                 <div class="flex-1">
@@ -510,6 +644,7 @@
                         <span class="font-medium">Loan ${result.loanIndex}</span>
                         <span class="${statusColor} ml-2">${statusIcon} ${result.status.toUpperCase()}</span>
                         ${result.errorType ? `<span class="ml-2 px-2 py-1 text-xs bg-red-100 text-red-800 rounded">${result.errorType}</span>` : ''}
+                        ${githubLink ? `<span class="ml-2">${githubLink}</span>` : ''}
                     </div>
                     <div class="text-sm text-gray-600 mb-1">${result.message}</div>
                     ${result.details ? `<div class="text-xs text-gray-500 mb-1">Details: ${result.details}</div>` : ''}
@@ -537,16 +672,18 @@
             return Object.keys(counts).reduce((a, b) => counts[a] > counts[b] ? a : b);
         }
 
-        // Enhanced downloadResults function with detailed error information
+        // Enhanced downloadResults function with accurate status information
         function downloadResults() {
             const resultsData = results.map(result => ({
                 'Loan #': result.loanIndex,
                 'Status': result.status.toUpperCase(),
+                'Actually Locked': result.status === 'success' ? 'YES' : 'NO',
                 'Success': result.status === 'success' ? 'YES' : 'NO',
                 'Message': result.message,
                 'Error Details': result.details || '',
                 'Error Type': result.errorType || '',
                 'Processing Time': result.timestamp,
+                'GitHub Actions URL': result.runUrl || '',
                 
                 // Filter information
                 'Attempted Interest Rate': result.attemptedFilters?.interestRate || '',
@@ -558,19 +695,26 @@
                 
                 // Summary for quick scanning
                 'Quick Summary': result.status === 'success' ? 
-                    'SUCCESS - Loan locked' : 
-                    `FAILED - ${result.message.substring(0, 50)}${result.message.length > 50 ? '...' : ''}`
+                    'SUCCESS - Loan actually locked in LoanNex' : 
+                    `FAILED - ${result.message.substring(0, 50)}${result.message.length > 50 ? '...' : ''}`,
+                
+                // Verification note
+                'Verification': result.status === 'success' ? 
+                    'Verified via GitHub Actions workflow completion' : 
+                    'Failed automation - loan NOT locked'
             }));
 
             // Add a summary sheet with overall statistics
             const summaryData = [{
                 'Total Loans Processed': results.length,
-                'Successful Locks': results.filter(r => r.status === 'success').length,
+                'Actually Successful Locks': results.filter(r => r.status === 'success').length,
                 'Failed Locks': results.filter(r => r.status === 'failed' || r.status === 'error').length,
-                'Success Rate': `${Math.round((results.filter(r => r.status === 'success').length / results.length) * 100)}%`,
+                'Actual Success Rate': `${Math.round((results.filter(r => r.status === 'success').length / results.length) * 100)}%`,
                 'Most Common Error Type': getMostCommonErrorType(),
                 'Processing Completed': new Date().toLocaleString(),
-                'Username': credentials.username || 'Unknown'
+                'Username': credentials.username || 'Unknown',
+                'Verification Method': 'Real-time GitHub Actions workflow monitoring',
+                'Data Accuracy': 'Verified - reflects actual LoanNex lock status'
             }];
 
             // Create workbook with multiple sheets
@@ -593,7 +737,8 @@
                 'Interest Rate': result.attemptedFilters?.interestRate,
                 'Investor': result.attemptedFilters?.investor,
                 'Amortizing Type': result.attemptedFilters?.amortizingType,
-                'Borrower Name': `${result.data['First Name'] || ''} ${result.data['Last Name'] || ''}`.trim()
+                'Borrower Name': `${result.data['First Name'] || ''} ${result.data['Last Name'] || ''}`.trim(),
+                'GitHub Actions Log': result.runUrl || 'Not available'
             }));
             
             if (errorsData.length > 0) {
@@ -603,14 +748,14 @@
             
             // Download with timestamp
             const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
-            XLSX.writeFile(wb, `loan_processing_results_${timestamp}.xlsx`);
+            XLSX.writeFile(wb, `verified_loan_results_${timestamp}.xlsx`);
         }
 
         // Event listeners
         processBtn.addEventListener('click', processLoans);
         downloadBtn.addEventListener('click', downloadResults);
 
-        console.log('LoanNex Automation Portal loaded successfully!');
+        console.log('Enhanced LoanNex Automation Portal loaded successfully!');
     </script>
 </body>
 </html>
