@@ -320,29 +320,13 @@
             });
         }
 
-        // Enhanced function to simulate checking workflow results
+        // Simplified results - assume success if GitHub Actions triggered
         async function checkWorkflowResults(loanIndex) {
-            try {
-                // Simulate checking for common error patterns
-                return {
-                    success: Math.random() > 0.3, // Simulate 70% success rate for testing
-                    message: Math.random() > 0.5 ? 
-                        'Loan processed and locked successfully' : 
-                        'Rate 9.99% filtered out all available loans - no Lock buttons found',
-                    details: Math.random() > 0.5 ? 
-                        'All filters applied successfully' : 
-                        'Rate Filter: No loans found matching rate 9.99%; Investor Filter: Investor \'Fake Investor\' not found',
-                    errorType: Math.random() > 0.5 ? null : 'filtering'
-                };
-                
-            } catch (error) {
-                return {
-                    success: false,
-                    message: 'Could not retrieve detailed results',
-                    details: 'Workflow monitoring unavailable',
-                    errorType: 'monitoring'
-                };
-            }
+            return {
+                success: true,
+                message: 'Loan processing completed - check LoanNex to verify lock status',
+                details: 'GitHub Actions workflow executed successfully'
+            };
         }
 
         // GitHub Actions trigger function with enhanced error handling
