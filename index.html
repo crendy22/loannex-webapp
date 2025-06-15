@@ -345,7 +345,7 @@
             updateStatus(`Processing loan ${loanIndex + 1}...`, 'running');
             
             try {
-                const BACKEND_URL = 'const BACKEND_URL = 'https://loannex-backend.vercel.app/api/trigger-loan';';
+                const BACKEND_URL = 'https://loannex-backend.vercel.app/api/trigger-loan';
                 console.log('Calling enhanced backend:', BACKEND_URL);
                 
                 const response = await fetch(BACKEND_URL, {
