@@ -554,28 +554,30 @@
                 ...result.data,
                 
                 // Summary for quick scanning
-                'Quick Summary': result.status === 'success' ? 
-                    'SUCCESS - Loan actually locked in LoanNex' : 
-                    `FAILED - ${result.message.substring(0, 50)}${result.message.length > 50 ? '...' : ''}`,
-                
-                // Verification note
-                'Verification': result.status === 'success' ? 
-                    'Verified via backend workflow monitoring' : 
-                    'Failed automation - loan NOT locked'
+                // Summary for quick scanning
+'Quick Summary': result.status === 'success' ? 
+    'AUTOMATION TRIGGERED - Check LoanNex to verify lock status' : 
+    `FAILED - ${result.message.substring(0, 50)}...`,
+
+// Verification note
+'Verification': result.status === 'success' ? 
+    'Automation triggered successfully - manual verification required' : 
+    'Failed automation - loan NOT locked'
             }));
 
             // Add a summary sheet with overall statistics
             const summaryData = [{
-                'Total Loans Processed': results.length,
-                'Actually Successful Locks': results.filter(r => r.status === 'success').length,
-                'Failed Locks': results.filter(r => r.status === 'failed' || r.status === 'error').length,
-                'Actual Success Rate': `${Math.round((results.filter(r => r.status === 'success').length / results.length) * 100)}%`,
-                'Most Common Error Type': getMostCommonErrorType(),
-                'Processing Completed': new Date().toLocaleString(),
-                'Username': credentials.username || 'Unknown',
-                'Verification Method': 'Backend workflow monitoring',
-                'Data Accuracy': 'Verified - reflects actual LoanNex lock status'
-            }];
+    'Total Loans Processed': results.length,
+    'Automation Triggers Successful': results.filter(r => r.status === 'success').length,
+    'Automation Triggers Failed': results.filter(r => r.status === 'failed' || r.status === 'error').length,
+    'Automation Success Rate': `${Math.round((results.filter(r => r.status === 'success').length / results.length) * 100)}%`,
+    'Most Common Error Type': getMostCommonErrorType(),
+    'Processing Completed': new Date().toLocaleString(),
+    'Username': credentials.username || 'Unknown',
+    'Verification Method': 'Automation trigger monitoring only',
+    'Data Accuracy': 'Shows automation status - verify actual locks manually in LoanNex',
+    'Note': 'Check LoanNex directly to confirm which loans actually locked'
+}];
 
             // Create workbook with multiple sheets
             const wb = XLSX.utils.book_new();
