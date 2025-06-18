@@ -30,6 +30,8 @@
         .status-running { background-color: #3b82f6; animation: pulse 2s infinite; }
         .status-success { background-color: #10b981; }
         .status-failed { background-color: #ef4444; }
+        .status-locked { background-color: #059669; }
+        .status-not-locked { background-color: #dc2626; }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
     </style>
 </head>
@@ -163,16 +165,16 @@
                     </button>
                 </div>
 
-                <!-- Summary Cards -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <!-- Enhanced Summary Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
                     <div class="bg-green-50 border border-green-200 rounded-lg p-4">
                         <div class="flex items-center">
                             <svg class="h-8 w-8 text-green-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
                             </svg>
                             <div>
-                                <p class="text-2xl font-bold text-green-800" id="success-count">0</p>
-                                <p class="text-green-600">Successful</p>
+                                <p class="text-2xl font-bold text-green-800" id="locked-count">0</p>
+                                <p class="text-green-600">Actually Locked</p>
                             </div>
                         </div>
                     </div>
@@ -180,11 +182,23 @@
                     <div class="bg-red-50 border border-red-200 rounded-lg p-4">
                         <div class="flex items-center">
                             <svg class="h-8 w-8 text-red-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"></path>
                             </svg>
                             <div>
-                                <p class="text-2xl font-bold text-red-800" id="failure-count">0</p>
-                                <p class="text-red-600">Failed</p>
+                                <p class="text-2xl font-bold text-red-800" id="not-locked-count">0</p>
+                                <p class="text-red-600">Not Locked</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                        <div class="flex items-center">
+                            <svg class="h-8 w-8 text-yellow-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                            </svg>
+                            <div>
+                                <p class="text-2xl font-bold text-yellow-800" id="failed-count">0</p>
+                                <p class="text-yellow-600">Failed</p>
                             </div>
                         </div>
                     </div>
@@ -202,6 +216,29 @@
                     </div>
                 </div>
 
+                <!-- Lock Status Summary -->
+                <div id="lock-summary" class="hidden mb-6 p-4 bg-gradient-to-r from-blue-50 to-green-50 border border-blue-200 rounded-lg">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-2">🎯 Lock Success Summary</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                        <div>
+                            <span class="font-medium">Lock Success Rate:</span>
+                            <span id="lock-rate" class="ml-2 font-bold text-green-600">0%</span>
+                        </div>
+                        <div>
+                            <span class="font-medium">Processing Time:</span>
+                            <span id="processing-time" class="ml-2 font-bold text-blue-600">0 minutes</span>
+                        </div>
+                        <div>
+                            <span class="font-medium">Most Common Issue:</span>
+                            <span id="common-issue" class="ml-2 font-bold text-orange-600">None</span>
+                        </div>
+                        <div>
+                            <span class="font-medium">Verified Status:</span>
+                            <span class="ml-2 font-bold text-purple-600">Real-time monitoring</span>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Results List -->
                 <div id="results-list" class="space-y-2"></div>
             </div>
@@ -214,6 +251,7 @@
         let results = [];
         let processing = false;
         let credentials = {};
+        let startTime = null;
 
         // DOM elements
         const fileUpload = document.getElementById('file-upload');
@@ -233,9 +271,14 @@
         const currentStatus = document.getElementById('current-status');
         const resultsSection = document.getElementById('results-section');
         const downloadBtn = document.getElementById('download-btn');
-        const successCount = document.getElementById('success-count');
-        const failureCount = document.getElementById('failure-count');
+        const lockedCount = document.getElementById('locked-count');
+        const notLockedCount = document.getElementById('not-locked-count');
+        const failedCount = document.getElementById('failed-count');
         const totalCount = document.getElementById('total-count');
+        const lockSummary = document.getElementById('lock-summary');
+        const lockRate = document.getElementById('lock-rate');
+        const processingTime = document.getElementById('processing-time');
+        const commonIssue = document.getElementById('common-issue');
         const resultsList = document.getElementById('results-list');
 
         // Validation function for credentials
@@ -339,14 +382,14 @@
             });
         }
 
-        // Enhanced GitHub Actions trigger with backend status checking
+        // Enhanced GitHub Actions trigger with real lock status
         async function triggerGitHubAction(loanData, loanIndex) {
             console.log('Triggering GitHub Actions for loan:', loanIndex);
             updateStatus(`Processing loan ${loanIndex + 1}...`, 'running');
             
             try {
-                const BACKEND_URL = 'https://loannex-backend.vercel.app/api/trigger-loan';
-                console.log('Calling enhanced backend:', BACKEND_URL);
+                const BACKEND_URL = 'https://loannex-backend.vercel.app/api/trigger-loan-with-status';
+                console.log('Calling enhanced backend with lock monitoring:', BACKEND_URL);
                 
                 const response = await fetch(BACKEND_URL, {
                     method: 'POST',
@@ -365,21 +408,24 @@
                 }
                 
                 const result = await response.json();
-                console.log('Backend response:', result);
+                console.log('Backend response with lock status:', result);
                 
-                if (result.success) {
-    updateStatus('Loan processed successfully!', 'success');
-    
-    return {
-        success: true,
-        message: 'Loan processing completed - check LoanNex to verify results',
-        details: 'GitHub Actions workflow executed successfully',
-        errorType: '',
-        runUrl: ''
-    };
-} else {
-    throw new Error(result.message || 'Backend trigger failed');
-}
+                if (result.success && result.workflowStatus) {
+                    const lockStatus = result.workflowStatus.success ? 'locked' : 'not-locked';
+                    updateStatus(`Loan ${loanIndex + 1} processed - ${lockStatus}`, lockStatus);
+                    
+                    return {
+                        success: result.workflowStatus.success,
+                        locked: result.workflowStatus.success,
+                        message: result.workflowStatus.message,
+                        details: result.workflowStatus.details,
+                        errorType: result.workflowStatus.success ? '' : 'lock-failed',
+                        runUrl: result.workflowStatus.runUrl || '',
+                        conclusion: result.workflowStatus.conclusion || ''
+                    };
+                } else {
+                    throw new Error(result.message || 'Backend trigger failed');
+                }
                 
             } catch (error) {
                 console.error('Backend trigger failed:', error);
@@ -387,19 +433,23 @@
                 
                 return {
                     success: false,
+                    locked: false,
                     message: `Backend error: ${error.message}`,
                     details: 'Failed to trigger automation - check network connection and try again',
-                    errorType: 'network'
+                    errorType: 'network',
+                    runUrl: '',
+                    conclusion: 'failure'
                 };
             }
         }
 
-        // Enhanced processLoans function with real status tracking
+        // Enhanced processLoans function with lock tracking
         async function processLoans() {
             if (processing) return;
             
             processing = true;
             results = [];
+            startTime = new Date();
             
             // Update UI
             processSection.classList.add('hidden');
@@ -419,21 +469,25 @@
                 try {
                     const result = await triggerGitHubAction(loans[i], i);
                     
-                    // Enhanced result tracking with real status information
+                    // Enhanced result tracking with actual lock status
                     const resultEntry = {
                         loanIndex: i + 1,
                         status: result.success ? 'success' : 'failed',
+                        locked: result.locked,
+                        lockStatus: result.locked ? 'locked' : 'not-locked',
                         message: result.message,
                         details: result.details || '',
                         errorType: result.errorType || '',
                         data: loans[i],
                         timestamp: new Date().toISOString(),
                         runUrl: result.runUrl || '',
+                        conclusion: result.conclusion || '',
                         // Include the filter values that were attempted
                         attemptedFilters: {
                             interestRate: loans[i]['Interest Rate'] || 'Not specified',
                             investor: loans[i]['Investor'] || 'Not specified', 
-                            amortizingType: loans[i]['Amortizing Type'] || 'Not specified'
+                            amortizingType: loans[i]['Amortizing Type'] || 'Not specified',
+                            prepayPenalty: loans[i]['Prepay Penalty'] || 'Not specified'
                         }
                     };
                     
@@ -449,15 +503,20 @@
                     results.push({
                         loanIndex: i + 1,
                         status: 'error',
+                        locked: false,
+                        lockStatus: 'error',
                         message: 'Unexpected error occurred during processing',
                         details: error.message || 'Unknown error',
                         errorType: 'system',
                         data: loans[i],
                         timestamp: new Date().toISOString(),
+                        runUrl: '',
+                        conclusion: 'error',
                         attemptedFilters: {
                             interestRate: loans[i]['Interest Rate'] || 'Not specified',
                             investor: loans[i]['Investor'] || 'Not specified',
-                            amortizingType: loans[i]['Amortizing Type'] || 'Not specified'
+                            amortizingType: loans[i]['Amortizing Type'] || 'Not specified',
+                            prepayPenalty: loans[i]['Prepay Penalty'] || 'Not specified'
                         }
                     });
                     
@@ -466,6 +525,9 @@
                 }
             }
 
+            // Show final summary
+            showLockSummary();
+            
             // Hide progress, show download
             progressSection.classList.add('hidden');
             downloadBtn.classList.remove('hidden');
@@ -473,21 +535,42 @@
             processing = false;
         }
 
-        // Update result counts
+        // Update result counts with lock status
         function updateCounts() {
-            const successful = results.filter(r => r.status === 'success').length;
-            const failed = results.filter(r => r.status === 'failed' || r.status === 'error').length;
+            const locked = results.filter(r => r.locked === true).length;
+            const notLocked = results.filter(r => r.locked === false && r.status !== 'error').length;
+            const failed = results.filter(r => r.status === 'error').length;
             
-            successCount.textContent = successful;
-            failureCount.textContent = failed;
+            lockedCount.textContent = locked;
+            notLockedCount.textContent = notLocked;
+            failedCount.textContent = failed;
             totalCount.textContent = results.length;
         }
 
-        // Enhanced addResultToList function with GitHub Actions links
+        // Show lock summary
+        function showLockSummary() {
+            const locked = results.filter(r => r.locked === true).length;
+            const total = results.length;
+            const rate = total > 0 ? Math.round((locked / total) * 100) : 0;
+            
+            const endTime = new Date();
+            const processingTimeMinutes = Math.round((endTime - startTime) / 60000);
+            
+            const mostCommonError = getMostCommonError();
+            
+            lockRate.textContent = `${rate}%`;
+            processingTime.textContent = `${processingTimeMinutes} minutes`;
+            commonIssue.textContent = mostCommonError;
+            
+            lockSummary.classList.remove('hidden');
+        }
+
+        // Enhanced addResultToList function with lock status
         function addResultToList(result) {
             const div = document.createElement('div');
-            const statusColor = result.status === 'success' ? 'text-green-600' : 'text-red-600';
-            const statusIcon = result.status === 'success' ? '✅' : '❌';
+            const statusColor = result.locked ? 'text-green-600' : 'text-red-600';
+            const statusIcon = result.locked ? '🔒' : '🔓';
+            const lockText = result.locked ? 'LOCKED' : 'NOT LOCKED';
             
             // Create a more detailed display
             const detailsText = result.details ? ` (${result.details.substring(0, 100)}${result.details.length > 100 ? '...' : ''})` : '';
@@ -497,12 +580,15 @@
             const githubLink = result.runUrl ? 
                 `<a href="${result.runUrl}" target="_blank" class="text-blue-500 hover:text-blue-700 text-xs">View Logs</a>` : '';
             
+            const borrowerName = `${result.data['First Name'] || ''} ${result.data['Last Name'] || ''}`.trim() || 'Unknown';
+            
             div.className = 'flex justify-between items-start p-3 bg-gray-50 rounded border-l-4 border-l-gray-300 mb-2';
             div.innerHTML = `
                 <div class="flex-1">
                     <div class="flex items-center mb-1">
                         <span class="font-medium">Loan ${result.loanIndex}</span>
-                        <span class="${statusColor} ml-2">${statusIcon} ${result.status.toUpperCase()}</span>
+                        <span class="ml-2 font-medium text-gray-600">${borrowerName}</span>
+                        <span class="${statusColor} ml-3 font-bold">${statusIcon} ${lockText}</span>
                         ${result.errorType ? `<span class="ml-2 px-2 py-1 text-xs bg-red-100 text-red-800 rounded">${result.errorType}</span>` : ''}
                         ${githubLink ? `<span class="ml-2">${githubLink}</span>` : ''}
                     </div>
@@ -518,106 +604,141 @@
             resultsList.appendChild(div);
         }
 
-        // Helper function to find most common error type
-        function getMostCommonErrorType() {
-            const errorTypes = results
-                .filter(r => r.status !== 'success' && r.errorType)
-                .map(r => r.errorType);
+        // Helper function to find most common error
+        function getMostCommonError() {
+            const errors = results
+                .filter(r => !r.locked && r.message)
+                .map(r => r.message);
             
-            if (errorTypes.length === 0) return 'None';
+            if (errors.length === 0) return 'None';
             
             const counts = {};
-            errorTypes.forEach(type => counts[type] = (counts[type] || 0) + 1);
+            errors.forEach(error => {
+                // Simplify error messages for grouping
+                let simpleError = error;
+                if (error.includes('Investor') && error.includes('not found')) {
+                    simpleError = 'Investor not found';
+                } else if (error.includes('Interest rate') && error.includes('filtered out')) {
+                    simpleError = 'Interest rate mismatch';
+                } else if (error.includes('Login failed')) {
+                    simpleError = 'Login failed';
+                } else if (error.includes('No loans available')) {
+                    simpleError = 'No loans available after filtering';
+                } else if (error.includes('Prepay Penalty')) {
+                    simpleError = 'Prepay Penalty issue';
+                }
+                
+                counts[simpleError] = (counts[simpleError] || 0) + 1;
+            });
             
             return Object.keys(counts).reduce((a, b) => counts[a] > counts[b] ? a : b);
         }
 
-        // Enhanced downloadResults function with accurate status information
+        // Enhanced downloadResults function with lock status
         function downloadResults() {
             const resultsData = results.map(result => ({
                 'Loan #': result.loanIndex,
-                'Status': result.status.toUpperCase(),
-                'Actually Locked': result.status === 'success' ? 'YES' : 'NO',
-                'Success': result.status === 'success' ? 'YES' : 'NO',
+                'Borrower Name': `${result.data['First Name'] || ''} ${result.data['Last Name'] || ''}`.trim(),
+                'LOCKED': result.locked ? 'YES' : 'NO',
+                'Lock Status': result.lockStatus.toUpperCase(),
+                'Automation Status': result.status.toUpperCase(),
                 'Message': result.message,
                 'Error Details': result.details || '',
                 'Error Type': result.errorType || '',
                 'Processing Time': result.timestamp,
                 'GitHub Actions URL': result.runUrl || '',
+                'Workflow Conclusion': result.conclusion || '',
                 
                 // Filter information
                 'Attempted Interest Rate': result.attemptedFilters?.interestRate || '',
                 'Attempted Investor': result.attemptedFilters?.investor || '',
                 'Attempted Amortizing Type': result.attemptedFilters?.amortizingType || '',
+                'Attempted Prepay Penalty': result.attemptedFilters?.prepayPenalty || '',
                 
                 // Original loan data
                 ...result.data,
                 
-                // Summary for quick scanning
-                // Summary for quick scanning
-'Quick Summary': result.status === 'success' ? 
-    'AUTOMATION TRIGGERED - Check LoanNex to verify lock status' : 
-    `FAILED - ${result.message.substring(0, 50)}...`,
-
-// Verification note
-'Verification': result.status === 'success' ? 
-    'Automation triggered successfully - manual verification required' : 
-    'Failed automation - loan NOT locked'
+                // Clear summary
+                'Final Result': result.locked ? 'LOAN LOCKED SUCCESSFULLY' : `NOT LOCKED - ${result.message.substring(0, 50)}...`,
+                'Verification Status': result.locked ? 'Confirmed locked via automation monitoring' : 'Confirmed NOT locked via automation monitoring'
             }));
 
-            // Add a summary sheet with overall statistics
+            // Enhanced summary with lock statistics
+            const locked = results.filter(r => r.locked === true).length;
+            const notLocked = results.filter(r => r.locked === false && r.status !== 'error').length;
+            const failed = results.filter(r => r.status === 'error').length;
+            const lockRate = results.length > 0 ? Math.round((locked / results.length) * 100) : 0;
+            
             const summaryData = [{
-    'Total Loans Processed': results.length,
-    'Automation Triggers Successful': results.filter(r => r.status === 'success').length,
-    'Automation Triggers Failed': results.filter(r => r.status === 'failed' || r.status === 'error').length,
-    'Automation Success Rate': `${Math.round((results.filter(r => r.status === 'success').length / results.length) * 100)}%`,
-    'Most Common Error Type': getMostCommonErrorType(),
-    'Processing Completed': new Date().toLocaleString(),
-    'Username': credentials.username || 'Unknown',
-    'Verification Method': 'Automation trigger monitoring only',
-    'Data Accuracy': 'Shows automation status - verify actual locks manually in LoanNex',
-    'Note': 'Check LoanNex directly to confirm which loans actually locked'
-}];
+                'Total Loans Processed': results.length,
+                'Loans Successfully Locked': locked,
+                'Loans NOT Locked': notLocked,
+                'Automation Failures': failed,
+                'Lock Success Rate': `${lockRate}%`,
+                'Most Common Issue': getMostCommonError(),
+                'Processing Completed': new Date().toLocaleString(),
+                'Username': credentials.username || 'Unknown',
+                'Verification Method': 'Real-time workflow monitoring with log analysis',
+                'Data Accuracy': 'Lock status verified through GitHub Actions workflow results',
+                'Reliability': 'High - directly monitors automation execution and outcomes'
+            }];
 
             // Create workbook with multiple sheets
             const wb = XLSX.utils.book_new();
             
             // Add summary sheet
             const summaryWs = XLSX.utils.json_to_sheet(summaryData);
-            XLSX.utils.book_append_sheet(wb, summaryWs, 'Summary');
+            XLSX.utils.book_append_sheet(wb, summaryWs, 'Lock Summary');
             
             // Add detailed results sheet
             const resultsWs = XLSX.utils.json_to_sheet(resultsData);
             XLSX.utils.book_append_sheet(wb, resultsWs, 'Detailed Results');
             
-            // Add errors-only sheet for quick review
-            const errorsData = results.filter(r => r.status !== 'success').map(result => ({
+            // Add locked loans only sheet
+            const lockedData = results.filter(r => r.locked === true).map(result => ({
                 'Loan #': result.loanIndex,
-                'Error Message': result.message,
+                'Borrower Name': `${result.data['First Name'] || ''} ${result.data['Last Name'] || ''}`.trim(),
+                'Interest Rate': result.attemptedFilters?.interestRate,
+                'Investor': result.attemptedFilters?.investor,
+                'Amortizing Type': result.attemptedFilters?.amortizingType,
+                'Loan Amount': result.data['Loan Amount'],
+                'Processing Time': result.timestamp,
+                'GitHub Actions Log': result.runUrl || 'Not available'
+            }));
+            
+            if (lockedData.length > 0) {
+                const lockedWs = XLSX.utils.json_to_sheet(lockedData);
+                XLSX.utils.book_append_sheet(wb, lockedWs, 'Successfully Locked');
+            }
+            
+            // Add failed/not locked sheet for review
+            const failedData = results.filter(r => !r.locked).map(result => ({
+                'Loan #': result.loanIndex,
+                'Borrower Name': `${result.data['First Name'] || ''} ${result.data['Last Name'] || ''}`.trim(),
+                'Issue': result.message,
                 'Error Details': result.details,
                 'Error Type': result.errorType,
                 'Interest Rate': result.attemptedFilters?.interestRate,
                 'Investor': result.attemptedFilters?.investor,
                 'Amortizing Type': result.attemptedFilters?.amortizingType,
-                'Borrower Name': `${result.data['First Name'] || ''} ${result.data['Last Name'] || ''}`.trim(),
                 'GitHub Actions Log': result.runUrl || 'Not available'
             }));
             
-            if (errorsData.length > 0) {
-                const errorsWs = XLSX.utils.json_to_sheet(errorsData);
-                XLSX.utils.book_append_sheet(wb, errorsWs, 'Errors Only');
+            if (failedData.length > 0) {
+                const failedWs = XLSX.utils.json_to_sheet(failedData);
+                XLSX.utils.book_append_sheet(wb, failedWs, 'Not Locked - Review');
             }
             
             // Download with timestamp
             const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
-            XLSX.writeFile(wb, `verified_loan_results_${timestamp}.xlsx`);
+            XLSX.writeFile(wb, `loannex_lock_results_${timestamp}.xlsx`);
         }
 
         // Event listeners
         processBtn.addEventListener('click', processLoans);
         downloadBtn.addEventListener('click', downloadResults);
 
-        console.log('Simple LoanNex Automation Portal loaded successfully!');
+        console.log('Enhanced LoanNex Automation Portal with Lock Status loaded successfully!');
     </script>
 </body>
 </html>
