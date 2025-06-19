@@ -14,6 +14,15 @@
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
         .fade-in { animation: fadeIn 0.5s ease-in; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        /* News ticker animation */
+        .animate-scroll {
+            animation: scroll 60s linear infinite;
+        }
+        @keyframes scroll {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
     </style>
 </head>
 <body class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
@@ -21,6 +30,24 @@
     <div class="flex">
         <!-- Main Content Area (Left Side) -->
         <div class="flex-1 p-6">
+            <!-- Non-QM News Ticker -->
+            <div class="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-3 rounded-lg mb-6 overflow-hidden">
+                <div class="flex items-center">
+                    <div class="bg-white text-blue-700 px-3 py-1 rounded-full text-sm font-bold mr-4 flex-shrink-0">
+                        📈 NON-QM NEWS
+                    </div>
+                    <div class="overflow-hidden">
+                        <div id="news-ticker" class="whitespace-nowrap animate-scroll text-sm">
+                            <span class="inline-block mr-12">🚀 2025 predicted to be strongest year for Non-QM market as insurance companies increase investments</span>
+                            <span class="inline-block mr-12">💰 A&D Mortgage closes $427M Non-QM securitization, second deal this year</span>
+                            <span class="inline-block mr-12">📊 Non-QM market doubled since 2020, now 5% of total mortgage market</span>
+                            <span class="inline-block mr-12">⭐ Average Non-QM borrower credit score: 776 (higher than government loans at 699)</span>
+                            <span class="inline-block mr-12">🏠 Self-employed and gig workers driving Non-QM growth in 2025</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div id="app" class="max-w-3xl mx-auto">
                 
                 <!-- Header -->
@@ -70,7 +97,15 @@
                                 <input id="file-upload" type="file" class="hidden" accept=".xlsx,.xls">
                             </label>
                         </div>
-                        <p class="text-sm text-gray-500">Upload your loan data in Excel format</p>
+                        <p class="text-sm text-gray-500 mb-3">Upload your loan data in Excel format</p>
+                        
+                        <!-- Template Download Button -->
+                        <div class="pt-3 border-t border-gray-200">
+                            <button id="download-template" class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors text-sm font-medium">
+                                📥 Download Excel Template
+                            </button>
+                            <p class="text-xs text-gray-500 mt-2">Get the required format with allowable values</p>
+                        </div>
                     </div>
 
                     <!-- File Status -->
@@ -282,6 +317,7 @@
         const fileName = document.getElementById('file-name');
         const loanCount = document.getElementById('loan-count');
         const processBtn = document.getElementById('process-btn');
+        const downloadTemplate = document.getElementById('download-template');
         const uploadSection = document.getElementById('upload-section');
         const processingSection = document.getElementById('processing-section');
         const resultsSection = document.getElementById('results-section');
@@ -298,6 +334,143 @@
         const processedUsername = document.getElementById('processed-username');
         const downloadBtn = document.getElementById('download-btn');
         const resetBtn = document.getElementById('reset-btn');
+
+        // Template download handler
+        downloadTemplate.addEventListener('click', function() {
+            console.log('📥 Generating LoanNex template Excel file...');
+            
+            // Template data with sample rows and all required columns
+            const templateData = [
+                {
+                    'Loan Type': 'First Lien',
+                    'Citizenship': 'US Citizen',
+                    'Income Documentation': 'Full Doc',
+                    'Loan Purpose': 'Purchase',
+                    'Occupancy': 'Primary',
+                    'Prepay Penalty': '3 Year',
+                    'Property Type': 'SFR',
+                    'Appraised Value': 500000,
+                    'Purchase Price': 500000,
+                    'Loan Amount': 400000,
+                    'LTV': 80,
+                    'Secondary Financing': 'None',
+                    'State': 'CA',
+                    'County': 'Los Angeles County',
+                    'Credit Score': 750,
+                    'DTI': 35,
+                    'Reserves': 12,
+                    'Mtg Lates': '0x30x24',
+                    'BK': 'None',
+                    'FC': 'None',
+                    'SS': 'None',
+                    'DIL': 'None',
+                    'Escrows': 'Yes',
+                    'Temp Buydown': 'None',
+                    'First Name': 'John',
+                    'Last Name': 'Smith',
+                    'Coborrower First Name': 'Jane',
+                    'Coborrower Last Name': 'Smith',
+                    'Address': '123 Main St',
+                    'City': 'Los Angeles',
+                    'Zip': '90210',
+                    'Amortizing Type': 'Fully Am',
+                    'Interest Rate': 7.5,
+                    'Investor': 'Prime Investor'
+                },
+                {
+                    'Loan Type': 'First Lien',
+                    'Citizenship': 'US Citizen',
+                    'Income Documentation': 'Bank Statement',
+                    'Loan Purpose': 'Refinance',
+                    'Occupancy': 'Investment',
+                    'Prepay Penalty': 'None',
+                    'Property Type': 'Condo',
+                    'Appraised Value': 750000,
+                    'Purchase Price': 750000,
+                    'Loan Amount': 600000,
+                    'LTV': 80,
+                    'Secondary Financing': 'None',
+                    'State': 'FL',
+                    'County': 'Miami-Dade County',
+                    'Credit Score': 700,
+                    'DTI': 45,
+                    'Reserves': 6,
+                    'Mtg Lates': '0x30x24',
+                    'BK': 'None',
+                    'FC': 'None',
+                    'SS': 'None',
+                    'DIL': 'None',
+                    'Escrows': 'No',
+                    'Temp Buydown': 'None',
+                    'First Name': 'Maria',
+                    'Last Name': 'Garcia',
+                    'Coborrower First Name': '',
+                    'Coborrower Last Name': '',
+                    'Address': '456 Ocean Ave',
+                    'City': 'Miami',
+                    'Zip': '33101',
+                    'Amortizing Type': 'Interest Only',
+                    'Interest Rate': 8.25,
+                    'Investor': 'Non-QM Investor'
+                }
+            ];
+
+            // Allowable values sheet
+            const allowableValuesData = [
+                { Field: 'Loan Type', 'Allowable Values': 'First Lien, Second Lien' },
+                { Field: 'Citizenship', 'Allowable Values': 'US Citizen, Permanent Resident, Foreign National' },
+                { Field: 'Income Documentation', 'Allowable Values': 'Full Doc, Bank Statement, Asset Depletion, DSCR, No Doc' },
+                { Field: 'Loan Purpose', 'Allowable Values': 'Purchase, Refinance, Cash Out Refinance' },
+                { Field: 'Occupancy', 'Allowable Values': 'Primary, Secondary, Investment' },
+                { Field: 'Prepay Penalty', 'Allowable Values': 'None, 1 Year, 2 Year, 3 Year, 5 Year' },
+                { Field: 'Property Type', 'Allowable Values': 'SFR, Condo, Townhome, 2-4 Unit, Manufactured' },
+                { Field: 'Secondary Financing', 'Allowable Values': 'None, HELOC, Second Mortgage' },
+                { Field: 'Amortizing Type', 'Allowable Values': 'Fully Am, Interest Only, 15 Year Am, 25 Year Am, 40 Year Am' },
+                { Field: 'Mtg Lates', 'Allowable Values': '0x30x24, 1x30x24, 2x30x24, 0x30x12, 1x30x12' },
+                { Field: 'BK', 'Allowable Values': 'None, Ch7 >4 Years, Ch7 >2 Years, Ch13 >2 Years' },
+                { Field: 'FC', 'Allowable Values': 'None, >4 Years, >2 Years' },
+                { Field: 'SS', 'Allowable Values': 'None, >4 Years, >2 Years' },
+                { Field: 'DIL', 'Allowable Values': 'None, >4 Years, >2 Years' },
+                { Field: 'Escrows', 'Allowable Values': 'Yes, No' },
+                { Field: 'Temp Buydown', 'Allowable Values': 'None, 2-1 Buydown, 1-0 Buydown' },
+                { Field: 'Investor', 'Allowable Values': 'Prime Investor, Alt-A Investor, Non-QM Investor, DSCR Investor, Foreign National Investor' }
+            ];
+
+            // Instructions sheet
+            const instructionsData = [
+                { Step: 1, Instruction: 'Download this template and save it with a new name' },
+                { Step: 2, Instruction: 'Replace the sample data with your actual loan information' },
+                { Step: 3, Instruction: 'Ensure all values match the allowable values in the second sheet' },
+                { Step: 4, Instruction: 'Required fields: First Name, Last Name, Interest Rate, Investor, Credit Score, DTI' },
+                { Step: 5, Instruction: 'Upload the completed file to the LoanNex Automation Portal' },
+                { Step: 6, Instruction: 'Processing time: approximately 5-8 minutes per loan' },
+                { Step: 7, Instruction: 'Results will be available for download as a detailed Excel report' }
+            ];
+
+            // Create Excel workbook
+            const wb = XLSX.utils.book_new();
+            
+            // Add main template sheet
+            const templateWs = XLSX.utils.json_to_sheet(templateData);
+            XLSX.utils.book_append_sheet(wb, templateWs, 'Loan Template');
+            
+            // Add allowable values sheet
+            const valuesWs = XLSX.utils.json_to_sheet(allowableValuesData);
+            XLSX.utils.book_append_sheet(wb, valuesWs, 'Allowable Values');
+            
+            // Add instructions sheet
+            const instructionsWs = XLSX.utils.json_to_sheet(instructionsData);
+            XLSX.utils.book_append_sheet(wb, instructionsWs, 'Instructions');
+            
+            // Generate filename with timestamp
+            const timestamp = new Date().toISOString().slice(0, 10);
+            const filename = `LoanNex_Template_${timestamp}.xlsx`;
+            
+            // Download the file
+            XLSX.writeFile(wb, filename);
+            
+            console.log('✅ Template Excel file downloaded:', filename);
+        });
 
         // Validate credentials
         function validateCredentials() {
