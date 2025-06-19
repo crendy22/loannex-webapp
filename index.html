@@ -395,34 +395,57 @@
             console.log('✅ Results displayed with detailed data:', detailedResults);
         }
 
-        // Download results (ENHANCED with failure reasons and lock status)
+        // Download results (ENHANCED with failure reasons and lock status + DEBUG LOGGING)
         downloadBtn.addEventListener('click', function() {
             console.log('📥 Generating enhanced Excel download with failure reasons...');
             
+            // DEBUG: Log the detailed results to understand the data structure
+            console.log('🔍 DEBUG: detailedResults for Excel:', detailedResults);
+            console.log('🔍 DEBUG: loans array length:', loans.length);
+            
             // Create enhanced results data by matching loans with API results
             const enhancedResultsData = loans.map((loan, index) => {
-                // Find matching result from API
-                const apiResult = detailedResults.find(r => 
-                    r.loanIndex === (index + 1) || 
-                    r.loanIndex === index ||
-                    r.loanIndex === 'Unknown'
-                ) || {};
+                // Try multiple strategies to find matching result
+                let apiResult = null;
+                
+                // Strategy 1: Match by loan index (index + 1)
+                apiResult = detailedResults.find(r => r.loanIndex === (index + 1));
+                
+                // Strategy 2: Match by loan index (zero-based)
+                if (!apiResult) {
+                    apiResult = detailedResults.find(r => r.loanIndex === index);
+                }
+                
+                // Strategy 3: Match by array position if we have exactly the right number of results
+                if (!apiResult && detailedResults.length === loans.length) {
+                    apiResult = detailedResults[index];
+                }
+                
+                // Strategy 4: If we still don't have a match, try by workflow creation order
+                if (!apiResult && index < detailedResults.length) {
+                    apiResult = detailedResults[index];
+                }
+                
+                console.log(`🔍 DEBUG: Loan ${index + 1} matched with:`, apiResult);
                 
                 // Determine status and failure reason
                 let status, failureReason, lockStatus;
                 
-                if (apiResult.locked === true) {
+                if (apiResult && apiResult.locked === true) {
                     status = 'SUCCESS - LOAN LOCKED';
                     lockStatus = '🔒 LOCKED';
                     failureReason = '';
-                } else if (apiResult.locked === false) {
+                    console.log(`✅ Loan ${index + 1}: LOCKED`);
+                } else if (apiResult && apiResult.locked === false) {
                     status = 'FAILED - NOT LOCKED';
                     lockStatus = '🔓 NOT LOCKED';
                     failureReason = apiResult.errorMessage || 'Unknown error occurred';
+                    console.log(`❌ Loan ${index + 1}: NOT LOCKED - ${failureReason}`);
                 } else {
                     status = 'PROCESSING ERROR';
                     lockStatus = '❓ UNKNOWN';
-                    failureReason = 'Could not determine final status';
+                    failureReason = apiResult ? 'Could not determine final status' : 'No matching API result found';
+                    console.log(`⚠️ Loan ${index + 1}: UNKNOWN STATUS`);
                 }
                 
                 return {
@@ -432,7 +455,7 @@
                     'FINAL STATUS': status,
                     'Lock Status': lockStatus,
                     'Failure Reason': failureReason,
-                    'GitHub Actions URL': apiResult.githubUrl || '',
+                    'GitHub Actions URL': apiResult ? apiResult.githubUrl || '' : '',
                     
                     // Loan details
                     'Interest Rate': loan['Interest Rate'] || '',
@@ -451,9 +474,9 @@
                     // Processing metadata
                     'Processing Date': new Date().toLocaleString(),
                     'Username': credentials.username,
-                    'Workflow ID': apiResult.workflowId || '',
-                    'Completed At': apiResult.completedAt || '',
-                    'Analysis Method': apiResult.status || 'unknown',
+                    'Workflow ID': apiResult ? apiResult.workflowId || '' : '',
+                    'Completed At': apiResult ? apiResult.completedAt || '' : '',
+                    'Analysis Method': apiResult ? apiResult.status || 'unknown' : 'no_match',
                     
                     // All original loan data (for completeness)
                     ...loan
@@ -564,7 +587,7 @@
             console.log('🔄 Reset for new batch');
         });
 
-        console.log('✨ Complete LoanNex Automation Portal with Enhanced Excel Download loaded!');
+        console.log('✨ Complete LoanNex Automation Portal with Enhanced Excel Download and Debug Logging loaded!');
     </script>
 </body>
 </html>
