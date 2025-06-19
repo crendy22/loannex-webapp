@@ -14,160 +14,14 @@
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
         .fade-in { animation: fadeIn 0.5s ease-in; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        
-        /* Pipeline Sidebar Styles */
-        .pipeline-sidebar {
-            transition: transform 0.3s ease-in-out;
-            transform: translateX(100%);
-            z-index: 1000;
-        }
-        .pipeline-sidebar.open {
-            transform: translateX(0);
-        }
-        .pipeline-text {
-            font-family: 'Courier New', monospace;
-            font-size: 11px;
-            line-height: 1.3;
-            white-space: pre;
-            color: #1f2937;
-        }
-        .pipeline-toggle {
-            position: fixed;
-            right: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-            z-index: 1001;
-            transition: all 0.3s ease-in-out;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-            animation: buttonPulse 3s ease-in-out infinite;
-        }
-        .pipeline-toggle.sidebar-open {
-            right: 520px;
-        }
-        .pipeline-toggle:hover {
-            transform: translateY(-50%) scale(1.05);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
-        }
-        @keyframes buttonPulse {
-            0%, 100% { box-shadow: 0 10px 25px rgba(59, 130, 246, 0.4); }
-            50% { box-shadow: 0 15px 35px rgba(59, 130, 246, 0.6); }
-        }
-        .stage-highlight {
-            background: linear-gradient(90deg, #dbeafe 0%, #bfdbfe 100%);
-            border-left: 4px solid #3b82f6;
-        }
-        .main-content-shift {
-            margin-right: 500px;
-        }
     </style>
 </head>
 <body class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
     
-    <!-- Enhanced Pipeline Toggle Button -->
-    <button id="pipeline-toggle" class="pipeline-toggle bg-gradient-to-r from-blue-600 to-blue-700 text-white p-4 rounded-l-xl shadow-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-300 group">
-        <div class="flex items-center space-x-2">
-            <svg class="w-6 h-6 group-hover:rotate-12 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-            </svg>
-            <div class="text-sm font-medium">
-                <div>View</div>
-                <div>Pipeline</div>
-            </div>
-        </div>
-    </button>
-
-    <!-- Enhanced Pipeline Sidebar -->
-    <div id="pipeline-sidebar" class="pipeline-sidebar fixed right-0 top-0 h-full w-[500px] bg-white shadow-2xl border-l border-gray-200 overflow-y-auto">
-        <div class="p-6 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50">
-            <div class="flex justify-between items-center">
-                <div>
-                    <h3 class="text-xl font-bold text-gray-900">Data Processing Pipeline</h3>
-                    <p class="text-sm text-gray-600 mt-1">Real-time workflow visualization</p>
-                </div>
-                <button id="close-pipeline" class="text-gray-500 hover:text-gray-700 p-2 hover:bg-gray-100 rounded-lg transition-colors">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
-                </button>
-            </div>
-        </div>
-        
-        <div class="p-6">
-            <div class="pipeline-text">
-<div class="mb-6 p-4 rounded-lg bg-gradient-to-r from-blue-100 to-indigo-100 border-2 border-blue-200">
-<div class="font-bold text-center text-lg text-blue-900">LOANNEX DATA PROCESSING PIPELINE</div>
-</div>
-
-<div id="stage-1" class="mb-6 p-4 rounded-lg border-2 border-gray-200 hover:border-blue-300 transition-colors">
-<div class="font-bold text-blue-700 mb-3 text-sm">┌─ STAGE 1: DATA INGESTION ─────────────────────────────────┐</div>
-<div class="ml-1 text-xs">│                                                           │</div>
-<div class="ml-1 text-xs">│  📊 Excel Upload  →  🔍 Validation  →  ✅ Auth Check  →  📋 Preview      │</div>
-<div class="ml-1 text-xs">│     • XLSX Files      • Schema        • Credentials    • Table View       │</div>
-<div class="ml-1 text-xs">│     • Multi-loan      • Fields        • Permissions    • Row Count        │</div>
-<div class="ml-1 text-xs">│     • Structured      • Data Types    • Access         • Mapping          │</div>
-<div class="ml-1 text-xs">│                                                           │</div>
-<div class="font-bold text-blue-700 text-sm">└───────────────────────────────────────────────────────────┘</div>
-</div>
-
-<div class="text-center text-blue-600 text-2xl mb-6 font-bold">↓</div>
-
-<div id="stage-2" class="mb-6 p-4 rounded-lg border-2 border-gray-200 hover:border-green-300 transition-colors">
-<div class="font-bold text-green-700 mb-3 text-sm">┌─ STAGE 2: WORKFLOW EXECUTION ─────────────────────────────┐</div>
-<div class="ml-1 text-xs">│                                                           │</div>
-<div class="ml-1 text-xs">│  ⚡ API Trigger  →  🚀 GitHub  →  🖥️ Browser  →  🏦 LoanNex Login        │</div>
-<div class="ml-1 text-xs">│     • Batch Start     • VM Setup     • Chrome        • Secure Auth        │</div>
-<div class="ml-1 text-xs">│     • Queue Loans     • Python       • Selenium      • Session Mgmt       │</div>
-<div class="ml-1 text-xs">│     • Monitor         • Parallel     • Smart Select  • Error Handle       │</div>
-<div class="ml-1 text-xs">│                                                           │</div>
-<div class="font-bold text-green-700 text-sm">└───────────────────────────────────────────────────────────┘</div>
-</div>
-
-<div class="text-center text-blue-600 text-2xl mb-6 font-bold">↓</div>
-
-<div id="stage-3" class="mb-6 p-4 rounded-lg border-2 border-gray-200 hover:border-purple-300 transition-colors">
-<div class="font-bold text-purple-700 mb-3 text-sm">┌─ STAGE 3: INTELLIGENT PROCESSING ─────────────────────────┐</div>
-<div class="ml-1 text-xs">│                                                           │</div>
-<div class="ml-1 text-xs">│  📝 Fill Fields  →  💰 Get Price  →  🎯 Apply Filters  →  🔒 Lock        │</div>
-<div class="ml-1 text-xs">│     • 23+ Fields      • Rate Gen      • Interest Rate    • Borrower Form  │</div>
-<div class="ml-1 text-xs">│     • Auto-Type       • Options       • Investor Select  • Submit         │</div>
-<div class="ml-1 text-xs">│     • Validation      • Market Data   • Loan Type        • Confirm        │</div>
-<div class="ml-1 text-xs">│                                                           │</div>
-<div class="font-bold text-purple-700 text-sm">└───────────────────────────────────────────────────────────┘</div>
-</div>
-
-<div class="text-center text-blue-600 text-2xl mb-6 font-bold">↓</div>
-
-<div id="stage-4" class="mb-6 p-4 rounded-lg border-2 border-gray-200 hover:border-orange-300 transition-colors">
-<div class="font-bold text-orange-700 mb-3 text-sm">┌─ STAGE 4: RESULT ANALYSIS ────────────────────────────────┐</div>
-<div class="ml-1 text-xs">│                                                           │</div>
-<div class="ml-1 text-xs">│  📊 Log Parse  →  🔍 Status Check  →  📈 Live Updates  →  ✅ Results     │</div>
-<div class="ml-1 text-xs">│     • Success Parse   • Workflow       • 30s Polling     • Lock Confirm   │</div>
-<div class="ml-1 text-xs">│     • Error Extract   • Completion     • Real-time       • Failure Detail │</div>
-<div class="ml-1 text-xs">│     • Pattern Match   • Correlation    • Progress        • Evidence       │</div>
-<div class="ml-1 text-xs">│                                                           │</div>
-<div class="font-bold text-orange-700 text-sm">└───────────────────────────────────────────────────────────┘</div>
-</div>
-
-<div class="text-center text-blue-600 text-2xl mb-6 font-bold">↓</div>
-
-<div id="stage-5" class="mb-6 p-4 rounded-lg border-2 border-gray-200 hover:border-red-300 transition-colors">
-<div class="font-bold text-red-700 mb-3 text-sm">┌─ STAGE 5: REPORTING & EXPORT ─────────────────────────────┐</div>
-<div class="ml-1 text-xs">│                                                           │</div>
-<div class="ml-1 text-xs">│  📋 Compile Data  →  📊 Excel Gen  →  📈 Analysis  →  📥 Download        │</div>
-<div class="ml-1 text-xs">│     • Match Loans     • 3-Sheet        • Categories     • Timestamped     │</div>
-<div class="ml-1 text-xs">│     • Merge Status    • Executive      • Patterns       • Professional    │</div>
-<div class="ml-1 text-xs">│     • Add Metadata    • Detailed       • Trends         • Actionable      │</div>
-<div class="ml-1 text-xs">│                                                           │</div>
-<div class="font-bold text-red-700 text-sm">└───────────────────────────────────────────────────────────┘</div>
-</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Main Content Area -->
-    <div id="main-content" class="transition-all duration-300 ease-in-out">
-        <div id="app" class="p-6">
-            <div class="max-w-4xl mx-auto">
+    <div class="flex">
+        <!-- Main Content Area (Left Side) -->
+        <div class="flex-1 p-6">
+            <div id="app" class="max-w-3xl mx-auto">
                 
                 <!-- Header -->
                 <div class="text-center mb-8">
@@ -322,54 +176,23 @@
 
             </div>
         </div>
+
+        <!-- Pipeline Image (Right Side) -->
+        <div class="w-96 p-6 flex items-center justify-center">
+            <div class="bg-white rounded-xl shadow-lg p-4">
+                <img 
+                    src="https://i.imgur.com/pipeline-diagram.png" 
+                    alt="LoanNex Data Processing Pipeline" 
+                    class="w-full h-auto rounded-lg"
+                    style="max-width: 350px;"
+                >
+                <p class="text-center text-sm text-gray-600 mt-2">Data Processing Pipeline</p>
+            </div>
+        </div>
     </div>
 
     <script>
-        // Pipeline Sidebar Controls
-        const pipelineToggle = document.getElementById('pipeline-toggle');
-        const pipelineSidebar = document.getElementById('pipeline-sidebar');
-        const closePipeline = document.getElementById('close-pipeline');
-        const mainContent = document.getElementById('main-content');
-
-        function openPipeline() {
-            pipelineSidebar.classList.add('open');
-            pipelineToggle.classList.add('sidebar-open');
-            mainContent.classList.add('main-content-shift');
-        }
-
-        function closePipelineFunc() {
-            pipelineSidebar.classList.remove('open');
-            pipelineToggle.classList.remove('sidebar-open');
-            mainContent.classList.remove('main-content-shift');
-        }
-
-        pipelineToggle.addEventListener('click', () => {
-            if (pipelineSidebar.classList.contains('open')) {
-                closePipelineFunc();
-            } else {
-                openPipeline();
-            }
-        });
-
-        closePipeline.addEventListener('click', closePipelineFunc);
-
-        // Pipeline Stage Highlighting
-        function highlightStage(stageNum) {
-            // Reset all stages
-            for (let i = 1; i <= 5; i++) {
-                const stage = document.getElementById(`stage-${i}`);
-                if (stage) {
-                    stage.classList.remove('stage-highlight');
-                }
-            }
-            // Highlight current stage
-            const currentStage = document.getElementById(`stage-${stageNum}`);
-            if (currentStage) {
-                currentStage.classList.add('stage-highlight');
-            }
-        }
-
-        // Global variables (keeping existing functionality)
+        // Global variables
         let loans = [];
         let credentials = {};
         let batchStartTime = null;
@@ -377,7 +200,7 @@
         let checkInterval = null;
         let detailedResults = [];
 
-        // DOM elements (keeping existing)
+        // DOM elements
         const fileUpload = document.getElementById('file-upload');
         const fileStatus = document.getElementById('file-status');
         const fileName = document.getElementById('file-name');
@@ -424,8 +247,6 @@
                 return;
             }
 
-            highlightStage(1); // Highlight Data Ingestion stage
-
             const reader = new FileReader();
             reader.onload = function(e) {
                 try {
@@ -455,8 +276,6 @@
         // Process loans
         processBtn.addEventListener('click', async function() {
             console.log('🚀 Starting simple loan processing flow');
-            
-            highlightStage(2); // Highlight Workflow Execution stage
             
             processingStartTime = new Date();
             batchStartTime = new Date().toISOString();
@@ -489,7 +308,6 @@
                     updateProgress((i + 1) / loans.length * 20);
                 }
 
-                highlightStage(3); // Highlight Intelligent Processing stage
                 updateStatus('All automations started!', 'Now processing loans in LoanNex - this takes 5-8 minutes per loan');
                 
                 // Start auto-checking
@@ -510,7 +328,6 @@
                 checkCount++;
                 console.log(`🔍 Auto-check ${checkCount}/${maxChecks}`);
                 
-                highlightStage(4); // Highlight Result Analysis stage
                 updateStatus('Checking automation progress...', `Auto-check ${checkCount} - looking for completed loans`);
                 
                 try {
@@ -540,7 +357,6 @@
                         if (summary.isComplete && totalProcessed >= expectedTotal) {
                             console.log('🎉 All loans completed!');
                             clearInterval(checkInterval);
-                            highlightStage(5); // Highlight Reporting & Export stage
                             showResults(data);
                         }
                     }
@@ -569,7 +385,7 @@
             progressBar.style.width = `${Math.min(percent, 100)}%`;
         }
 
-        // Show final results (ENHANCED with detailed data)
+        // Show final results
         function showResults(data) {
             const { summary, results } = data;
             
@@ -595,38 +411,28 @@
             console.log('✅ Results displayed with detailed data:', detailedResults);
         }
 
-        // Download results (ENHANCED with failure reasons and lock status + DEBUG LOGGING)
+        // Download results
         downloadBtn.addEventListener('click', function() {
             console.log('📥 Generating enhanced Excel download with failure reasons...');
-            
-            // DEBUG: Log the detailed results to understand the data structure
-            console.log('🔍 DEBUG: detailedResults for Excel:', detailedResults);
-            console.log('🔍 DEBUG: loans array length:', loans.length);
             
             // Create enhanced results data by matching loans with API results
             const enhancedResultsData = loans.map((loan, index) => {
                 // Try multiple strategies to find matching result
                 let apiResult = null;
                 
-                // Strategy 1: Match by loan index (index + 1)
                 apiResult = detailedResults.find(r => r.loanIndex === (index + 1));
                 
-                // Strategy 2: Match by loan index (zero-based)
                 if (!apiResult) {
                     apiResult = detailedResults.find(r => r.loanIndex === index);
                 }
                 
-                // Strategy 3: Match by array position if we have exactly the right number of results
                 if (!apiResult && detailedResults.length === loans.length) {
                     apiResult = detailedResults[index];
                 }
                 
-                // Strategy 4: If we still don't have a match, try by workflow creation order
                 if (!apiResult && index < detailedResults.length) {
                     apiResult = detailedResults[index];
                 }
-                
-                console.log(`🔍 DEBUG: Loan ${index + 1} matched with:`, apiResult);
                 
                 // Determine status and failure reason
                 let status, failureReason, lockStatus;
@@ -635,17 +441,14 @@
                     status = 'SUCCESS - LOAN LOCKED';
                     lockStatus = '🔒 LOCKED';
                     failureReason = '';
-                    console.log(`✅ Loan ${index + 1}: LOCKED`);
                 } else if (apiResult && apiResult.locked === false) {
                     status = 'FAILED - NOT LOCKED';
                     lockStatus = '🔓 NOT LOCKED';
                     failureReason = apiResult.errorMessage || 'Unknown error occurred';
-                    console.log(`❌ Loan ${index + 1}: NOT LOCKED - ${failureReason}`);
                 } else {
                     status = 'PROCESSING ERROR';
                     lockStatus = '❓ UNKNOWN';
                     failureReason = apiResult ? 'Could not determine final status' : 'No matching API result found';
-                    console.log(`⚠️ Loan ${index + 1}: UNKNOWN STATUS`);
                 }
                 
                 return {
@@ -678,7 +481,7 @@
                     'Completed At': apiResult ? apiResult.completedAt || '' : '',
                     'Analysis Method': apiResult ? apiResult.status || 'unknown' : 'no_match',
                     
-                    // All original loan data (for completeness)
+                    // All original loan data
                     ...loan
                 };
             });
@@ -690,7 +493,6 @@
             
             const failureCounts = {};
             failureReasons.forEach(reason => {
-                // Group similar failure reasons
                 let category = 'Other';
                 if (reason.includes('Investor') && reason.includes('not found')) {
                     category = 'Investor Not Found';
@@ -731,37 +533,31 @@
                 'Percentage': Math.round((failureCounts[category] / failureReasons.length) * 100) + '%'
             }));
 
-            // Create Excel workbook with multiple informative sheets
+            // Create Excel workbook
             const wb = XLSX.utils.book_new();
             
-            // Sheet 1: Executive Summary
             const summaryWs = XLSX.utils.json_to_sheet(summaryData);
             XLSX.utils.book_append_sheet(wb, summaryWs, 'Executive Summary');
             
-            // Sheet 2: Detailed Results (main sheet)
             const resultsWs = XLSX.utils.json_to_sheet(enhancedResultsData);
             XLSX.utils.book_append_sheet(wb, resultsWs, 'Detailed Results');
             
-            // Sheet 3: Failure Analysis (if there are failures)
             if (failureBreakdownData.length > 0) {
                 const failureWs = XLSX.utils.json_to_sheet(failureBreakdownData);
                 XLSX.utils.book_append_sheet(wb, failureWs, 'Failure Analysis');
             }
             
-            // Generate filename with timestamp and summary
             const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
             const successCount = lockedCount.textContent;
             const filename = `loannex_results_${successCount}locked_${timestamp}.xlsx`;
             
-            // Download the file
             XLSX.writeFile(wb, filename);
             
-            console.log('✅ Enhanced Excel file downloaded with failure analysis:', filename);
+            console.log('✅ Enhanced Excel file downloaded:', filename);
         });
 
         // Reset for new batch
         resetBtn.addEventListener('click', function() {
-            // Reset everything
             loans = [];
             credentials = {};
             batchStartTime = null;
@@ -773,21 +569,11 @@
                 checkInterval = null;
             }
             
-            // Reset pipeline highlighting
-            for (let i = 1; i <= 5; i++) {
-                const stage = document.getElementById(`stage-${i}`);
-                if (stage) {
-                    stage.classList.remove('stage-highlight');
-                }
-            }
-            
-            // Reset UI
             resultsSection.classList.add('hidden');
             uploadSection.classList.remove('hidden');
             fileStatus.classList.add('hidden');
             processBtn.classList.add('hidden');
             
-            // Clear form
             document.getElementById('username').value = '';
             document.getElementById('password').value = '';
             document.getElementById('file-upload').value = '';
@@ -795,7 +581,7 @@
             console.log('🔄 Reset for new batch');
         });
 
-        console.log('✨ Complete LoanNex Automation Portal with Enhanced Pipeline Visualization loaded!');
+        console.log('✨ LoanNex Automation Portal with Pipeline Image loaded!');
     </script>
 </body>
 </html>
