@@ -134,7 +134,9 @@
         .gradient-border input,
         .gradient-border button,
         .gradient-border select,
-        .gradient-border textarea {
+        .gradient-border textarea,
+        .gradient-border label,
+        .gradient-border .cursor-pointer {
             position: relative;
             z-index: 20;
         }
@@ -142,9 +144,18 @@
         .gradient-border-subtle input,
         .gradient-border-subtle button,
         .gradient-border-subtle select,
-        .gradient-border-subtle textarea {
+        .gradient-border-subtle textarea,
+        .gradient-border-subtle label,
+        .gradient-border-subtle .cursor-pointer {
             position: relative;
             z-index: 20;
+        }
+
+        /* Ensure all content inside gradient borders is clickable */
+        .gradient-border > *,
+        .gradient-border-subtle > * {
+            position: relative;
+            z-index: 15;
         }
     </style>
 </head>
