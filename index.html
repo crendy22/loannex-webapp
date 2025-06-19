@@ -27,28 +27,29 @@
 </head>
 <body class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
     
-    <div class="flex">
-        <!-- Main Content Area (Left Side) -->
-        <div class="flex-1 p-6">
-            <!-- Non-QM News Ticker -->
-            <div class="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-3 rounded-lg mb-6 overflow-hidden">
-                <div class="flex items-center">
-                    <div class="bg-white text-blue-700 px-3 py-1 rounded-full text-sm font-bold mr-4 flex-shrink-0">
-                        📈 NON-QM NEWS
-                    </div>
-                    <div class="overflow-hidden">
-                        <div id="news-ticker" class="whitespace-nowrap animate-scroll text-sm">
-                            <span class="inline-block mr-12">🚀 2025 predicted to be strongest year for Non-QM market as insurance companies increase investments</span>
-                            <span class="inline-block mr-12">💰 A&D Mortgage closes $427M Non-QM securitization, second deal this year</span>
-                            <span class="inline-block mr-12">📊 Non-QM market doubled since 2020, now 5% of total mortgage market</span>
-                            <span class="inline-block mr-12">⭐ Average Non-QM borrower credit score: 776 (higher than government loans at 699)</span>
-                            <span class="inline-block mr-12">🏠 Self-employed and gig workers driving Non-QM growth in 2025</span>
-                        </div>
+    <div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+        <!-- Non-QM News Ticker -->
+        <div class="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-3 overflow-hidden">
+            <div class="max-w-7xl mx-auto flex items-center">
+                <div class="bg-white text-blue-700 px-3 py-1 rounded-full text-sm font-bold mr-4 flex-shrink-0">
+                    📈 NON-QM NEWS
+                </div>
+                <div class="overflow-hidden flex-1">
+                    <div id="news-ticker" class="whitespace-nowrap animate-scroll text-sm">
+                        <span class="inline-block mr-12">🚀 2025 predicted to be strongest year for Non-QM market</span>
+                        <span class="inline-block mr-12">💰 A&D Mortgage closes $427M securitization</span>
+                        <span class="inline-block mr-12">📊 Non-QM market now 5% of total mortgage market</span>
+                        <span class="inline-block mr-12">⭐ Average Non-QM credit score: 776</span>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <div id="app" class="max-w-3xl mx-auto">
+        <div class="max-w-7xl mx-auto p-6">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Main Content Area (Left Side - 2/3 width) -->
+                <div class="lg:col-span-2">
+                    <div id="app">
                 
                 <!-- Header -->
                 <div class="text-center mb-8">
