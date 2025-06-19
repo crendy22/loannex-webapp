@@ -408,7 +408,6 @@
                                 <div class="pulse mr-3">⚡</div>
                                 <span>Processing <span id="total-loans">0</span> loans...</span>
                             </div>
-                            <p class="text-gray-600">This will take approximately <span id="estimated-time">8-12</span> minutes</p>
                         </div>
                         
                         <!-- Progress Bar -->
@@ -512,7 +511,6 @@
         const processingSection = document.getElementById('processing-section');
         const resultsSection = document.getElementById('results-section');
         const totalLoans = document.getElementById('total-loans');
-        const estimatedTime = document.getElementById('estimated-time');
         const progressBar = document.getElementById('progress-bar');
         const currentStatus = document.getElementById('current-status');
         const statusDetail = document.getElementById('status-detail');
@@ -633,8 +631,7 @@
                 { Step: 3, Instruction: 'Ensure all values match the allowable values in the second sheet' },
                 { Step: 4, Instruction: 'Required fields: First Name, Last Name, Interest Rate, Investor, Credit Score, DTI' },
                 { Step: 5, Instruction: 'Upload the completed file to the LoanNex Automation Portal' },
-                { Step: 6, Instruction: 'Processing time: approximately 5-8 minutes per loan' },
-                { Step: 7, Instruction: 'Results will be available for download as a detailed Excel report' }
+                { Step: 6, Instruction: 'Results will be available for download as a detailed Excel report' }
             ];
 
             // Create Excel workbook
@@ -725,7 +722,6 @@
             
             // Update initial status
             totalLoans.textContent = loans.length;
-            estimatedTime.textContent = `${loans.length * 4}-${loans.length * 6}`;
             currentStatus.textContent = `Triggering automation for ${loans.length} loans...`;
             statusDetail.textContent = 'Starting workflow processes in GitHub Actions';
 
@@ -747,7 +743,7 @@
                     updateProgress((i + 1) / loans.length * 20);
                 }
 
-                updateStatus('All automations started!', 'Now processing loans in LoanNex - this takes 5-8 minutes per loan');
+                updateStatus('All automations started!', 'Now processing loans in LoanNex - checking progress every 30 seconds');
                 
                 // Start auto-checking
                 startAutoChecking();
