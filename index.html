@@ -178,87 +178,89 @@
         </div>
 
         <!-- Pipeline Diagram (Right Side) -->
-        <div class="w-[480px] p-6">
-            <div class="bg-white rounded-xl shadow-lg p-6 h-full overflow-y-auto">
-                <h3 class="text-lg font-bold text-center text-blue-900 mb-6 border-b-2 border-blue-200 pb-2">
+        <div class="w-[624px] p-6">
+            <div class="bg-white rounded-xl shadow-lg p-4 h-full overflow-y-auto">
+                <h3 class="text-base font-bold text-center text-blue-900 mb-4 border-b-2 border-blue-200 pb-2">
                     LOANNEX AUTOMATION - DATA FLOW ARCHITECTURE
                 </h3>
                 
                 <!-- INPUT PHASE -->
-                <div class="mb-6">
-                    <div class="bg-gradient-to-r from-blue-100 to-blue-200 p-3 rounded-lg mb-2">
+                <div class="mb-4">
+                    <div class="bg-gradient-to-r from-blue-100 to-blue-200 p-2 rounded-lg mb-1">
                         <h4 class="font-bold text-blue-900 text-sm">INPUT PHASE</h4>
-                        <div class="text-xs text-blue-800 mt-1">
+                        <div class="text-xs text-blue-800">
                             📊 EXCEL UPLOAD → 🔍 VALIDATION → ✅ AUTHENTICATION → 📋 PREVIEW
                         </div>
                     </div>
-                    <div class="text-xs text-gray-700 space-y-1 pl-2">
-                        <div>• Upload loan spreadsheet with borrower data</div>
-                        <div>• Validate file format and data types</div>
+                    <div class="text-xs text-gray-700 pl-2 grid grid-cols-2 gap-x-4 gap-y-1">
+                        <div>• Upload loan spreadsheet</div>
+                        <div>• Validate file format</div>
                         <div>• Verify LoanNex credentials</div>
-                        <div>• Display data preview with row counts</div>
+                        <div>• Display data preview</div>
                     </div>
                 </div>
 
                 <!-- PROCESSING PHASE -->
-                <div class="mb-6">
-                    <div class="bg-gradient-to-r from-green-100 to-green-200 p-3 rounded-lg mb-2">
+                <div class="mb-4">
+                    <div class="bg-gradient-to-r from-green-100 to-green-200 p-2 rounded-lg mb-1">
                         <h4 class="font-bold text-green-900 text-sm">PROCESSING PHASE</h4>
-                        <div class="text-xs text-green-800 mt-1">
+                        <div class="text-xs text-green-800">
                             ⚡ API ORCHESTRATION → 🚀 WORKFLOW LAUNCH → 🖥️ BROWSER AUTOMATION
                         </div>
                     </div>
-                    <div class="text-xs text-gray-700 space-y-1 pl-2">
-                        <div>• Trigger GitHub Actions workflows</div>
-                        <div>• Provision Ubuntu VMs with Chrome</div>
-                        <div>• Navigate LoanNex with Selenium</div>
+                    <div class="text-xs text-gray-700 pl-2 grid grid-cols-2 gap-x-4 gap-y-1">
+                        <div>• Trigger GitHub workflows</div>
+                        <div>• Provision Ubuntu VMs</div>
+                        <div>• Navigate with Selenium</div>
+                        <div>• Chrome browser setup</div>
                     </div>
                 </div>
 
                 <!-- AUTOMATION PHASE -->
-                <div class="mb-6">
-                    <div class="bg-gradient-to-r from-purple-100 to-purple-200 p-3 rounded-lg mb-2">
+                <div class="mb-4">
+                    <div class="bg-gradient-to-r from-purple-100 to-purple-200 p-2 rounded-lg mb-1">
                         <h4 class="font-bold text-purple-900 text-sm">AUTOMATION PHASE</h4>
-                        <div class="text-xs text-purple-800 mt-1">
+                        <div class="text-xs text-purple-800">
                             🏦 LOANNEX LOGIN → 📝 FIELD POPULATION → 💰 PRICE GENERATION → 🎯 SMART FILTERING
                         </div>
                     </div>
-                    <div class="text-xs text-gray-700 space-y-1 pl-2">
-                        <div>• Secure authentication and session mgmt</div>
-                        <div>• Populate 23+ loan fields</div>
-                        <div>• Generate pricing and market data</div>
-                        <div>• Apply Interest Rate and Investor filters</div>
+                    <div class="text-xs text-gray-700 pl-2 grid grid-cols-2 gap-x-4 gap-y-1">
+                        <div>• Secure authentication</div>
+                        <div>• Populate 23+ fields</div>
+                        <div>• Generate pricing data</div>
+                        <div>• Apply loan filters</div>
                     </div>
                 </div>
 
                 <!-- EXECUTION PHASE -->
-                <div class="mb-6">
-                    <div class="bg-gradient-to-r from-orange-100 to-orange-200 p-3 rounded-lg mb-2">
+                <div class="mb-4">
+                    <div class="bg-gradient-to-r from-orange-100 to-orange-200 p-2 rounded-lg mb-1">
                         <h4 class="font-bold text-orange-900 text-sm">EXECUTION PHASE</h4>
-                        <div class="text-xs text-orange-800 mt-1">
+                        <div class="text-xs text-orange-800">
                             🔒 LOCK ATTEMPT → 📊 LOG ANALYSIS → 📈 REAL-TIME MONITORING → ✅ RESULT CAPTURE
                         </div>
                     </div>
-                    <div class="text-xs text-gray-700 space-y-1 pl-2">
-                        <div>• Execute loan lock with forms</div>
-                        <div>• Parse automation logs for patterns</div>
-                        <div>• Auto-poll every 30 seconds</div>
-                        <div>• Correlate results with errors</div>
+                    <div class="text-xs text-gray-700 pl-2 grid grid-cols-2 gap-x-4 gap-y-1">
+                        <div>• Execute loan lock</div>
+                        <div>• Parse automation logs</div>
+                        <div>• Auto-poll every 30s</div>
+                        <div>• Correlate results</div>
                     </div>
                 </div>
 
                 <!-- OUTPUT PHASE -->
-                <div class="mb-4">
-                    <div class="bg-gradient-to-r from-red-100 to-red-200 p-3 rounded-lg mb-2">
+                <div class="mb-2">
+                    <div class="bg-gradient-to-r from-red-100 to-red-200 p-2 rounded-lg mb-1">
                         <h4 class="font-bold text-red-900 text-sm">OUTPUT PHASE</h4>
-                        <div class="text-xs text-red-800 mt-1">
+                        <div class="text-xs text-red-800">
                             📋 DATA COMPILATION → 📊 EXCEL GENERATION → 📥 PROFESSIONAL DOWNLOAD
                         </div>
                     </div>
-                    <div class="text-xs text-gray-700 space-y-1 pl-2">
-                        <div>• Match loan data with results</div>
-                        <div>• Generate 3-sheet Excel report</div>
-                        <div>• Provide timestamped actionable reports</div>
+                    <div class="text-xs text-gray-700 pl-2 grid grid-cols-2 gap-x-4 gap-y-1">
+                        <div>• Match loan data</div>
+                        <div>• Generate Excel report</div>
+                        <div>• Timestamped results</div>
+                        <div>• Actionable insights</div>
                     </div>
                 </div>
             </div>
