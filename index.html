@@ -162,7 +162,7 @@
                 <!-- Download & Reset -->
                 <div class="text-center space-y-4">
                     <button id="download-btn" class="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium">
-                        📥 Download Results
+                        📥 Download Detailed Results
                     </button>
                     <br>
                     <button id="reset-btn" class="bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700 transition-colors">
@@ -181,6 +181,7 @@
         let batchStartTime = null;
         let processingStartTime = null;
         let checkInterval = null;
+        let detailedResults = []; // Store detailed results for enhanced download
 
         // DOM elements
         const fileUpload = document.getElementById('file-upload');
@@ -368,9 +369,12 @@
             progressBar.style.width = `${Math.min(percent, 100)}%`;
         }
 
-        // Show final results
+        // Show final results (ENHANCED with detailed data)
         function showResults(data) {
-            const { summary } = data;
+            const { summary, results } = data;
+            
+            // Store detailed results for download
+            detailedResults = results || [];
             
             // Hide processing, show results
             processingSection.classList.add('hidden');
@@ -388,13 +392,148 @@
             completionTime.textContent = endTime.toLocaleString();
             processedUsername.textContent = credentials.username;
             
-            console.log('✅ Results displayed successfully');
+            console.log('✅ Results displayed with detailed data:', detailedResults);
         }
 
-        // Download results
+        // Download results (ENHANCED with failure reasons and lock status)
         downloadBtn.addEventListener('click', function() {
-            // Simple download implementation
-            alert('Download functionality - would generate Excel file with results');
+            console.log('📥 Generating enhanced Excel download with failure reasons...');
+            
+            // Create enhanced results data by matching loans with API results
+            const enhancedResultsData = loans.map((loan, index) => {
+                // Find matching result from API
+                const apiResult = detailedResults.find(r => 
+                    r.loanIndex === (index + 1) || 
+                    r.loanIndex === index ||
+                    r.loanIndex === 'Unknown'
+                ) || {};
+                
+                // Determine status and failure reason
+                let status, failureReason, lockStatus;
+                
+                if (apiResult.locked === true) {
+                    status = 'SUCCESS - LOAN LOCKED';
+                    lockStatus = '🔒 LOCKED';
+                    failureReason = '';
+                } else if (apiResult.locked === false) {
+                    status = 'FAILED - NOT LOCKED';
+                    lockStatus = '🔓 NOT LOCKED';
+                    failureReason = apiResult.errorMessage || 'Unknown error occurred';
+                } else {
+                    status = 'PROCESSING ERROR';
+                    lockStatus = '❓ UNKNOWN';
+                    failureReason = 'Could not determine final status';
+                }
+                
+                return {
+                    // Key results first
+                    'Loan #': index + 1,
+                    'Borrower Name': `${loan['First Name'] || ''} ${loan['Last Name'] || ''}`.trim() || 'Unknown',
+                    'FINAL STATUS': status,
+                    'Lock Status': lockStatus,
+                    'Failure Reason': failureReason,
+                    'GitHub Actions URL': apiResult.githubUrl || '',
+                    
+                    // Loan details
+                    'Interest Rate': loan['Interest Rate'] || '',
+                    'Investor': loan['Investor'] || '',
+                    'Amortizing Type': loan['Amortizing Type'] || '',
+                    'Prepay Penalty': loan['Prepay Penalty'] || '',
+                    'Property Type': loan['Property Type'] || '',
+                    'Loan Amount': loan['Loan Amount'] || '',
+                    'Occupancy': loan['Occupancy'] || '',
+                    'LTV': loan['LTV'] || '',
+                    'Credit Score': loan['Credit Score'] || '',
+                    'DTI': loan['DTI'] || '',
+                    'State': loan['State'] || '',
+                    'County': loan['County'] || '',
+                    
+                    // Processing metadata
+                    'Processing Date': new Date().toLocaleString(),
+                    'Username': credentials.username,
+                    'Workflow ID': apiResult.workflowId || '',
+                    'Completed At': apiResult.completedAt || '',
+                    'Analysis Method': apiResult.status || 'unknown',
+                    
+                    // All original loan data (for completeness)
+                    ...loan
+                };
+            });
+
+            // Enhanced summary with failure analysis
+            const failureReasons = detailedResults
+                .filter(r => r.locked === false && r.errorMessage)
+                .map(r => r.errorMessage);
+            
+            const failureCounts = {};
+            failureReasons.forEach(reason => {
+                // Group similar failure reasons
+                let category = 'Other';
+                if (reason.includes('Investor') && reason.includes('not found')) {
+                    category = 'Investor Not Found';
+                } else if (reason.includes('Prepay Penalty')) {
+                    category = 'Prepay Penalty Issue';
+                } else if (reason.includes('Interest rate') || reason.includes('filtered out')) {
+                    category = 'Interest Rate Mismatch';
+                } else if (reason.includes('Login failed')) {
+                    category = 'Login/Authentication Error';
+                } else if (reason.includes('No loans available')) {
+                    category = 'No Loans Available After Filtering';
+                }
+                
+                failureCounts[category] = (failureCounts[category] || 0) + 1;
+            });
+            
+            const mostCommonFailure = Object.keys(failureCounts).length > 0 
+                ? Object.keys(failureCounts).reduce((a, b) => failureCounts[a] > failureCounts[b] ? a : b)
+                : 'None';
+
+            const summaryData = [{
+                'Total Loans Processed': loans.length,
+                'Successfully Locked': lockedCount.textContent,
+                'Failed to Lock': failedCount.textContent,
+                'Success Rate': successRate.textContent,
+                'Most Common Failure Reason': mostCommonFailure,
+                'Processing Completed': completionTime.textContent,
+                'Username': credentials.username,
+                'Total Processing Time': processingTime.textContent,
+                'Verification Method': 'Real-time GitHub Actions workflow analysis',
+                'Report Generated': new Date().toLocaleString()
+            }];
+
+            // Failure breakdown sheet
+            const failureBreakdownData = Object.keys(failureCounts).map(category => ({
+                'Failure Category': category,
+                'Number of Loans': failureCounts[category],
+                'Percentage': Math.round((failureCounts[category] / failureReasons.length) * 100) + '%'
+            }));
+
+            // Create Excel workbook with multiple informative sheets
+            const wb = XLSX.utils.book_new();
+            
+            // Sheet 1: Executive Summary
+            const summaryWs = XLSX.utils.json_to_sheet(summaryData);
+            XLSX.utils.book_append_sheet(wb, summaryWs, 'Executive Summary');
+            
+            // Sheet 2: Detailed Results (main sheet)
+            const resultsWs = XLSX.utils.json_to_sheet(enhancedResultsData);
+            XLSX.utils.book_append_sheet(wb, resultsWs, 'Detailed Results');
+            
+            // Sheet 3: Failure Analysis (if there are failures)
+            if (failureBreakdownData.length > 0) {
+                const failureWs = XLSX.utils.json_to_sheet(failureBreakdownData);
+                XLSX.utils.book_append_sheet(wb, failureWs, 'Failure Analysis');
+            }
+            
+            // Generate filename with timestamp and summary
+            const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
+            const successCount = lockedCount.textContent;
+            const filename = `loannex_results_${successCount}locked_${timestamp}.xlsx`;
+            
+            // Download the file
+            XLSX.writeFile(wb, filename);
+            
+            console.log('✅ Enhanced Excel file downloaded with failure analysis:', filename);
         });
 
         // Reset for new batch
@@ -404,6 +543,7 @@
             credentials = {};
             batchStartTime = null;
             processingStartTime = null;
+            detailedResults = [];
             
             if (checkInterval) {
                 clearInterval(checkInterval);
@@ -424,7 +564,7 @@
             console.log('🔄 Reset for new batch');
         });
 
-        console.log('✨ Clean & Simple LoanNex Automation Portal loaded!');
+        console.log('✨ Complete LoanNex Automation Portal with Enhanced Excel Download loaded!');
     </script>
 </body>
 </html>
