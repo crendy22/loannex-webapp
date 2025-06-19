@@ -23,11 +23,120 @@
             0% { transform: translateX(100%); }
             100% { transform: translateX(-100%); }
         }
+
+        /* Floating particles background */
+        .particles-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: rgba(59, 130, 246, 0.4);
+            border-radius: 50%;
+            animation: float 20s infinite linear;
+        }
+
+        .particle:nth-child(odd) {
+            background: rgba(139, 92, 246, 0.3);
+            animation-duration: 25s;
+        }
+
+        .particle:nth-child(3n) {
+            background: rgba(16, 185, 129, 0.3);
+            animation-duration: 30s;
+            width: 2px;
+            height: 2px;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) translateX(0px) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-10vh) translateX(100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Gradient border animations */
+        .gradient-border {
+            position: relative;
+            background: white;
+        }
+
+        .gradient-border::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            padding: 2px;
+            background: linear-gradient(45deg, #3b82f6, #8b5cf6, #10b981, #f59e0b, #ef4444, #3b82f6);
+            background-size: 300% 300%;
+            border-radius: inherit;
+            animation: gradientShift 3s ease infinite;
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask-composite: xor;
+            -webkit-mask-composite: xor;
+        }
+
+        .gradient-border-subtle {
+            position: relative;
+            background: white;
+        }
+
+        .gradient-border-subtle::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            padding: 1px;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6, #3b82f6);
+            background-size: 200% 200%;
+            border-radius: inherit;
+            animation: gradientShift 4s ease-in-out infinite;
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask-composite: xor;
+            -webkit-mask-composite: xor;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+        }
+
+        /* Enhanced content positioning */
+        .content-layer {
+            position: relative;
+            z-index: 10;
+        }
     </style>
 </head>
 <body class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
     
-    <div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+    <!-- Floating Particles Background -->
+    <div class="particles-container" id="particles-container"></div>
+
+    <div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 content-layer">
         <!-- Non-QM News Ticker -->
         <div class="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-3 overflow-hidden">
             <div class="max-w-7xl mx-auto flex items-center">
@@ -58,7 +167,7 @@
                 </div>
 
                 <!-- Upload Section -->
-                <div id="upload-section" class="bg-white rounded-xl shadow-lg p-8 mb-6">
+                <div id="upload-section" class="gradient-border rounded-xl shadow-lg p-8 mb-6">
                     <h2 class="text-2xl font-semibold mb-6 text-center">Process Your Loans</h2>
                     
                     <!-- Credentials -->
@@ -124,7 +233,7 @@
                 </div>
 
                 <!-- Processing Section -->
-                <div id="processing-section" class="hidden bg-white rounded-xl shadow-lg p-8 mb-6">
+                <div id="processing-section" class="hidden gradient-border-subtle rounded-xl shadow-lg p-8 mb-6">
                     <div class="text-center">
                         <div class="mb-6">
                             <div class="inline-flex items-center text-blue-600 text-xl font-medium mb-4">
@@ -151,7 +260,7 @@
                 </div>
 
                 <!-- Results Section -->
-                <div id="results-section" class="hidden bg-white rounded-xl shadow-lg p-8 fade-in">
+                <div id="results-section" class="hidden gradient-border rounded-xl shadow-lg p-8 fade-in">
                     <div class="text-center mb-8">
                         <h2 class="text-3xl font-bold text-gray-900 mb-2">✅ Processing Complete!</h2>
                         <p class="text-gray-600">Here are your loan processing results</p>
@@ -210,93 +319,94 @@
                     </div>
                 </div>
 
-            </div>
-        </div>
-
-        <!-- Pipeline Diagram (Right Side) -->
-        <div class="w-[624px] p-6">
-            <div class="bg-white rounded-xl shadow-lg p-4 h-full overflow-y-auto">
-                <h3 class="text-base font-bold text-center text-blue-900 mb-4 border-b-2 border-blue-200 pb-2">
-                    LOANNEX AUTOMATION - DATA FLOW ARCHITECTURE
-                </h3>
-                
-                <!-- INPUT PHASE -->
-                <div class="mb-4">
-                    <div class="bg-gradient-to-r from-blue-100 to-blue-200 p-2 rounded-lg mb-1">
-                        <h4 class="font-bold text-blue-900 text-sm">INPUT PHASE</h4>
-                        <div class="text-xs text-blue-800">
-                            📊 EXCEL UPLOAD → 🔍 VALIDATION → ✅ AUTHENTICATION → 📋 PREVIEW
-                        </div>
-                    </div>
-                    <div class="text-xs text-gray-700 pl-2 grid grid-cols-2 gap-x-4 gap-y-1">
-                        <div>• Upload loan spreadsheet</div>
-                        <div>• Validate file format</div>
-                        <div>• Verify LoanNex credentials</div>
-                        <div>• Display data preview</div>
-                    </div>
                 </div>
 
-                <!-- PROCESSING PHASE -->
-                <div class="mb-4">
-                    <div class="bg-gradient-to-r from-green-100 to-green-200 p-2 rounded-lg mb-1">
-                        <h4 class="font-bold text-green-900 text-sm">PROCESSING PHASE</h4>
-                        <div class="text-xs text-green-800">
-                            ⚡ API ORCHESTRATION → 🚀 WORKFLOW LAUNCH → 🖥️ BROWSER AUTOMATION
+                <!-- Pipeline Diagram (Right Side - 1/3 width) -->
+                <div class="lg:col-span-1">
+                    <div class="gradient-border-subtle rounded-xl shadow-lg p-4 h-full overflow-y-auto">
+                        <h3 class="text-base font-bold text-center text-blue-900 mb-4 border-b-2 border-blue-200 pb-2">
+                            LOANNEX AUTOMATION - DATA FLOW ARCHITECTURE
+                        </h3>
+                        
+                        <!-- INPUT PHASE -->
+                        <div class="mb-4">
+                            <div class="bg-gradient-to-r from-blue-100 to-blue-200 p-2 rounded-lg mb-1">
+                                <h4 class="font-bold text-blue-900 text-sm">INPUT PHASE</h4>
+                                <div class="text-xs text-blue-800">
+                                    📊 EXCEL UPLOAD → 🔍 VALIDATION → ✅ AUTHENTICATION → 📋 PREVIEW
+                                </div>
+                            </div>
+                            <div class="text-xs text-gray-700 pl-2 grid grid-cols-2 gap-x-4 gap-y-1">
+                                <div>• Upload loan spreadsheet</div>
+                                <div>• Validate file format</div>
+                                <div>• Verify LoanNex credentials</div>
+                                <div>• Display data preview</div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="text-xs text-gray-700 pl-2 grid grid-cols-2 gap-x-4 gap-y-1">
-                        <div>• Trigger GitHub workflows</div>
-                        <div>• Provision Ubuntu VMs</div>
-                        <div>• Navigate with Selenium</div>
-                        <div>• Chrome browser setup</div>
-                    </div>
-                </div>
 
-                <!-- AUTOMATION PHASE -->
-                <div class="mb-4">
-                    <div class="bg-gradient-to-r from-purple-100 to-purple-200 p-2 rounded-lg mb-1">
-                        <h4 class="font-bold text-purple-900 text-sm">AUTOMATION PHASE</h4>
-                        <div class="text-xs text-purple-800">
-                            🏦 LOANNEX LOGIN → 📝 FIELD POPULATION → 💰 PRICE GENERATION → 🎯 SMART FILTERING
+                        <!-- PROCESSING PHASE -->
+                        <div class="mb-4">
+                            <div class="bg-gradient-to-r from-green-100 to-green-200 p-2 rounded-lg mb-1">
+                                <h4 class="font-bold text-green-900 text-sm">PROCESSING PHASE</h4>
+                                <div class="text-xs text-green-800">
+                                    ⚡ API ORCHESTRATION → 🚀 WORKFLOW LAUNCH → 🖥️ BROWSER AUTOMATION
+                                </div>
+                            </div>
+                            <div class="text-xs text-gray-700 pl-2 grid grid-cols-2 gap-x-4 gap-y-1">
+                                <div>• Trigger GitHub workflows</div>
+                                <div>• Provision Ubuntu VMs</div>
+                                <div>• Navigate with Selenium</div>
+                                <div>• Chrome browser setup</div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="text-xs text-gray-700 pl-2 grid grid-cols-2 gap-x-4 gap-y-1">
-                        <div>• Secure authentication</div>
-                        <div>• Populate 23+ fields</div>
-                        <div>• Generate pricing data</div>
-                        <div>• Apply loan filters</div>
-                    </div>
-                </div>
 
-                <!-- EXECUTION PHASE -->
-                <div class="mb-4">
-                    <div class="bg-gradient-to-r from-orange-100 to-orange-200 p-2 rounded-lg mb-1">
-                        <h4 class="font-bold text-orange-900 text-sm">EXECUTION PHASE</h4>
-                        <div class="text-xs text-orange-800">
-                            🔒 LOCK ATTEMPT → 📊 LOG ANALYSIS → 📈 REAL-TIME MONITORING → ✅ RESULT CAPTURE
+                        <!-- AUTOMATION PHASE -->
+                        <div class="mb-4">
+                            <div class="bg-gradient-to-r from-purple-100 to-purple-200 p-2 rounded-lg mb-1">
+                                <h4 class="font-bold text-purple-900 text-sm">AUTOMATION PHASE</h4>
+                                <div class="text-xs text-purple-800">
+                                    🏦 LOANNEX LOGIN → 📝 FIELD POPULATION → 💰 PRICE GENERATION → 🎯 SMART FILTERING
+                                </div>
+                            </div>
+                            <div class="text-xs text-gray-700 pl-2 grid grid-cols-2 gap-x-4 gap-y-1">
+                                <div>• Secure authentication</div>
+                                <div>• Populate 23+ fields</div>
+                                <div>• Generate pricing data</div>
+                                <div>• Apply loan filters</div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="text-xs text-gray-700 pl-2 grid grid-cols-2 gap-x-4 gap-y-1">
-                        <div>• Execute loan lock</div>
-                        <div>• Parse automation logs</div>
-                        <div>• Auto-poll every 30s</div>
-                        <div>• Correlate results</div>
-                    </div>
-                </div>
 
-                <!-- OUTPUT PHASE -->
-                <div class="mb-2">
-                    <div class="bg-gradient-to-r from-red-100 to-red-200 p-2 rounded-lg mb-1">
-                        <h4 class="font-bold text-red-900 text-sm">OUTPUT PHASE</h4>
-                        <div class="text-xs text-red-800">
-                            📋 DATA COMPILATION → 📊 EXCEL GENERATION → 📥 PROFESSIONAL DOWNLOAD
+                        <!-- EXECUTION PHASE -->
+                        <div class="mb-4">
+                            <div class="bg-gradient-to-r from-orange-100 to-orange-200 p-2 rounded-lg mb-1">
+                                <h4 class="font-bold text-orange-900 text-sm">EXECUTION PHASE</h4>
+                                <div class="text-xs text-orange-800">
+                                    🔒 LOCK ATTEMPT → 📊 LOG ANALYSIS → 📈 REAL-TIME MONITORING → ✅ RESULT CAPTURE
+                                </div>
+                            </div>
+                            <div class="text-xs text-gray-700 pl-2 grid grid-cols-2 gap-x-4 gap-y-1">
+                                <div>• Execute loan lock</div>
+                                <div>• Parse automation logs</div>
+                                <div>• Auto-poll every 30s</div>
+                                <div>• Correlate results</div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="text-xs text-gray-700 pl-2 grid grid-cols-2 gap-x-4 gap-y-1">
-                        <div>• Match loan data</div>
-                        <div>• Generate Excel report</div>
-                        <div>• Timestamped results</div>
-                        <div>• Actionable insights</div>
+
+                        <!-- OUTPUT PHASE -->
+                        <div class="mb-2">
+                            <div class="bg-gradient-to-r from-red-100 to-red-200 p-2 rounded-lg mb-1">
+                                <h4 class="font-bold text-red-900 text-sm">OUTPUT PHASE</h4>
+                                <div class="text-xs text-red-800">
+                                    📋 DATA COMPILATION → 📊 EXCEL GENERATION → 📥 PROFESSIONAL DOWNLOAD
+                                </div>
+                            </div>
+                            <div class="text-xs text-gray-700 pl-2 grid grid-cols-2 gap-x-4 gap-y-1">
+                                <div>• Match loan data</div>
+                                <div>• Generate Excel report</div>
+                                <div>• Timestamped results</div>
+                                <div>• Actionable insights</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -832,6 +942,30 @@
         });
 
         console.log('✨ LoanNex Automation Portal with Pipeline Image loaded!');
+
+        // Initialize floating particles
+        function createParticles() {
+            const container = document.getElementById('particles-container');
+            const particleCount = 50;
+
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                
+                // Random starting position
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 20 + 's';
+                particle.style.animationDuration = (20 + Math.random() * 10) + 's';
+                
+                // Random horizontal drift
+                particle.style.setProperty('--drift', (Math.random() - 0.5) * 200 + 'px');
+                
+                container.appendChild(particle);
+            }
+        }
+
+        // Initialize particles when page loads
+        createParticles();
     </script>
 </body>
 </html>
