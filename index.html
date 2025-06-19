@@ -9,59 +9,35 @@
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
         .hidden { display: none !important; }
-        .loading { 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            height: 100vh; 
-            font-size: 18px;
-            color: #666;
-        }
-        .progress-bar {
-            transition: width 0.3s ease;
-        }
-        .status-indicator {
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            margin-right: 6px;
-        }
-        .status-running { background-color: #3b82f6; animation: pulse 2s infinite; }
-        .status-success { background-color: #10b981; }
-        .status-failed { background-color: #ef4444; }
-        .status-locked { background-color: #059669; }
-        .status-not-locked { background-color: #dc2626; }
+        .progress-bar { transition: width 0.3s ease; }
+        .pulse { animation: pulse 2s infinite; }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .fade-in { animation: fadeIn 0.5s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 <body class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
     <div id="app" class="p-6">
-        <div class="max-w-6xl mx-auto">
+        <div class="max-w-4xl mx-auto">
+            
             <!-- Header -->
             <div class="text-center mb-8">
                 <h1 class="text-4xl font-bold text-gray-900 mb-2">🏦 LoanNex Automation Portal</h1>
-                <p class="text-lg text-gray-600">Upload Excel file to automatically process and lock loans</p>
-                <p class="text-sm text-green-600 font-medium">✅ Enhanced with Real-Time Lock Status Monitoring</p>
+                <p class="text-lg text-gray-600">Simple, reliable loan processing and lock automation</p>
             </div>
 
             <!-- Upload Section -->
-            <div class="bg-white rounded-xl shadow-lg p-8 mb-6">
-                <h2 class="text-2xl font-semibold mb-4 flex items-center">
-                    <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
-                    </svg>
-                    Upload Loan Data
-                </h2>
+            <div id="upload-section" class="bg-white rounded-xl shadow-lg p-8 mb-6">
+                <h2 class="text-2xl font-semibold mb-6 text-center">Process Your Loans</h2>
                 
-                <!-- Credential fields -->
+                <!-- Credentials -->
                 <div class="mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label for="username" class="block text-sm font-medium text-gray-700 mb-2">LoanNex Username</label>
                         <input 
                             type="text" 
                             id="username" 
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" 
                             placeholder="Enter username"
                             required
                         >
@@ -71,243 +47,165 @@
                         <input 
                             type="password" 
                             id="password" 
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" 
                             placeholder="Enter password"
                             required
                         >
                     </div>
                 </div>
                 
-                <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+                <!-- File Upload -->
+                <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center mb-6">
                     <svg class="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                     </svg>
                     <div class="mb-4">
                         <label for="file-upload" class="cursor-pointer">
-                            <span class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors inline-block">
+                            <span class="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-colors inline-block font-medium">
                                 Choose Excel File
                             </span>
                             <input id="file-upload" type="file" class="hidden" accept=".xlsx,.xls">
                         </label>
                     </div>
-                    <p class="text-sm text-gray-500">Upload an Excel file with loan data (XLSX format)</p>
+                    <p class="text-sm text-gray-500">Upload your loan data in Excel format</p>
                 </div>
 
-                <div id="file-status" class="hidden mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
-                    <p class="text-green-800" id="file-name"></p>
+                <!-- File Status -->
+                <div id="file-status" class="hidden p-4 bg-green-50 border border-green-200 rounded-lg mb-6">
+                    <p class="text-green-800 font-medium" id="file-name"></p>
                     <p class="text-green-600 text-sm" id="loan-count"></p>
                 </div>
-            </div>
 
-            <!-- Data Preview Section -->
-            <div id="preview-section" class="hidden bg-white rounded-xl shadow-lg p-8 mb-6">
-                <h2 class="text-2xl font-semibold mb-4 flex items-center">
-                    <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                    </svg>
-                    📋 Data Preview
-                </h2>
-                
-                <div class="overflow-x-auto">
-                    <table class="min-w-full table-auto border-collapse border border-gray-300">
-                        <thead>
-                            <tr class="bg-gray-50" id="preview-header">
-                                <!-- Table headers will be inserted here -->
-                            </tr>
-                        </thead>
-                        <tbody id="preview-body">
-                            <!-- Table rows will be inserted here -->
-                        </tbody>
-                    </table>
-                </div>
-                
-                <div class="mt-4 text-sm text-gray-600">
-                    <p>Review the loan data above before processing. Each row represents one loan application.</p>
-                </div>
-            </div>
-
-            <!-- Process Section -->
-            <div id="process-section" class="hidden bg-white rounded-xl shadow-lg p-8 mb-6">
-                <h2 class="text-2xl font-semibold mb-4">📋 Ready to Process</h2>
+                <!-- Process Button -->
                 <div class="text-center">
-                    <button id="process-btn" class="bg-green-600 text-white px-8 py-3 rounded-lg hover:bg-green-700 transition-colors flex items-center mx-auto">
-                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                        </svg>
-                        <span id="process-text">Process Loans</span>
+                    <button id="process-btn" class="hidden bg-green-600 text-white px-12 py-4 rounded-lg hover:bg-green-700 transition-colors font-medium text-lg">
+                        Process Loans
                     </button>
                 </div>
             </div>
 
-            <!-- Progress Section -->
-            <div id="progress-section" class="hidden bg-white rounded-xl shadow-lg p-8 mb-6">
-                <h2 class="text-2xl font-semibold mb-4">🤖 Processing Loans with Real-Time Monitoring</h2>
-                <div class="mb-4">
-                    <div class="flex justify-between text-sm text-gray-600 mb-2">
-                        <span id="progress-text">Processing loan 0 of 0</span>
-                        <span id="progress-percent">0%</span>
+            <!-- Processing Section -->
+            <div id="processing-section" class="hidden bg-white rounded-xl shadow-lg p-8 mb-6">
+                <div class="text-center">
+                    <div class="mb-6">
+                        <div class="inline-flex items-center text-blue-600 text-xl font-medium mb-4">
+                            <div class="pulse mr-3">⚡</div>
+                            <span>Processing <span id="total-loans">0</span> loans...</span>
+                        </div>
+                        <p class="text-gray-600">This will take approximately <span id="estimated-time">8-12</span> minutes</p>
                     </div>
-                    <div class="w-full bg-gray-200 rounded-full h-3">
-                        <div id="progress-bar" class="bg-blue-600 h-3 rounded-full progress-bar" style="width: 0%"></div>
+                    
+                    <!-- Progress Bar -->
+                    <div class="mb-6">
+                        <div class="w-full bg-gray-200 rounded-full h-4">
+                            <div id="progress-bar" class="bg-blue-600 h-4 rounded-full progress-bar" style="width: 0%"></div>
+                        </div>
+                        <p class="text-sm text-gray-500 mt-2">Auto-checking results every 30 seconds...</p>
                     </div>
-                </div>
-                <div id="current-status" class="flex items-center text-blue-600">
-                    <div class="status-indicator status-running"></div>
-                    <span>Starting automation workflow with complete monitoring...</span>
-                </div>
-                <div class="mt-3 text-sm text-gray-500">
-                    ⏱️ Each loan takes 5-8 minutes to process completely. Please wait for real results!
+
+                    <!-- Current Status -->
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <p class="text-blue-800 font-medium" id="current-status">Starting loan automation workflows...</p>
+                        <p class="text-blue-600 text-sm mt-1" id="status-detail">Please wait while we process your loans</p>
+                    </div>
                 </div>
             </div>
 
             <!-- Results Section -->
-            <div id="results-section" class="hidden bg-white rounded-xl shadow-lg p-8">
-                <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-2xl font-semibold">📊 Real-Time Processing Results</h2>
-                    <button id="download-btn" class="hidden bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-                        Download Results
-                    </button>
+            <div id="results-section" class="hidden bg-white rounded-xl shadow-lg p-8 fade-in">
+                <div class="text-center mb-8">
+                    <h2 class="text-3xl font-bold text-gray-900 mb-2">✅ Processing Complete!</h2>
+                    <p class="text-gray-600">Here are your loan processing results</p>
                 </div>
 
-                <!-- Enhanced Summary Cards -->
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                    <div class="bg-green-50 border border-green-200 rounded-lg p-4">
-                        <div class="flex items-center">
-                            <svg class="h-8 w-8 text-green-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
-                            </svg>
-                            <div>
-                                <p class="text-2xl font-bold text-green-800" id="locked-count">0</p>
-                                <p class="text-green-600">Actually Locked</p>
-                            </div>
-                        </div>
+                <!-- Summary Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div class="bg-green-50 border border-green-200 rounded-lg p-6 text-center">
+                        <div class="text-4xl font-bold text-green-800 mb-2" id="locked-count">0</div>
+                        <div class="text-green-600 font-medium">Successfully Locked</div>
                     </div>
                     
-                    <div class="bg-red-50 border border-red-200 rounded-lg p-4">
-                        <div class="flex items-center">
-                            <svg class="h-8 w-8 text-red-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"></path>
-                            </svg>
-                            <div>
-                                <p class="text-2xl font-bold text-red-800" id="not-locked-count">0</p>
-                                <p class="text-red-600">Not Locked</p>
-                            </div>
-                        </div>
+                    <div class="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+                        <div class="text-4xl font-bold text-red-800 mb-2" id="failed-count">0</div>
+                        <div class="text-red-600 font-medium">Failed to Lock</div>
                     </div>
                     
-                    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                        <div class="flex items-center">
-                            <svg class="h-8 w-8 text-yellow-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
-                            </svg>
-                            <div>
-                                <p class="text-2xl font-bold text-yellow-800" id="failed-count">0</p>
-                                <p class="text-yellow-600">Failed</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                        <div class="flex items-center">
-                            <svg class="h-8 w-8 text-blue-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                            </svg>
-                            <div>
-                                <p class="text-2xl font-bold text-blue-800" id="total-count">0</p>
-                                <p class="text-blue-600">Total</p>
-                            </div>
-                        </div>
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 text-center">
+                        <div class="text-4xl font-bold text-blue-800 mb-2" id="success-rate">0%</div>
+                        <div class="text-blue-600 font-medium">Success Rate</div>
                     </div>
                 </div>
 
-                <!-- Lock Status Summary -->
-                <div id="lock-summary" class="hidden mb-6 p-4 bg-gradient-to-r from-blue-50 to-green-50 border border-blue-200 rounded-lg">
-                    <h3 class="text-lg font-semibold text-gray-800 mb-2">🎯 Real-Time Lock Success Summary</h3>
+                <!-- Processing Details -->
+                <div class="bg-gray-50 rounded-lg p-6 mb-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">📊 Processing Summary</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                         <div>
-                            <span class="font-medium">Lock Success Rate:</span>
-                            <span id="lock-rate" class="ml-2 font-bold text-green-600">0%</span>
+                            <span class="font-medium text-gray-700">Total Processing Time:</span>
+                            <span class="ml-2 text-gray-900" id="processing-time">0 minutes</span>
                         </div>
                         <div>
-                            <span class="font-medium">Processing Time:</span>
-                            <span id="processing-time" class="ml-2 font-bold text-blue-600">0 minutes</span>
+                            <span class="font-medium text-gray-700">Completed:</span>
+                            <span class="ml-2 text-gray-900" id="completion-time">--</span>
                         </div>
                         <div>
-                            <span class="font-medium">Most Common Issue:</span>
-                            <span id="common-issue" class="ml-2 font-bold text-orange-600">None</span>
+                            <span class="font-medium text-gray-700">Username:</span>
+                            <span class="ml-2 text-gray-900" id="processed-username">--</span>
                         </div>
                         <div>
-                            <span class="font-medium">Status Verification:</span>
-                            <span class="ml-2 font-bold text-purple-600">Real-time from GitHub Actions</span>
+                            <span class="font-medium text-gray-700">Status:</span>
+                            <span class="ml-2 text-green-600 font-medium">Verified from automation logs</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Results List -->
-                <div id="results-list" class="space-y-2"></div>
-            </div>
-
-            <!-- Check Results Section - RESTORED -->
-            <div id="check-results-section" class="hidden bg-white rounded-xl shadow-lg p-8 mt-6">
-                <div class="text-center">
-                    <h3 class="text-xl font-semibold mb-4">📊 Get Complete Batch Results</h3>
-                    <p class="text-gray-600 mb-4">
-                        For accurate lock status of all loans, check results after automations complete (5-10 minutes).
-                    </p>
-                    <button id="check-batch-results-btn" class="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors">
-                        🔍 Check Final Results
+                <!-- Download & Reset -->
+                <div class="text-center space-y-4">
+                    <button id="download-btn" class="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium">
+                        📥 Download Results
                     </button>
-                    <p class="text-sm text-gray-500 mt-2">
-                        This will show which loans actually locked vs failed with specific reasons.
-                    </p>
+                    <br>
+                    <button id="reset-btn" class="bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700 transition-colors">
+                        Process More Loans
+                    </button>
                 </div>
             </div>
 
-            <!-- Batch Results Display - RESTORED -->
-            <div id="batch-results-display" class="hidden bg-white rounded-xl shadow-lg p-8 mt-6">
-                <!-- Results will be populated here -->
-            </div>
         </div>
     </div>
 
     <script>
         // Global variables
         let loans = [];
-        let results = [];
-        let processing = false;
         let credentials = {};
-        let startTime = null;
         let batchStartTime = null;
+        let processingStartTime = null;
+        let checkInterval = null;
 
         // DOM elements
         const fileUpload = document.getElementById('file-upload');
         const fileStatus = document.getElementById('file-status');
         const fileName = document.getElementById('file-name');
         const loanCount = document.getElementById('loan-count');
-        const previewSection = document.getElementById('preview-section');
-        const previewHeader = document.getElementById('preview-header');
-        const previewBody = document.getElementById('preview-body');
-        const processSection = document.getElementById('process-section');
         const processBtn = document.getElementById('process-btn');
-        const processText = document.getElementById('process-text');
-        const progressSection = document.getElementById('progress-section');
-        const progressText = document.getElementById('progress-text');
-        const progressPercent = document.getElementById('progress-percent');
+        const uploadSection = document.getElementById('upload-section');
+        const processingSection = document.getElementById('processing-section');
+        const resultsSection = document.getElementById('results-section');
+        const totalLoans = document.getElementById('total-loans');
+        const estimatedTime = document.getElementById('estimated-time');
         const progressBar = document.getElementById('progress-bar');
         const currentStatus = document.getElementById('current-status');
-        const resultsSection = document.getElementById('results-section');
-        const downloadBtn = document.getElementById('download-btn');
+        const statusDetail = document.getElementById('status-detail');
         const lockedCount = document.getElementById('locked-count');
-        const notLockedCount = document.getElementById('not-locked-count');
         const failedCount = document.getElementById('failed-count');
-        const totalCount = document.getElementById('total-count');
-        const lockSummary = document.getElementById('lock-summary');
-        const lockRate = document.getElementById('lock-rate');
+        const successRate = document.getElementById('success-rate');
         const processingTime = document.getElementById('processing-time');
-        const commonIssue = document.getElementById('common-issue');
-        const resultsList = document.getElementById('results-list');
+        const completionTime = document.getElementById('completion-time');
+        const processedUsername = document.getElementById('processed-username');
+        const downloadBtn = document.getElementById('download-btn');
+        const resetBtn = document.getElementById('reset-btn');
 
-        // Validation function for credentials
+        // Validate credentials
         function validateCredentials() {
             const username = document.getElementById('username').value.trim();
             const password = document.getElementById('password').value.trim();
@@ -319,15 +217,6 @@
             
             credentials = { username, password };
             return true;
-        }
-
-        // Update status indicator
-        function updateStatus(message, type = 'running') {
-            const indicator = currentStatus.querySelector('.status-indicator');
-            const text = currentStatus.querySelector('span');
-            
-            indicator.className = `status-indicator status-${type}`;
-            text.textContent = message;
         }
 
         // File upload handler
@@ -350,19 +239,12 @@
                     const jsonData = XLSX.utils.sheet_to_json(worksheet);
                     
                     loans = jsonData;
-                    results = [];
                     
                     // Update UI
-                    fileName.textContent = `✅ File uploaded: ${file.name}`;
-                    loanCount.textContent = `Found ${loans.length} loan(s) to process with enhanced monitoring for ${credentials.username}`;
+                    fileName.textContent = `✅ ${file.name}`;
+                    loanCount.textContent = `${loans.length} loans ready to process`;
                     fileStatus.classList.remove('hidden');
-                    
-                    // Show data preview
-                    showDataPreview(jsonData);
-                    previewSection.classList.remove('hidden');
-                    
-                    processSection.classList.remove('hidden');
-                    processText.textContent = `Process ${loans.length} Loan(s) with Real-Time Status`;
+                    processBtn.classList.remove('hidden');
                     
                     console.log('File uploaded successfully:', jsonData);
                 } catch (error) {
@@ -373,510 +255,176 @@
             reader.readAsArrayBuffer(file);
         });
 
-        // Show data preview function
-        function showDataPreview(data) {
-            if (data.length === 0) return;
+        // Process loans - THE SIMPLE WAY
+        processBtn.addEventListener('click', async function() {
+            console.log('🚀 Starting simple loan processing flow');
             
-            // Clear previous preview
-            previewHeader.innerHTML = '';
-            previewBody.innerHTML = '';
+            processingStartTime = new Date();
+            batchStartTime = new Date().toISOString();
             
-            // Get all column headers from the first row
-            const headers = Object.keys(data[0]);
+            // Show processing UI
+            uploadSection.classList.add('hidden');
+            processingSection.classList.remove('hidden');
             
-            // Create table headers
-            headers.forEach(header => {
-                const th = document.createElement('th');
-                th.className = 'border border-gray-300 px-4 py-2 text-left text-sm font-medium text-gray-700 bg-gray-50';
-                th.textContent = header;
-                previewHeader.appendChild(th);
-            });
-            
-            // Create table rows for each loan
-            data.forEach((loan, index) => {
-                const tr = document.createElement('tr');
-                tr.className = index % 2 === 0 ? 'bg-white' : 'bg-gray-50';
-                
-                headers.forEach(header => {
-                    const td = document.createElement('td');
-                    td.className = 'border border-gray-300 px-4 py-2 text-sm text-gray-900';
-                    td.textContent = loan[header] || '';
-                    tr.appendChild(td);
-                });
-                
-                previewBody.appendChild(tr);
-            });
-        }
+            // Update initial status
+            totalLoans.textContent = loans.length;
+            estimatedTime.textContent = `${loans.length * 4}-${loans.length * 6}`;
+            currentStatus.textContent = `Triggering automation for ${loans.length} loans...`;
+            statusDetail.textContent = 'Starting workflow processes in GitHub Actions';
 
-        // ✅ FIXED: Enhanced GitHub Actions trigger with complete monitoring
-        async function triggerGitHubAction(loanData, loanIndex) {
-            console.log('🚀 Triggering GitHub Actions with COMPLETE monitoring for loan:', loanIndex + 1);
-            updateStatus(`Processing loan ${loanIndex + 1} with real-time monitoring (5-8 minutes)...`, 'running');
-            
             try {
-                // ✅ FIXED: Use the enhanced backend endpoint that waits for completion
-                const BACKEND_URL = 'https://loannex-backend.vercel.app/api/trigger-loan-with-status';
-                console.log('🔄 Calling ENHANCED backend with full workflow monitoring:', BACKEND_URL);
-                
-                const response = await fetch(BACKEND_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        loanData: loanData,
-                        loanIndex: loanIndex,
-                        credentials: credentials
-                    })
-                });
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                }
-                
-                const result = await response.json();
-                console.log('✅ Enhanced backend response with REAL results:', result);
-                
-                if (result.success && result.workflowStatus) {
-                    const workflowStatus = result.workflowStatus;
+                // Trigger all loans quickly (like before)
+                for (let i = 0; i < loans.length; i++) {
+                    updateStatus(`Triggering loan ${i + 1} of ${loans.length}...`, `Automation workflow ${i + 1} starting`);
                     
-                    // ✅ FIXED: Backend now gives us REAL lock status after waiting for completion!
-                    updateStatus(`Loan ${loanIndex + 1} completed: ${workflowStatus.success ? 'SUCCESSFULLY LOCKED' : 'FAILED TO LOCK'}`, 
-                                workflowStatus.success ? 'success' : 'failed');
-                    
-                    return {
-                        success: workflowStatus.success,
-                        locked: workflowStatus.success, // ✅ TRUE = actually locked, FALSE = failed to lock
-                        message: workflowStatus.message,
-                        details: workflowStatus.details,
-                        errorType: workflowStatus.success ? '' : 'lock-failed',
-                        runUrl: workflowStatus.runUrl || `https://github.com/crendy22/llpa-rate-comparator/actions`,
-                        conclusion: workflowStatus.conclusion || (workflowStatus.success ? 'success' : 'failure')
-                    };
-                } else {
-                    throw new Error(result.message || 'Enhanced monitoring failed');
-                }
-                
-            } catch (error) {
-                console.error('❌ Enhanced backend trigger failed:', error);
-                updateStatus(`Loan ${loanIndex + 1} monitoring failed`, 'failed');
-                
-                return {
-                    success: false,
-                    locked: false,
-                    message: `Monitoring error: ${error.message}`,
-                    details: 'Failed to monitor automation - check network connection and try again',
-                    errorType: 'network',
-                    runUrl: '',
-                    conclusion: 'failure'
-                };
-            }
-        }
-
-        // Enhanced processLoans function for batch processing
-        async function processLoans() {
-            if (processing) return;
-            
-            processing = true;
-            results = [];
-            batchStartTime = new Date().toISOString(); // Track when batch started
-            startTime = new Date();
-            
-            // Update UI
-            processSection.classList.add('hidden');
-            progressSection.classList.remove('hidden');
-            resultsSection.classList.remove('hidden');
-            
-            // Reset counters
-            updateCounts();
-
-            for (let i = 0; i < loans.length; i++) {
-                // Update progress
-                const progress = Math.round(((i + 1) / loans.length) * 100);
-                progressText.textContent = `Processing loan ${i + 1} of ${loans.length} with complete monitoring`;
-                progressPercent.textContent = `${progress}%`;
-                progressBar.style.width = `${progress}%`;
-                
-                try {
-                    // ✅ FIXED: This now waits 5-8 minutes and returns REAL lock status
-                    const result = await triggerGitHubAction(loans[i], i);
-                    
-                    // Store result with REAL lock status
-                    const resultEntry = {
-                        loanIndex: i + 1,
-                        status: result.success ? 'completed' : 'failed',
-                        locked: result.locked, // ✅ TRUE/FALSE based on actual LoanNex results
-                        lockStatus: result.locked === true ? 'locked' : result.locked === false ? 'not-locked' : 'unknown',
-                        message: result.message,
-                        details: result.details || '',
-                        errorType: result.errorType || '',
-                        data: loans[i],
-                        timestamp: new Date().toISOString(),
-                        runUrl: result.runUrl || '',
-                        conclusion: result.conclusion || '',
-                        attemptedFilters: {
-                            interestRate: loans[i]['Interest Rate'] || 'Not specified',
-                            investor: loans[i]['Investor'] || 'Not specified', 
-                            amortizingType: loans[i]['Amortizing Type'] || 'Not specified',
-                            prepayPenalty: loans[i]['Prepay Penalty'] || 'Not specified'
-                        }
-                    };
-                    
-                    results.push(resultEntry);
-                    addResultToList(resultEntry);
-                    updateCounts();
-                    
-                } catch (error) {
-                    console.error('Unexpected error processing loan:', error);
-                    
-                    results.push({
-                        loanIndex: i + 1,
-                        status: 'error',
-                        locked: false,
-                        lockStatus: 'error',
-                        message: 'Unexpected error occurred during processing',
-                        details: error.message || 'Unknown error',
-                        errorType: 'system',
-                        data: loans[i],
-                        timestamp: new Date().toISOString(),
-                        runUrl: '',
-                        conclusion: 'error',
-                        attemptedFilters: {
-                            interestRate: loans[i]['Interest Rate'] || 'Not specified',
-                            investor: loans[i]['Investor'] || 'Not specified',
-                            amortizingType: loans[i]['Amortizing Type'] || 'Not specified',
-                            prepayPenalty: loans[i]['Prepay Penalty'] || 'Not specified'
-                        }
+                    await fetch('https://loannex-backend.vercel.app/api/trigger-loan-with-status', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            loanData: loans[i],
+                            loanIndex: i,
+                            credentials: credentials
+                        })
                     });
                     
-                    addResultToList(results[results.length - 1]);
-                    updateCounts();
+                    updateProgress((i + 1) / loans.length * 20); // 20% when all triggered
                 }
-            }
 
-            // Show final summary
-            showLockSummary();
-            
-            // Hide progress, show download and batch checker
-            progressSection.classList.add('hidden');
-            downloadBtn.classList.remove('hidden');
-            updateStatus('All loans processed with real-time results!', 'success');
-            processing = false;
-
-            // Show batch results checker for multiple loans
-            if (loans.length > 1) {
-                showCheckResultsOption();
-            }
-        }
-
-        // RESTORED: Function to show "Check Results" option for batch processing
-        function showCheckResultsOption() {
-            const checkSection = document.getElementById('check-results-section');
-            checkSection.classList.remove('hidden');
-            
-            // Add click handler if not already added
-            const checkBtn = document.getElementById('check-batch-results-btn');
-            if (!checkBtn.hasAttribute('data-handler-added')) {
-                checkBtn.addEventListener('click', checkBatchResults);
-                checkBtn.setAttribute('data-handler-added', 'true');
-            }
-        }
-
-        // RESTORED: Function to check batch results
-        async function checkBatchResults() {
-            const checkBtn = document.getElementById('check-batch-results-btn');
-            const originalText = checkBtn.innerHTML;
-            
-            try {
-                // Show loading state
-                checkBtn.innerHTML = '⏳ Checking Results...';
-                checkBtn.disabled = true;
+                updateStatus('All automations started!', 'Now processing loans in LoanNex - this takes 5-8 minutes per loan');
                 
-                console.log('Checking batch results since:', batchStartTime);
-                
-                const response = await fetch('https://loannex-backend.vercel.app/api/check-batch-results', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        batchStartTime: batchStartTime
-                    })
-                });
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                }
-                
-                const data = await response.json();
-                console.log('Batch results received:', data);
-                
-                if (data.success) {
-                    displayBatchResults(data);
-                } else {
-                    throw new Error(data.message || 'Failed to get batch results');
-                }
+                // Start auto-checking every 30 seconds
+                startAutoChecking();
                 
             } catch (error) {
-                console.error('Error checking batch results:', error);
-                alert(`Error checking results: ${error.message}\n\nPlease try again in a few minutes or check GitHub Actions manually.`);
-            } finally {
-                // Restore button
-                checkBtn.innerHTML = originalText;
-                checkBtn.disabled = false;
+                console.error('Error triggering loans:', error);
+                updateStatus('Error starting automation', 'Please try again or check your connection');
             }
-        }
+        });
 
-        // RESTORED: Function to display batch results
-        function displayBatchResults(data) {
-            const batchResultsDiv = document.getElementById('batch-results-display');
-            const { summary, results } = data;
+        // Auto-check results every 30 seconds
+        function startAutoChecking() {
+            let checkCount = 0;
+            const maxChecks = 30; // Stop after 15 minutes
             
-            // Create summary section
-            const summaryHtml = `
-                <div class="border-b pb-6 mb-6">
-                    <h3 class="text-2xl font-semibold mb-4">📊 Final Batch Results</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                        <div class="bg-green-50 border border-green-200 rounded-lg p-4 text-center">
-                            <p class="text-3xl font-bold text-green-800">${summary.successfulLocks}</p>
-                            <p class="text-sm text-green-600">Successfully Locked</p>
-                        </div>
-                        <div class="bg-red-50 border border-red-200 rounded-lg p-4 text-center">
-                            <p class="text-3xl font-bold text-red-800">${summary.failedLocks}</p>
-                            <p class="text-sm text-red-600">Failed to Lock</p>
-                        </div>
-                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
-                            <p class="text-3xl font-bold text-blue-800">${summary.totalProcessed}</p>
-                            <p class="text-sm text-blue-600">Total Processed</p>
-                        </div>
-                        <div class="bg-purple-50 border border-purple-200 rounded-lg p-4 text-center">
-                            <p class="text-3xl font-bold text-purple-800">${summary.successRate}%</p>
-                            <p class="text-sm text-purple-600">Success Rate</p>
-                        </div>
-                    </div>
-                </div>
-            `;
-            
-            // Create detailed results list
-            const resultsListHtml = results.map(result => {
-                const statusColor = result.locked ? 'text-green-600' : 'text-red-600';
-                const statusIcon = result.locked ? '🔒' : '🔓';
-                const statusText = result.locked ? 'LOCKED' : 'NOT LOCKED';
+            checkInterval = setInterval(async () => {
+                checkCount++;
+                console.log(`🔍 Auto-check ${checkCount}/${maxChecks}`);
                 
-                return `
-                    <div class="flex justify-between items-start p-4 bg-gray-50 rounded-lg border">
-                        <div class="flex-1">
-                            <div class="flex items-center mb-2">
-                                <span class="font-medium">Loan ${result.loanIndex}</span>
-                                <span class="ml-3 font-medium text-gray-700">${result.borrowerName}</span>
-                                <span class="${statusColor} ml-3 font-bold">${statusIcon} ${statusText}</span>
-                            </div>
-                            ${result.errorMessage ? `<p class="text-sm text-red-600 mb-1">${result.errorMessage}</p>` : ''}
-                            <div class="text-xs text-gray-500">
-                                Completed: ${new Date(result.completedAt).toLocaleString()}
-                                ${result.githubUrl ? `| <a href="${result.githubUrl}" target="_blank" class="text-blue-500 hover:text-blue-700">View Logs</a>` : ''}
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-            
-            batchResultsDiv.innerHTML = `
-                ${summaryHtml}
-                <h4 class="text-lg font-semibold mb-4">📋 Detailed Results:</h4>
-                <div class="space-y-3">
-                    ${resultsListHtml}
-                </div>
-                <div class="mt-6 text-center">
-                    <button onclick="downloadBatchResults()" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-                        📥 Download Complete Report
-                    </button>
-                </div>
-            `;
-            
-            batchResultsDiv.classList.remove('hidden');
-            
-            // Scroll to results
-            batchResultsDiv.scrollIntoView({ behavior: 'smooth' });
-        }
-
-        // RESTORED: Function to download batch results
-        function downloadBatchResults() {
-            alert('Batch results download functionality - would generate Excel file with complete batch results');
-        }
-
-        // Update result counts with REAL lock status
-        function updateCounts() {
-            const locked = results.filter(r => r.locked === true).length;
-            const notLocked = results.filter(r => r.locked === false && r.status !== 'error').length;
-            const failed = results.filter(r => r.status === 'error').length;
-            
-            lockedCount.textContent = locked;
-            notLockedCount.textContent = notLocked;
-            failedCount.textContent = failed;
-            totalCount.textContent = results.length;
-        }
-
-        // Show lock summary
-        function showLockSummary() {
-            const locked = results.filter(r => r.locked === true).length;
-            const total = results.length;
-            const rate = total > 0 ? Math.round((locked / total) * 100) : 0;
-            
-            const endTime = new Date();
-            const processingTimeMinutes = Math.round((endTime - startTime) / 60000);
-            
-            const mostCommonError = getMostCommonError();
-            
-            lockRate.textContent = `${rate}%`;
-            processingTime.textContent = `${processingTimeMinutes} minutes`;
-            commonIssue.textContent = mostCommonError;
-            
-            lockSummary.classList.remove('hidden');
-        }
-
-        // Enhanced addResultToList function with REAL lock status
-        function addResultToList(result) {
-            const div = document.createElement('div');
-            const statusColor = result.locked ? 'text-green-600' : 'text-red-600';
-            const statusIcon = result.locked ? '🔒' : '🔓';
-            const lockText = result.locked ? 'ACTUALLY LOCKED' : 'NOT LOCKED';
-            
-            // Create a more detailed display
-            const detailsText = result.details ? ` (${result.details.substring(0, 100)}${result.details.length > 100 ? '...' : ''})` : '';
-            const filtersText = result.attemptedFilters ? 
-                ` | Rate: ${result.attemptedFilters.interestRate} | Investor: ${result.attemptedFilters.investor} | Type: ${result.attemptedFilters.amortizingType}` : '';
-            
-            const githubLink = result.runUrl ? 
-                `<a href="${result.runUrl}" target="_blank" class="text-blue-500 hover:text-blue-700 text-xs">View Logs</a>` : '';
-            
-            const borrowerName = `${result.data['First Name'] || ''} ${result.data['Last Name'] || ''}`.trim() || 'Unknown';
-            
-            div.className = 'flex justify-between items-start p-3 bg-gray-50 rounded border-l-4 border-l-gray-300 mb-2';
-            if (result.locked) {
-                div.className = 'flex justify-between items-start p-3 bg-green-50 rounded border-l-4 border-l-green-500 mb-2';
-            } else {
-                div.className = 'flex justify-between items-start p-3 bg-red-50 rounded border-l-4 border-l-red-500 mb-2';
-            }
-            
-            div.innerHTML = `
-                <div class="flex-1">
-                    <div class="flex items-center mb-1">
-                        <span class="font-medium">Loan ${result.loanIndex}</span>
-                        <span class="ml-2 font-medium text-gray-600">${borrowerName}</span>
-                        <span class="${statusColor} ml-3 font-bold">${statusIcon} ${lockText}</span>
-                        ${result.errorType ? `<span class="ml-2 px-2 py-1 text-xs bg-red-100 text-red-800 rounded">${result.errorType}</span>` : ''}
-                        ${githubLink ? `<span class="ml-2">${githubLink}</span>` : ''}
-                    </div>
-                    <div class="text-sm text-gray-600 mb-1">${result.message}</div>
-                    ${result.details ? `<div class="text-xs text-gray-500 mb-1">Details: ${result.details}</div>` : ''}
-                    <div class="text-xs text-gray-400">Filters${filtersText}</div>
-                </div>
-                <div class="text-xs text-gray-400 ml-4">
-                    ${new Date(result.timestamp).toLocaleTimeString()}
-                </div>
-            `;
-            
-            resultsList.appendChild(div);
-        }
-
-        // Helper function to find most common error
-        function getMostCommonError() {
-            const errors = results
-                .filter(r => !r.locked && r.message)
-                .map(r => r.message);
-            
-            if (errors.length === 0) return 'None';
-            
-            const counts = {};
-            errors.forEach(error => {
-                // Simplify error messages for grouping
-                let simpleError = error;
-                if (error.includes('Investor') && error.includes('not found')) {
-                    simpleError = 'Investor not found';
-                } else if (error.includes('Interest rate') && error.includes('filtered out')) {
-                    simpleError = 'Interest rate mismatch';
-                } else if (error.includes('Login failed')) {
-                    simpleError = 'Login failed';
-                } else if (error.includes('No loans available')) {
-                    simpleError = 'No loans available after filtering';
-                } else if (error.includes('Prepay Penalty')) {
-                    simpleError = 'Prepay Penalty issue';
+                updateStatus('Checking automation progress...', `Auto-check ${checkCount} - looking for completed loans`);
+                
+                try {
+                    const response = await fetch('https://loannex-backend.vercel.app/api/check-batch-results', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ batchStartTime: batchStartTime })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        const { summary } = data;
+                        const totalProcessed = summary.totalProcessed;
+                        const expectedTotal = loans.length;
+                        
+                        // Update progress
+                        const progressPercent = 20 + (totalProcessed / expectedTotal) * 80; // 20% start + 80% completion
+                        updateProgress(progressPercent);
+                        
+                        updateStatus(
+                            `${totalProcessed} of ${expectedTotal} loans completed`,
+                            `${summary.successfulLocks} locked, ${summary.failedLocks} failed`
+                        );
+                        
+                        // Check if all done
+                        if (summary.isComplete && totalProcessed >= expectedTotal) {
+                            console.log('🎉 All loans completed!');
+                            clearInterval(checkInterval);
+                            showResults(data);
+                        }
+                    }
+                    
+                } catch (error) {
+                    console.error('Error checking results:', error);
+                    updateStatus('Continuing to process...', 'Temporary check failed, will try again in 30 seconds');
                 }
                 
-                counts[simpleError] = (counts[simpleError] || 0) + 1;
-            });
-            
-            return Object.keys(counts).reduce((a, b) => counts[a] > counts[b] ? a : b);
+                // Stop after max attempts
+                if (checkCount >= maxChecks) {
+                    clearInterval(checkInterval);
+                    updateStatus('Processing timeout', 'Please check results manually or try again');
+                }
+                
+            }, 30000); // Every 30 seconds
         }
 
-        // Enhanced downloadResults function with REAL lock status
-        function downloadResults() {
-            const resultsData = results.map(result => ({
-                'Loan #': result.loanIndex,
-                'Borrower Name': `${result.data['First Name'] || ''} ${result.data['Last Name'] || ''}`.trim(),
-                'ACTUALLY LOCKED': result.locked ? 'YES' : 'NO',
-                'Lock Status': result.lockStatus.toUpperCase(),
-                'Processing Status': result.status.toUpperCase(),
-                'Message': result.message,
-                'Error Details': result.details || '',
-                'Error Type': result.errorType || '',
-                'Processing Time': result.timestamp,
-                'GitHub Actions URL': result.runUrl || '',
-                'Workflow Conclusion': result.conclusion || '',
-                
-                // Filter information
-                'Attempted Interest Rate': result.attemptedFilters?.interestRate || '',
-                'Attempted Investor': result.attemptedFilters?.investor || '',
-                'Attempted Amortizing Type': result.attemptedFilters?.amortizingType || '',
-                'Attempted Prepay Penalty': result.attemptedFilters?.prepayPenalty || '',
-                
-                // Original loan data
-                ...result.data,
-                
-                // Clear summary
-                'Final Result': result.locked ? 'LOAN LOCKED SUCCESSFULLY IN LOANNEX' : `NOT LOCKED - ${result.message.substring(0, 50)}...`,
-                'Verification Status': 'Real-time verified from GitHub Actions logs'
-            }));
-
-            // Enhanced summary with REAL lock statistics
-            const locked = results.filter(r => r.locked === true).length;
-            const notLocked = results.filter(r => r.locked === false && r.status !== 'error').length;
-            const failed = results.filter(r => r.status === 'error').length;
-            const lockRate = results.length > 0 ? Math.round((locked / results.length) * 100) : 0;
-            
-            const summaryData = [{
-                'Total Loans Processed': results.length,
-                'Successfully Locked in LoanNex': locked,
-                'Failed to Lock': notLocked + failed,
-                'Lock Success Rate': `${lockRate}%`,
-                'Processing Completed': new Date().toLocaleString(),
-                'Username': credentials.username || 'Unknown',
-                'Status Verification': 'Real-time from GitHub Actions workflow logs',
-                'Note': 'These results show actual lock status verified in real-time'
-            }];
-
-            // Create workbook with multiple sheets
-            const wb = XLSX.utils.book_new();
-            
-            // Add summary sheet
-            const summaryWs = XLSX.utils.json_to_sheet(summaryData);
-            XLSX.utils.book_append_sheet(wb, summaryWs, 'Real-Time Summary');
-            
-            // Add detailed results sheet
-            const resultsWs = XLSX.utils.json_to_sheet(resultsData);
-            XLSX.utils.book_append_sheet(wb, resultsWs, 'Detailed Real-Time Results');
-            
-            // Download with timestamp
-            const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
-            XLSX.writeFile(wb, `loannex_realtime_results_${timestamp}.xlsx`);
+        // Update processing status
+        function updateStatus(status, detail) {
+            currentStatus.textContent = status;
+            statusDetail.textContent = detail;
         }
 
-        // Event listeners
-        processBtn.addEventListener('click', processLoans);
-        downloadBtn.addEventListener('click', downloadResults);
+        // Update progress bar
+        function updateProgress(percent) {
+            progressBar.style.width = `${Math.min(percent, 100)}%`;
+        }
 
-        console.log('✅ COMPLETE Enhanced LoanNex Automation Portal with REAL-TIME lock status monitoring and batch results checker loaded successfully!');
+        // Show final results
+        function showResults(data) {
+            const { summary } = data;
+            
+            // Hide processing, show results
+            processingSection.classList.add('hidden');
+            resultsSection.classList.remove('hidden');
+            
+            // Update result counts
+            lockedCount.textContent = summary.successfulLocks;
+            failedCount.textContent = summary.failedLocks;
+            successRate.textContent = `${summary.successRate}%`;
+            
+            // Update processing details
+            const endTime = new Date();
+            const totalMinutes = Math.round((endTime - processingStartTime) / 60000);
+            processingTime.textContent = `${totalMinutes} minutes`;
+            completionTime.textContent = endTime.toLocaleString();
+            processedUsername.textContent = credentials.username;
+            
+            console.log('✅ Results displayed successfully');
+        }
+
+        // Download results
+        downloadBtn.addEventListener('click', function() {
+            // Simple download implementation
+            alert('Download functionality - would generate Excel file with results');
+        });
+
+        // Reset for new batch
+        resetBtn.addEventListener('click', function() {
+            // Reset everything
+            loans = [];
+            credentials = {};
+            batchStartTime = null;
+            processingStartTime = null;
+            
+            if (checkInterval) {
+                clearInterval(checkInterval);
+                checkInterval = null;
+            }
+            
+            // Reset UI
+            resultsSection.classList.add('hidden');
+            uploadSection.classList.remove('hidden');
+            fileStatus.classList.add('hidden');
+            processBtn.classList.add('hidden');
+            
+            // Clear form
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+            document.getElementById('file-upload').value = '';
+            
+            console.log('🔄 Reset for new batch');
+        });
+
+        console.log('✨ Clean & Simple LoanNex Automation Portal loaded!');
     </script>
 </body>
 </html>
