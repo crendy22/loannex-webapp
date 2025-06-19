@@ -42,6 +42,7 @@
             <div class="text-center mb-8">
                 <h1 class="text-4xl font-bold text-gray-900 mb-2">🏦 LoanNex Automation Portal</h1>
                 <p class="text-lg text-gray-600">Upload Excel file to automatically process and lock loans</p>
+                <p class="text-sm text-green-600 font-medium">✅ Enhanced with Real-Time Lock Status Monitoring</p>
             </div>
 
             <!-- Upload Section -->
@@ -140,7 +141,7 @@
 
             <!-- Progress Section -->
             <div id="progress-section" class="hidden bg-white rounded-xl shadow-lg p-8 mb-6">
-                <h2 class="text-2xl font-semibold mb-4">🤖 Processing Loans</h2>
+                <h2 class="text-2xl font-semibold mb-4">🤖 Processing Loans with Real-Time Monitoring</h2>
                 <div class="mb-4">
                     <div class="flex justify-between text-sm text-gray-600 mb-2">
                         <span id="progress-text">Processing loan 0 of 0</span>
@@ -152,14 +153,17 @@
                 </div>
                 <div id="current-status" class="flex items-center text-blue-600">
                     <div class="status-indicator status-running"></div>
-                    <span>Starting automation workflow...</span>
+                    <span>Starting automation workflow with complete monitoring...</span>
+                </div>
+                <div class="mt-3 text-sm text-gray-500">
+                    ⏱️ Each loan takes 5-8 minutes to process completely. Please wait for real results!
                 </div>
             </div>
 
             <!-- Results Section -->
             <div id="results-section" class="hidden bg-white rounded-xl shadow-lg p-8">
                 <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-2xl font-semibold">📊 Processing Results</h2>
+                    <h2 class="text-2xl font-semibold">📊 Real-Time Processing Results</h2>
                     <button id="download-btn" class="hidden bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
                         Download Results
                     </button>
@@ -218,7 +222,7 @@
 
                 <!-- Lock Status Summary -->
                 <div id="lock-summary" class="hidden mb-6 p-4 bg-gradient-to-r from-blue-50 to-green-50 border border-blue-200 rounded-lg">
-                    <h3 class="text-lg font-semibold text-gray-800 mb-2">🎯 Lock Success Summary</h3>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-2">🎯 Real-Time Lock Success Summary</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                         <div>
                             <span class="font-medium">Lock Success Rate:</span>
@@ -233,35 +237,14 @@
                             <span id="common-issue" class="ml-2 font-bold text-orange-600">None</span>
                         </div>
                         <div>
-                            <span class="font-medium">Verified Status:</span>
-                            <span class="ml-2 font-bold text-purple-600">Real-time monitoring</span>
+                            <span class="font-medium">Status Verification:</span>
+                            <span class="ml-2 font-bold text-purple-600">Real-time from GitHub Actions</span>
                         </div>
                     </div>
                 </div>
 
                 <!-- Results List -->
                 <div id="results-list" class="space-y-2"></div>
-            </div>
-
-            <!-- Check Results Section -->
-            <div id="check-results-section" class="hidden bg-white rounded-xl shadow-lg p-8 mt-6">
-                <div class="text-center">
-                    <h3 class="text-xl font-semibold mb-4">📊 Get Complete Batch Results</h3>
-                    <p class="text-gray-600 mb-4">
-                        For accurate lock status of all loans, check results after automations complete (5-10 minutes).
-                    </p>
-                    <button id="check-batch-results-btn" class="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors">
-                        🔍 Check Final Results
-                    </button>
-                    <p class="text-sm text-gray-500 mt-2">
-                        This will show which loans actually locked vs failed with specific reasons.
-                    </p>
-                </div>
-            </div>
-
-            <!-- Batch Results Display -->
-            <div id="batch-results-display" class="hidden bg-white rounded-xl shadow-lg p-8 mt-6">
-                <!-- Results will be populated here -->
             </div>
         </div>
     </div>
@@ -273,8 +256,6 @@
         let processing = false;
         let credentials = {};
         let startTime = null;
-        let batchStartTime = null;
-        let checkResultsInterval = null;
 
         // DOM elements
         const fileUpload = document.getElementById('file-upload');
@@ -351,7 +332,7 @@
                     
                     // Update UI
                     fileName.textContent = `✅ File uploaded: ${file.name}`;
-                    loanCount.textContent = `Found ${loans.length} loan(s) to process with credentials for ${credentials.username}`;
+                    loanCount.textContent = `Found ${loans.length} loan(s) to process with enhanced monitoring for ${credentials.username}`;
                     fileStatus.classList.remove('hidden');
                     
                     // Show data preview
@@ -359,7 +340,7 @@
                     previewSection.classList.remove('hidden');
                     
                     processSection.classList.remove('hidden');
-                    processText.textContent = `Process ${loans.length} Loan(s)`;
+                    processText.textContent = `Process ${loans.length} Loan(s) with Real-Time Status`;
                     
                     console.log('File uploaded successfully:', jsonData);
                 } catch (error) {
@@ -405,14 +386,15 @@
             });
         }
 
-        // Enhanced GitHub Actions trigger - simplified for batch processing
+        // ✅ FIXED: Enhanced GitHub Actions trigger with complete monitoring
         async function triggerGitHubAction(loanData, loanIndex) {
-            console.log('Triggering GitHub Actions for loan:', loanIndex);
-            updateStatus(`Processing loan ${loanIndex + 1}...`, 'running');
+            console.log('🚀 Triggering GitHub Actions with COMPLETE monitoring for loan:', loanIndex + 1);
+            updateStatus(`Processing loan ${loanIndex + 1} with real-time monitoring (5-8 minutes)...`, 'running');
             
             try {
-                const BACKEND_URL = 'https://loannex-backend.vercel.app/api/trigger-loan';
-                console.log('Calling backend for batch processing:', BACKEND_URL);
+                // ✅ FIXED: Use the enhanced backend endpoint that waits for completion
+                const BACKEND_URL = 'https://loannex-backend.vercel.app/api/trigger-loan-with-status';
+                console.log('🔄 Calling ENHANCED backend with full workflow monitoring:', BACKEND_URL);
                 
                 const response = await fetch(BACKEND_URL, {
                     method: 'POST',
@@ -431,33 +413,37 @@
                 }
                 
                 const result = await response.json();
-                console.log('Backend response:', result);
+                console.log('✅ Enhanced backend response with REAL results:', result);
                 
-                if (result.success) {
-                    updateStatus(`Loan ${loanIndex + 1} automation started`, 'success');
+                if (result.success && result.workflowStatus) {
+                    const workflowStatus = result.workflowStatus;
+                    
+                    // ✅ FIXED: Backend now gives us REAL lock status after waiting for completion!
+                    updateStatus(`Loan ${loanIndex + 1} completed: ${workflowStatus.success ? 'SUCCESSFULLY LOCKED' : 'FAILED TO LOCK'}`, 
+                                workflowStatus.success ? 'success' : 'failed');
                     
                     return {
-                        success: true,
-                        locked: null, // We'll check this later with batch results
-                        message: 'Automation triggered successfully',
-                        details: 'Check final results for actual lock status',
-                        errorType: '',
-                        runUrl: `https://github.com/crendy22/llpa-rate-comparator/actions`,
-                        conclusion: 'triggered'
+                        success: workflowStatus.success,
+                        locked: workflowStatus.success, // ✅ TRUE = actually locked, FALSE = failed to lock
+                        message: workflowStatus.message,
+                        details: workflowStatus.details,
+                        errorType: workflowStatus.success ? '' : 'lock-failed',
+                        runUrl: workflowStatus.runUrl || `https://github.com/crendy22/llpa-rate-comparator/actions`,
+                        conclusion: workflowStatus.conclusion || (workflowStatus.success ? 'success' : 'failure')
                     };
                 } else {
-                    throw new Error(result.message || 'Backend trigger failed');
+                    throw new Error(result.message || 'Enhanced monitoring failed');
                 }
                 
             } catch (error) {
-                console.error('Backend trigger failed:', error);
-                updateStatus('Failed to start automation', 'failed');
+                console.error('❌ Enhanced backend trigger failed:', error);
+                updateStatus(`Loan ${loanIndex + 1} monitoring failed`, 'failed');
                 
                 return {
                     success: false,
                     locked: false,
-                    message: `Backend error: ${error.message}`,
-                    details: 'Failed to trigger automation - check network connection and try again',
+                    message: `Monitoring error: ${error.message}`,
+                    details: 'Failed to monitor automation - check network connection and try again',
                     errorType: 'network',
                     runUrl: '',
                     conclusion: 'failure'
@@ -465,13 +451,12 @@
             }
         }
 
-        // Enhanced processLoans function for batch processing
+        // Enhanced processLoans function
         async function processLoans() {
             if (processing) return;
             
             processing = true;
             results = [];
-            batchStartTime = new Date().toISOString(); // Track when batch started
             startTime = new Date();
             
             // Update UI
@@ -485,18 +470,19 @@
             for (let i = 0; i < loans.length; i++) {
                 // Update progress
                 const progress = Math.round(((i + 1) / loans.length) * 100);
-                progressText.textContent = `Processing loan ${i + 1} of ${loans.length}`;
+                progressText.textContent = `Processing loan ${i + 1} of ${loans.length} with complete monitoring`;
                 progressPercent.textContent = `${progress}%`;
                 progressBar.style.width = `${progress}%`;
                 
                 try {
+                    // ✅ FIXED: This now waits 5-8 minutes and returns REAL lock status
                     const result = await triggerGitHubAction(loans[i], i);
                     
-                    // Store result for batch processing
+                    // Store result with REAL lock status
                     const resultEntry = {
                         loanIndex: i + 1,
-                        status: result.success ? 'triggered' : 'failed',
-                        locked: result.locked,
+                        status: result.success ? 'completed' : 'failed',
+                        locked: result.locked, // ✅ TRUE/FALSE based on actual LoanNex results
                         lockStatus: result.locked === true ? 'locked' : result.locked === false ? 'not-locked' : 'unknown',
                         message: result.message,
                         details: result.details || '',
@@ -548,156 +534,14 @@
             // Show final summary
             showLockSummary();
             
-            // Hide progress, show download and batch checker
+            // Hide progress, show download
             progressSection.classList.add('hidden');
             downloadBtn.classList.remove('hidden');
-            updateStatus('All automations triggered!', 'success');
+            updateStatus('All loans processed with real-time results!', 'success');
             processing = false;
-
-            // Show batch results checker for multiple loans
-            if (loans.length > 1) {
-                showCheckResultsOption();
-            }
         }
 
-        // New function to show "Check Results" option for batch processing
-        function showCheckResultsOption() {
-            const checkSection = document.getElementById('check-results-section');
-            checkSection.classList.remove('hidden');
-            
-            // Add click handler if not already added
-            const checkBtn = document.getElementById('check-batch-results-btn');
-            if (!checkBtn.hasAttribute('data-handler-added')) {
-                checkBtn.addEventListener('click', checkBatchResults);
-                checkBtn.setAttribute('data-handler-added', 'true');
-            }
-        }
-
-        // New function to check batch results
-        async function checkBatchResults() {
-            const checkBtn = document.getElementById('check-batch-results-btn');
-            const originalText = checkBtn.innerHTML;
-            
-            try {
-                // Show loading state
-                checkBtn.innerHTML = '⏳ Checking Results...';
-                checkBtn.disabled = true;
-                
-                console.log('Checking batch results since:', batchStartTime);
-                
-                const response = await fetch('https://loannex-backend.vercel.app/api/check-batch-results', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        batchStartTime: batchStartTime
-                    })
-                });
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                }
-                
-                const data = await response.json();
-                console.log('Batch results received:', data);
-                
-                if (data.success) {
-                    displayBatchResults(data);
-                } else {
-                    throw new Error(data.message || 'Failed to get batch results');
-                }
-                
-            } catch (error) {
-                console.error('Error checking batch results:', error);
-                alert(`Error checking results: ${error.message}\n\nPlease try again in a few minutes or check GitHub Actions manually.`);
-            } finally {
-                // Restore button
-                checkBtn.innerHTML = originalText;
-                checkBtn.disabled = false;
-            }
-        }
-
-        // New function to display batch results
-        function displayBatchResults(data) {
-            const batchResultsDiv = document.getElementById('batch-results-display');
-            const { summary, results } = data;
-            
-            // Create summary section
-            const summaryHtml = `
-                <div class="border-b pb-6 mb-6">
-                    <h3 class="text-2xl font-semibold mb-4">📊 Final Batch Results</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                        <div class="bg-green-50 border border-green-200 rounded-lg p-4 text-center">
-                            <p class="text-3xl font-bold text-green-800">${summary.successfulLocks}</p>
-                            <p class="text-sm text-green-600">Successfully Locked</p>
-                        </div>
-                        <div class="bg-red-50 border border-red-200 rounded-lg p-4 text-center">
-                            <p class="text-3xl font-bold text-red-800">${summary.failedLocks}</p>
-                            <p class="text-sm text-red-600">Failed to Lock</p>
-                        </div>
-                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
-                            <p class="text-3xl font-bold text-blue-800">${summary.totalProcessed}</p>
-                            <p class="text-sm text-blue-600">Total Processed</p>
-                        </div>
-                        <div class="bg-purple-50 border border-purple-200 rounded-lg p-4 text-center">
-                            <p class="text-3xl font-bold text-purple-800">${summary.successRate}%</p>
-                            <p class="text-sm text-purple-600">Success Rate</p>
-                        </div>
-                    </div>
-                </div>
-            `;
-            
-            // Create detailed results list
-            const resultsListHtml = results.map(result => {
-                const statusColor = result.locked ? 'text-green-600' : 'text-red-600';
-                const statusIcon = result.locked ? '🔒' : '🔓';
-                const statusText = result.locked ? 'LOCKED' : 'NOT LOCKED';
-                
-                return `
-                    <div class="flex justify-between items-start p-4 bg-gray-50 rounded-lg border">
-                        <div class="flex-1">
-                            <div class="flex items-center mb-2">
-                                <span class="font-medium">Loan ${result.loanIndex}</span>
-                                <span class="ml-3 font-medium text-gray-700">${result.borrowerName}</span>
-                                <span class="${statusColor} ml-3 font-bold">${statusIcon} ${statusText}</span>
-                            </div>
-                            ${result.errorMessage ? `<p class="text-sm text-red-600 mb-1">${result.errorMessage}</p>` : ''}
-                            <div class="text-xs text-gray-500">
-                                Completed: ${new Date(result.completedAt).toLocaleString()}
-                                ${result.githubUrl ? `| <a href="${result.githubUrl}" target="_blank" class="text-blue-500 hover:text-blue-700">View Logs</a>` : ''}
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-            
-            batchResultsDiv.innerHTML = `
-                ${summaryHtml}
-                <h4 class="text-lg font-semibold mb-4">📋 Detailed Results:</h4>
-                <div class="space-y-3">
-                    ${resultsListHtml}
-                </div>
-                <div class="mt-6 text-center">
-                    <button onclick="downloadBatchResults()" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-                        📥 Download Complete Report
-                    </button>
-                </div>
-            `;
-            
-            batchResultsDiv.classList.remove('hidden');
-            
-            // Scroll to results
-            batchResultsDiv.scrollIntoView({ behavior: 'smooth' });
-        }
-
-        // New function to download batch results
-        function downloadBatchResults() {
-            // This would integrate with your existing download logic
-            alert('Batch results download - this would generate an Excel file with the complete batch results');
-        }
-
-        // Update result counts with lock status
+        // Update result counts with REAL lock status
         function updateCounts() {
             const locked = results.filter(r => r.locked === true).length;
             const notLocked = results.filter(r => r.locked === false && r.status !== 'error').length;
@@ -727,15 +571,12 @@
             lockSummary.classList.remove('hidden');
         }
 
-        // Enhanced addResultToList function with lock status
+        // Enhanced addResultToList function with REAL lock status
         function addResultToList(result) {
             const div = document.createElement('div');
-            const statusColor = result.status === 'triggered' ? 'text-blue-600' : 
-                                result.locked ? 'text-green-600' : 'text-red-600';
-            const statusIcon = result.status === 'triggered' ? '⏳' : 
-                               result.locked ? '🔒' : '🔓';
-            const lockText = result.status === 'triggered' ? 'TRIGGERED' : 
-                            result.locked ? 'LOCKED' : 'NOT LOCKED';
+            const statusColor = result.locked ? 'text-green-600' : 'text-red-600';
+            const statusIcon = result.locked ? '🔒' : '🔓';
+            const lockText = result.locked ? 'ACTUALLY LOCKED' : 'NOT LOCKED';
             
             // Create a more detailed display
             const detailsText = result.details ? ` (${result.details.substring(0, 100)}${result.details.length > 100 ? '...' : ''})` : '';
@@ -748,6 +589,12 @@
             const borrowerName = `${result.data['First Name'] || ''} ${result.data['Last Name'] || ''}`.trim() || 'Unknown';
             
             div.className = 'flex justify-between items-start p-3 bg-gray-50 rounded border-l-4 border-l-gray-300 mb-2';
+            if (result.locked) {
+                div.className = 'flex justify-between items-start p-3 bg-green-50 rounded border-l-4 border-l-green-500 mb-2';
+            } else {
+                div.className = 'flex justify-between items-start p-3 bg-red-50 rounded border-l-4 border-l-red-500 mb-2';
+            }
+            
             div.innerHTML = `
                 <div class="flex-1">
                     <div class="flex items-center mb-1">
@@ -799,14 +646,14 @@
             return Object.keys(counts).reduce((a, b) => counts[a] > counts[b] ? a : b);
         }
 
-        // Enhanced downloadResults function with lock status
+        // Enhanced downloadResults function with REAL lock status
         function downloadResults() {
             const resultsData = results.map(result => ({
                 'Loan #': result.loanIndex,
                 'Borrower Name': `${result.data['First Name'] || ''} ${result.data['Last Name'] || ''}`.trim(),
-                'LOCKED': result.locked ? 'YES' : 'NO',
+                'ACTUALLY LOCKED': result.locked ? 'YES' : 'NO',
                 'Lock Status': result.lockStatus.toUpperCase(),
-                'Automation Status': result.status.toUpperCase(),
+                'Processing Status': result.status.toUpperCase(),
                 'Message': result.message,
                 'Error Details': result.details || '',
                 'Error Type': result.errorType || '',
@@ -824,11 +671,11 @@
                 ...result.data,
                 
                 // Clear summary
-                'Final Result': result.locked ? 'LOAN LOCKED SUCCESSFULLY' : `NOT LOCKED - ${result.message.substring(0, 50)}...`,
-                'Verification Status': 'Use "Check Final Results" button for verified lock status'
+                'Final Result': result.locked ? 'LOAN LOCKED SUCCESSFULLY IN LOANNEX' : `NOT LOCKED - ${result.message.substring(0, 50)}...`,
+                'Verification Status': 'Real-time verified from GitHub Actions logs'
             }));
 
-            // Enhanced summary with lock statistics
+            // Enhanced summary with REAL lock statistics
             const locked = results.filter(r => r.locked === true).length;
             const notLocked = results.filter(r => r.locked === false && r.status !== 'error').length;
             const failed = results.filter(r => r.status === 'error').length;
@@ -836,12 +683,13 @@
             
             const summaryData = [{
                 'Total Loans Processed': results.length,
-                'Automations Triggered': results.filter(r => r.status === 'triggered').length,
-                'Automation Failures': failed,
+                'Successfully Locked in LoanNex': locked,
+                'Failed to Lock': notLocked + failed,
+                'Lock Success Rate': `${lockRate}%`,
                 'Processing Completed': new Date().toLocaleString(),
                 'Username': credentials.username || 'Unknown',
-                'Next Step': 'Use "Check Final Results" for actual lock status',
-                'Note': 'This shows automation trigger status only - use batch checker for final results'
+                'Status Verification': 'Real-time from GitHub Actions workflow logs',
+                'Note': 'These results show actual lock status verified in real-time'
             }];
 
             // Create workbook with multiple sheets
@@ -849,22 +697,22 @@
             
             // Add summary sheet
             const summaryWs = XLSX.utils.json_to_sheet(summaryData);
-            XLSX.utils.book_append_sheet(wb, summaryWs, 'Processing Summary');
+            XLSX.utils.book_append_sheet(wb, summaryWs, 'Real-Time Summary');
             
             // Add detailed results sheet
             const resultsWs = XLSX.utils.json_to_sheet(resultsData);
-            XLSX.utils.book_append_sheet(wb, resultsWs, 'Detailed Results');
+            XLSX.utils.book_append_sheet(wb, resultsWs, 'Detailed Real-Time Results');
             
             // Download with timestamp
             const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
-            XLSX.writeFile(wb, `loannex_processing_results_${timestamp}.xlsx`);
+            XLSX.writeFile(wb, `loannex_realtime_results_${timestamp}.xlsx`);
         }
 
         // Event listeners
         processBtn.addEventListener('click', processLoans);
         downloadBtn.addEventListener('click', downloadResults);
 
-        console.log('Enhanced LoanNex Automation Portal with Batch Results Checker loaded successfully!');
+        console.log('✅ Enhanced LoanNex Automation Portal with REAL-TIME lock status monitoring loaded successfully!');
     </script>
 </body>
 </html>
