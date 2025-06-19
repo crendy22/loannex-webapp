@@ -177,16 +177,90 @@
             </div>
         </div>
 
-        <!-- Pipeline Image (Right Side) -->
-        <div class="w-96 p-6 flex items-center justify-center">
-            <div class="bg-white rounded-xl shadow-lg p-4">
-                <img 
-                    src="https://i.imgur.com/pipeline-diagram.png" 
-                    alt="LoanNex Data Processing Pipeline" 
-                    class="w-full h-auto rounded-lg"
-                    style="max-width: 350px;"
-                >
-                <p class="text-center text-sm text-gray-600 mt-2">Data Processing Pipeline</p>
+        <!-- Pipeline Diagram (Right Side) -->
+        <div class="w-96 p-6">
+            <div class="bg-white rounded-xl shadow-lg p-6 h-full overflow-y-auto">
+                <h3 class="text-lg font-bold text-center text-blue-900 mb-6 border-b-2 border-blue-200 pb-2">
+                    LOANNEX AUTOMATION - DATA FLOW ARCHITECTURE
+                </h3>
+                
+                <!-- INPUT PHASE -->
+                <div class="mb-8">
+                    <div class="bg-gradient-to-r from-blue-100 to-blue-200 p-3 rounded-lg mb-3">
+                        <h4 class="font-bold text-blue-900 text-sm">INPUT PHASE</h4>
+                        <div class="text-xs text-blue-800 mt-1">
+                            📊 EXCEL UPLOAD → 🔍 VALIDATION → ✅ AUTHENTICATION → 📋 PREVIEW
+                        </div>
+                    </div>
+                    <div class="text-xs text-gray-700 space-y-1 pl-2">
+                        <div>• Upload loan spreadsheet with borrower data and filter specifications</div>
+                        <div>• Validate file format, required fields, and data types</div>
+                        <div>• Verify LoanNex credentials and system permissions</div>
+                        <div>• Display data preview table with row counts and field mapping</div>
+                    </div>
+                </div>
+
+                <!-- PROCESSING PHASE -->
+                <div class="mb-8">
+                    <div class="bg-gradient-to-r from-green-100 to-green-200 p-3 rounded-lg mb-3">
+                        <h4 class="font-bold text-green-900 text-sm">PROCESSING PHASE</h4>
+                        <div class="text-xs text-green-800 mt-1">
+                            ⚡ API ORCHESTRATION → 🚀 WORKFLOW LAUNCH → 🖥️ BROWSER AUTOMATION
+                        </div>
+                    </div>
+                    <div class="text-xs text-gray-700 space-y-1 pl-2">
+                        <div>• Backend triggers GitHub Actions workflows for each loan</div>
+                        <div>• Ubuntu VMs provision with Python runtime and Chrome browser</div>
+                        <div>• Selenium WebDriver navigates LoanNex with intelligent selectors</div>
+                    </div>
+                </div>
+
+                <!-- AUTOMATION PHASE -->
+                <div class="mb-8">
+                    <div class="bg-gradient-to-r from-purple-100 to-purple-200 p-3 rounded-lg mb-3">
+                        <h4 class="font-bold text-purple-900 text-sm">AUTOMATION PHASE</h4>
+                        <div class="text-xs text-purple-800 mt-1">
+                            🏦 LOANNEX LOGIN → 📝 FIELD POPULATION → 💰 PRICE GENERATION → 🎯 SMART FILTERING
+                        </div>
+                    </div>
+                    <div class="text-xs text-gray-700 space-y-1 pl-2">
+                        <div>• Secure authentication and session management</div>
+                        <div>• Automated population of 23+ loan fields with validation</div>
+                        <div>• Generate pricing options and display market data</div>
+                        <div>• Apply Interest Rate, Investor, and Amortizing Type filters</div>
+                    </div>
+                </div>
+
+                <!-- EXECUTION PHASE -->
+                <div class="mb-8">
+                    <div class="bg-gradient-to-r from-orange-100 to-orange-200 p-3 rounded-lg mb-3">
+                        <h4 class="font-bold text-orange-900 text-sm">EXECUTION PHASE</h4>
+                        <div class="text-xs text-orange-800 mt-1">
+                            🔒 LOCK ATTEMPT → 📊 LOG ANALYSIS → 📈 REAL-TIME MONITORING → ✅ RESULT CAPTURE
+                        </div>
+                    </div>
+                    <div class="text-xs text-gray-700 space-y-1 pl-2">
+                        <div>• Execute loan lock with borrower form completion</div>
+                        <div>• Parse automation logs for success/failure patterns</div>
+                        <div>• Auto-poll every 30 seconds for workflow completion</div>
+                        <div>• Correlate results with specific error categorization</div>
+                    </div>
+                </div>
+
+                <!-- OUTPUT PHASE -->
+                <div class="mb-4">
+                    <div class="bg-gradient-to-r from-red-100 to-red-200 p-3 rounded-lg mb-3">
+                        <h4 class="font-bold text-red-900 text-sm">OUTPUT PHASE</h4>
+                        <div class="text-xs text-red-800 mt-1">
+                            📋 DATA COMPILATION → 📊 EXCEL GENERATION → 📥 PROFESSIONAL DOWNLOAD
+                        </div>
+                    </div>
+                    <div class="text-xs text-gray-700 space-y-1 pl-2">
+                        <div>• Match loan data with automation results and status</div>
+                        <div>• Generate 3-sheet Excel: Executive Summary, Detailed Results, Failure Analysis</div>
+                        <div>• Provide timestamped, actionable reports with GitHub Actions evidence links</div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
