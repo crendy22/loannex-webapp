@@ -1265,3 +1265,238 @@
             processingTime.textContent = `${totalMinutes} minutes`;
             completionTime.textContent = endTime.toLocaleString();
             processedUsername
+            .textContent = credentials.username;
+            
+            console.log('✅ Results displayed with detailed data:', detailedResults);
+        }
+
+        // Download results
+        downloadBtn.addEventListener('click', function() {
+            console.log('📥 Generating enhanced Excel download with failure reasons...');
+            
+            // Create enhanced results data by matching loans with API results
+            const enhancedResultsData = loans.map((loan, index) => {
+                // Try multiple strategies to find matching result
+                let apiResult = null;
+                
+                apiResult = detailedResults.find(r => r.loanIndex === (index + 1));
+                
+                if (!apiResult) {
+                    apiResult = detailedResults.find(r => r.loanIndex === index);
+                }
+                
+                if (!apiResult && detailedResults.length === loans.length) {
+                    apiResult = detailedResults[index];
+                }
+                
+                if (!apiResult && index < detailedResults.length) {
+                    apiResult = detailedResults[index];
+                }
+                
+                // Determine status and failure reason
+                let status, failureReason, lockStatus;
+                
+                if (apiResult && apiResult.locked === true) {
+                    status = 'SUCCESS - LOAN LOCKED';
+                    lockStatus = '🔒 LOCKED';
+                    failureReason = '';
+                } else if (apiResult && apiResult.locked === false) {
+                    status = 'FAILED - NOT LOCKED';
+                    lockStatus = '🔓 NOT LOCKED';
+                    failureReason = apiResult.errorMessage || 'Unknown error occurred';
+                } else {
+                    status = 'PROCESSING ERROR';
+                    lockStatus = '❓ UNKNOWN';
+                    failureReason = apiResult ? 'Could not determine final status' : 'No matching API result found';
+                }
+                
+                return {
+                    // Key results first
+                    'Loan #': index + 1,
+                    'Borrower Name': `${loan['First Name'] || ''} ${loan['Last Name'] || ''}`.trim() || 'Unknown',
+                    'FINAL STATUS': status,
+                    'Lock Status': lockStatus,
+                    'Failure Reason': failureReason,
+                    'GitHub Actions URL': apiResult ? apiResult.githubUrl || '' : '',
+                    
+                    // Loan details
+                    'Interest Rate': loan['Interest Rate'] || '',
+                    'Investor': loan['Investor'] || '',
+                    'Amortizing Type': loan['Amortizing Type'] || '',
+                    'Prepay Penalty': loan['Prepay Penalty'] || '',
+                    'Property Type': loan['Property Type'] || '',
+                    'Loan Amount': loan['Loan Amount'] || '',
+                    'Occupancy': loan['Occupancy'] || '',
+                    'LTV': loan['LTV'] || '',
+                    'Credit Score': loan['Credit Score'] || '',
+                    'DTI': loan['DTI'] || '',
+                    'State': loan['State'] || '',
+                    'County': loan['County'] || '',
+                    
+                    // Processing metadata
+                    'Processing Date': new Date().toLocaleString(),
+                    'Username': credentials.username,
+                    'Workflow Type': currentWorkflowType,
+                    'Workflow ID': apiResult ? apiResult.workflowId || '' : '',
+                    'Completed At': apiResult ? apiResult.completedAt || '' : '',
+                    'Analysis Method': apiResult ? apiResult.status || 'unknown' : 'no_match',
+                    
+                    // All original loan data
+                    ...loan
+                };
+            });
+
+            // Enhanced summary with failure analysis
+            const failureReasons = detailedResults
+                .filter(r => r.locked === false && r.errorMessage)
+                .map(r => r.errorMessage);
+            
+            const failureCounts = {};
+            failureReasons.forEach(reason => {
+                let category = 'Other';
+                if (reason.includes('Investor') && reason.includes('not found')) {
+                    category = 'Investor Not Found';
+                } else if (reason.includes('Prepay Penalty')) {
+                    category = 'Prepay Penalty Issue';
+                } else if (reason.includes('Interest rate') || reason.includes('filtered out')) {
+                    category = 'Interest Rate Mismatch';
+                } else if (reason.includes('Login failed')) {
+                    category = 'Login/Authentication Error';
+                } else if (reason.includes('No loans available')) {
+                    category = 'No Loans Available After Filtering';
+                }
+                
+                failureCounts[category] = (failureCounts[category] || 0) + 1;
+            });
+            
+            const mostCommonFailure = Object.keys(failureCounts).length > 0 
+                ? Object.keys(failureCounts).reduce((a, b) => failureCounts[a] > failureCounts[b] ? a : b)
+                : 'None';
+
+            const summaryData = [{
+                'Total Loans Processed': loans.length,
+                'Successfully Locked': lockedCount.textContent,
+                'Failed to Lock': failedCount.textContent,
+                'Success Rate': successRate.textContent,
+                'Workflow Type': currentWorkflowType === 'auto-process' ? 'Auto-Process & Lock' : 'Price Review & Selective Lock',
+                'Most Common Failure Reason': mostCommonFailure,
+                'Processing Completed': completionTime.textContent,
+                'Username': credentials.username,
+                'Total Processing Time': processingTime.textContent,
+                'Verification Method': 'Real-time GitHub Actions workflow analysis',
+                'Report Generated': new Date().toLocaleString()
+            }];
+
+            // Failure breakdown sheet
+            const failureBreakdownData = Object.keys(failureCounts).map(category => ({
+                'Failure Category': category,
+                'Number of Loans': failureCounts[category],
+                'Percentage': Math.round((failureCounts[category] / failureReasons.length) * 100) + '%'
+            }));
+
+            // Create Excel workbook
+            const wb = XLSX.utils.book_new();
+            
+            const summaryWs = XLSX.utils.json_to_sheet(summaryData);
+            XLSX.utils.book_append_sheet(wb, summaryWs, 'Executive Summary');
+            
+            const resultsWs = XLSX.utils.json_to_sheet(enhancedResultsData);
+            XLSX.utils.book_append_sheet(wb, resultsWs, 'Detailed Results');
+            
+            if (failureBreakdownData.length > 0) {
+                const failureWs = XLSX.utils.json_to_sheet(failureBreakdownData);
+                XLSX.utils.book_append_sheet(wb, failureWs, 'Failure Analysis');
+            }
+            
+            const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
+            const successCount = lockedCount.textContent;
+            const workflowType = currentWorkflowType === 'auto-process' ? 'autoprocess' : 'selective';
+            const filename = `loannex_${workflowType}_${successCount}locked_${timestamp}.xlsx`;
+            
+            XLSX.writeFile(wb, filename);
+            
+            console.log('✅ Enhanced Excel file downloaded:', filename);
+        });
+
+        // Reset for new batch
+        resetBtn.addEventListener('click', function() {
+            loans = [];
+            credentials = {};
+            batchStartTime = null;
+            processingStartTime = null;
+            detailedResults = [];
+            pricingResults = [];
+            selectedLoans = [];
+            currentWorkflowType = 'auto-process';
+            
+            if (checkInterval) {
+                clearInterval(checkInterval);
+                checkInterval = null;
+            }
+            
+            resultsSection.classList.add('hidden');
+            pricingReviewSection.classList.add('hidden');
+            uploadSection.classList.remove('hidden');
+            fileStatus.classList.add('hidden');
+            processBtn.classList.add('hidden');
+            priceReviewBtn.classList.add('hidden');
+            
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+            document.getElementById('file-upload').value = '';
+            
+            console.log('🔄 Reset for new batch');
+        });
+
+        console.log('✨ LoanNex Automation Portal with DUAL WORKFLOW SYSTEM loaded!');
+        console.log('🔒 Auto-Process: Process & Lock All Loans');
+        console.log('💰 Pricing Review: Price → Review → Select → Lock');
+
+        // Initialize floating particles
+        function createParticles() {
+            const container = document.getElementById('particles-container');
+            const particleCount = 50;
+
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                
+                // Random starting position
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 20 + 's';
+                particle.style.animationDuration = (20 + Math.random() * 10) + 's';
+                
+                // Random horizontal drift
+                particle.style.setProperty('--drift', (Math.random() - 0.5) * 200 + 'px');
+                
+                container.appendChild(particle);
+            }
+        }
+
+        // Initialize particles when page loads
+        createParticles();
+
+        // Architecture collapse/expand functionality
+        const architectureToggle = document.getElementById('architecture-toggle');
+        const architectureContent = document.getElementById('architecture-content');
+        const expandIcon = document.getElementById('expand-icon');
+
+        architectureToggle.addEventListener('click', function() {
+            const isHidden = architectureContent.classList.contains('hidden');
+            
+            if (isHidden) {
+                // Expand
+                architectureContent.classList.remove('hidden');
+                expandIcon.style.transform = 'rotate(180deg)';
+                architectureToggle.querySelector('span').textContent = 'Click to collapse';
+            } else {
+                // Collapse
+                architectureContent.classList.add('hidden');
+                expandIcon.style.transform = 'rotate(0deg)';
+                architectureToggle.querySelector('span').textContent = 'Click to expand';
+            }
+        });
+    </script>
+</body>
+</html>
+            
