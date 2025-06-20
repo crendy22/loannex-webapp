@@ -157,29 +157,6 @@
             position: relative;
             z-index: 15;
         }
-
-        /* Custom styles for pricing table */
-        .pricing-table {
-            max-height: 60vh;
-            overflow-y: auto;
-        }
-
-        .rate-highlight {
-            background: linear-gradient(135deg, #10b981, #059669);
-            color: white;
-            font-weight: bold;
-            padding: 2px 6px;
-            border-radius: 4px;
-        }
-
-        .loan-row:hover {
-            background-color: #f3f4f6;
-        }
-
-        .loan-row.selected {
-            background-color: #dbeafe;
-            border-left: 4px solid #3b82f6;
-        }
     </style>
 </head>
 <body class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
@@ -415,24 +392,11 @@
                         <p class="text-green-600 text-sm" id="loan-count"></p>
                     </div>
 
-                    <!-- Process Buttons - NOW TWO OPTIONS -->
-                    <div class="text-center space-y-4">
-                        <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-6">
-                            <!-- Original Process Button -->
-                            <button id="process-btn" class="hidden bg-green-600 text-white px-8 py-4 rounded-lg hover:bg-green-700 transition-colors font-medium text-lg">
-                                🔒 Process & Lock Loans
-                            </button>
-                            
-                            <!-- NEW: Price Review Button -->
-                            <button id="price-review-btn" class="hidden bg-blue-600 text-white px-8 py-4 rounded-lg hover:bg-blue-700 transition-colors font-medium text-lg">
-                                💰 Price & Review Loans
-                            </button>
-                        </div>
-                        
-                        <div class="text-xs text-gray-500 max-w-2xl mx-auto">
-                            <p><strong>Process & Lock:</strong> Automatically process and lock all loans (original functionality)</p>
-                            <p><strong>Price & Review:</strong> Get pricing first, then review and select which loans to lock</p>
-                        </div>
+                    <!-- Process Button -->
+                    <div class="text-center">
+                        <button id="process-btn" class="hidden bg-green-600 text-white px-12 py-4 rounded-lg hover:bg-green-700 transition-colors font-medium text-lg">
+                            Process Loans
+                        </button>
                     </div>
                 </div>
 
@@ -442,7 +406,7 @@
                         <div class="mb-6">
                             <div class="inline-flex items-center text-blue-600 text-xl font-medium mb-4">
                                 <div class="pulse mr-3">⚡</div>
-                                <span id="processing-title">Processing <span id="total-loans">0</span> loans...</span>
+                                <span>Processing <span id="total-loans">0</span> loans...</span>
                             </div>
                         </div>
                         
@@ -451,7 +415,7 @@
                             <div class="w-full bg-gray-200 rounded-full h-4">
                                 <div id="progress-bar" class="bg-blue-600 h-4 rounded-full progress-bar" style="width: 0%"></div>
                             </div>
-                            <p class="text-sm text-gray-500 mt-2" id="progress-detail">Auto-checking results every 30 seconds...</p>
+                            <p class="text-sm text-gray-500 mt-2">Auto-checking results every 30 seconds...</p>
                         </div>
 
                         <!-- Current Status -->
@@ -462,90 +426,7 @@
                     </div>
                 </div>
 
-                <!-- NEW: Pricing Review Section -->
-                <div id="pricing-review-section" class="hidden gradient-border rounded-xl shadow-lg p-8 mb-6 fade-in">
-                    <div class="text-center mb-8">
-                        <h2 class="text-3xl font-bold text-gray-900 mb-2">💰 Pricing Results</h2>
-                        <p class="text-gray-600">Review rates and select loans to lock</p>
-                    </div>
-
-                    <!-- Pricing Summary Cards -->
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
-                            <div class="text-2xl font-bold text-blue-800 mb-1" id="total-pricing-count">0</div>
-                            <div class="text-blue-600 text-sm font-medium">Total Priced</div>
-                        </div>
-                        
-                        <div class="bg-green-50 border border-green-200 rounded-lg p-4 text-center">
-                            <div class="text-2xl font-bold text-green-800 mb-1" id="selected-count">0</div>
-                            <div class="text-green-600 text-sm font-medium">Selected to Lock</div>
-                        </div>
-                        
-                        <div class="bg-purple-50 border border-purple-200 rounded-lg p-4 text-center">
-                            <div class="text-2xl font-bold text-purple-800 mb-1" id="avg-rate">0.00%</div>
-                            <div class="text-purple-600 text-sm font-medium">Average Rate</div>
-                        </div>
-
-                        <div class="bg-orange-50 border border-orange-200 rounded-lg p-4 text-center">
-                            <div class="text-2xl font-bold text-orange-800 mb-1" id="best-rate">0.00%</div>
-                            <div class="text-orange-600 text-sm font-medium">Best Rate Available</div>
-                        </div>
-                    </div>
-
-                    <!-- Filter Controls -->
-                    <div class="bg-gray-50 rounded-lg p-4 mb-6">
-                        <div class="flex flex-wrap items-center gap-4">
-                            <div class="flex items-center space-x-2">
-                                <label class="text-sm font-medium text-gray-700">Filter by Rate:</label>
-                                <select id="rate-filter" class="px-3 py-1 border border-gray-300 rounded text-sm">
-                                    <option value="">All Rates</option>
-                                    <option value="low">Under 7%</option>
-                                    <option value="mid">7% - 8%</option>
-                                    <option value="high">Above 8%</option>
-                                </select>
-                            </div>
-                            
-                            <div class="flex items-center space-x-2">
-                                <label class="text-sm font-medium text-gray-700">Sort by:</label>
-                                <select id="sort-filter" class="px-3 py-1 border border-gray-300 rounded text-sm">
-                                    <option value="rate">Interest Rate</option>
-                                    <option value="borrower">Borrower Name</option>
-                                    <option value="amount">Loan Amount</option>
-                                </select>
-                            </div>
-
-                            <div class="flex items-center space-x-2">
-                                <button id="select-all-btn" class="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700">
-                                    Select All
-                                </button>
-                                <button id="clear-all-btn" class="bg-gray-600 text-white px-3 py-1 rounded text-sm hover:bg-gray-700">
-                                    Clear All
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Pricing Table -->
-                    <div class="pricing-table bg-white rounded-lg border overflow-hidden">
-                        <div class="bg-gray-50 px-6 py-3 border-b">
-                            <h3 class="text-lg font-semibold text-gray-800">Loan Pricing Details</h3>
-                        </div>
-                        
-                        <div id="pricing-table-body" class="divide-y divide-gray-200">
-                            <!-- Pricing rows will be inserted here dynamically -->
-                        </div>
-                    </div>
-
-                    <!-- Lock Selected Button -->
-                    <div class="text-center mt-8">
-                        <button id="lock-selected-btn" class="bg-green-600 text-white px-12 py-4 rounded-lg hover:bg-green-700 transition-colors font-medium text-lg disabled:bg-gray-400 disabled:cursor-not-allowed" disabled>
-                            🔒 Lock Selected Loans (<span id="lock-count">0</span>)
-                        </button>
-                        <p class="text-sm text-gray-500 mt-2">Only selected loans will be locked</p>
-                    </div>
-                </div>
-
-                <!-- Results Section (same as before) -->
+                <!-- Results Section -->
                 <div id="results-section" class="hidden gradient-border rounded-xl shadow-lg p-8 fade-in">
                     <div class="text-center mb-8">
                         <h2 class="text-3xl font-bold text-gray-900 mb-2">✅ Processing Complete!</h2>
@@ -554,4 +435,633 @@
 
                     <!-- Summary Cards -->
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                        <div class="bg-green-50
+                        <div class="bg-green-50 border border-green-200 rounded-lg p-6 text-center">
+                            <div class="text-4xl font-bold text-green-800 mb-2" id="locked-count">0</div>
+                            <div class="text-green-600 font-medium">Successfully Locked</div>
+                        </div>
+                        
+                        <div class="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+                            <div class="text-4xl font-bold text-red-800 mb-2" id="failed-count">0</div>
+                            <div class="text-red-600 font-medium">Failed to Lock</div>
+                        </div>
+                        
+                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 text-center">
+                            <div class="text-4xl font-bold text-blue-800 mb-2" id="success-rate">0%</div>
+                            <div class="text-blue-600 font-medium">Success Rate</div>
+                        </div>
+                    </div>
+
+                    <!-- Processing Details -->
+                    <div class="bg-gray-50 rounded-lg p-6 mb-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">📊 Processing Summary</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                            <div>
+                                <span class="font-medium text-gray-700">Total Processing Time:</span>
+                                <span class="ml-2 text-gray-900" id="processing-time">0 minutes</span>
+                            </div>
+                            <div>
+                                <span class="font-medium text-gray-700">Completed:</span>
+                                <span class="ml-2 text-gray-900" id="completion-time">--</span>
+                            </div>
+                            <div>
+                                <span class="font-medium text-gray-700">Username:</span>
+                                <span class="ml-2 text-gray-900" id="processed-username">--</span>
+                            </div>
+                            <div>
+                                <span class="font-medium text-gray-700">Status:</span>
+                                <span class="ml-2 text-green-600 font-medium">Verified from automation logs</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Download & Reset -->
+                    <div class="text-center space-y-4">
+                        <button id="download-btn" class="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium">
+                            📥 Download Detailed Results
+                        </button>
+                        <br>
+                        <button id="reset-btn" class="bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700 transition-colors">
+                            Process More Loans
+                        </button>
+                    </div>
+                </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let loans = [];
+        let credentials = {};
+        let batchStartTime = null;
+        let processingStartTime = null;
+        let checkInterval = null;
+        let detailedResults = [];
+
+        // DOM elements
+        const fileUpload = document.getElementById('file-upload');
+        const fileStatus = document.getElementById('file-status');
+        const fileName = document.getElementById('file-name');
+        const loanCount = document.getElementById('loan-count');
+        const processBtn = document.getElementById('process-btn');
+        const downloadTemplate = document.getElementById('download-template');
+        const uploadSection = document.getElementById('upload-section');
+        const processingSection = document.getElementById('processing-section');
+        const resultsSection = document.getElementById('results-section');
+        const totalLoans = document.getElementById('total-loans');
+        const progressBar = document.getElementById('progress-bar');
+        const currentStatus = document.getElementById('current-status');
+        const statusDetail = document.getElementById('status-detail');
+        const lockedCount = document.getElementById('locked-count');
+        const failedCount = document.getElementById('failed-count');
+        const successRate = document.getElementById('success-rate');
+        const processingTime = document.getElementById('processing-time');
+        const completionTime = document.getElementById('completion-time');
+        const processedUsername = document.getElementById('processed-username');
+        const downloadBtn = document.getElementById('download-btn');
+        const resetBtn = document.getElementById('reset-btn');
+
+        // Template download handler
+        downloadTemplate.addEventListener('click', function() {
+            console.log('📥 Generating LoanNex template Excel file...');
+            
+            // Template data with sample rows and all required columns
+            const templateData = [
+                {
+                    'Loan Type': 'First Lien',
+                    'Citizenship': 'US Citizen',
+                    'Income Documentation': 'Full Doc',
+                    'Loan Purpose': 'Purchase',
+                    'Occupancy': 'Primary',
+                    'Prepay Penalty': '3 Year',
+                    'Property Type': 'SFR',
+                    'Appraised Value': 500000,
+                    'Purchase Price': 500000,
+                    'Loan Amount': 400000,
+                    'LTV': 80,
+                    'Secondary Financing': 'None',
+                    'State': 'CA',
+                    'County': 'Los Angeles County',
+                    'Credit Score': 750,
+                    'DTI': 35,
+                    'Reserves': 12,
+                    'Mtg Lates': '0x30x24',
+                    'BK': 'None',
+                    'FC': 'None',
+                    'SS': 'None',
+                    'DIL': 'None',
+                    'Escrows': 'Yes',
+                    'Temp Buydown': 'None',
+                    'First Name': 'John',
+                    'Last Name': 'Smith',
+                    'Coborrower First Name': 'Jane',
+                    'Coborrower Last Name': 'Smith',
+                    'Address': '123 Main St',
+                    'City': 'Los Angeles',
+                    'Zip': '90210',
+                    'Amortizing Type': 'Fully Am',
+                    'Interest Rate': 7.5,
+                    'Investor': 'Prime Investor'
+                },
+                {
+                    'Loan Type': 'First Lien',
+                    'Citizenship': 'US Citizen',
+                    'Income Documentation': 'Bank Statement',
+                    'Loan Purpose': 'Refinance',
+                    'Occupancy': 'Investment',
+                    'Prepay Penalty': 'None',
+                    'Property Type': 'Condo',
+                    'Appraised Value': 750000,
+                    'Purchase Price': 750000,
+                    'Loan Amount': 600000,
+                    'LTV': 80,
+                    'Secondary Financing': 'None',
+                    'State': 'FL',
+                    'County': 'Miami-Dade County',
+                    'Credit Score': 700,
+                    'DTI': 45,
+                    'Reserves': 6,
+                    'Mtg Lates': '0x30x24',
+                    'BK': 'None',
+                    'FC': 'None',
+                    'SS': 'None',
+                    'DIL': 'None',
+                    'Escrows': 'No',
+                    'Temp Buydown': 'None',
+                    'First Name': 'Maria',
+                    'Last Name': 'Garcia',
+                    'Coborrower First Name': '',
+                    'Coborrower Last Name': '',
+                    'Address': '456 Ocean Ave',
+                    'City': 'Miami',
+                    'Zip': '33101',
+                    'Amortizing Type': 'Interest Only',
+                    'Interest Rate': 8.25,
+                    'Investor': 'Non-QM Investor'
+                }
+            ];
+
+            // Allowable values sheet
+            const allowableValuesData = [
+                { Field: 'Loan Type', 'Allowable Values': 'First Lien, Second Lien' },
+                { Field: 'Citizenship', 'Allowable Values': 'US Citizen, Permanent Resident, Foreign National' },
+                { Field: 'Income Documentation', 'Allowable Values': 'Full Doc, Bank Statement, Asset Depletion, DSCR, No Doc' },
+                { Field: 'Loan Purpose', 'Allowable Values': 'Purchase, Refinance, Cash Out Refinance' },
+                { Field: 'Occupancy', 'Allowable Values': 'Primary, Secondary, Investment' },
+                { Field: 'Prepay Penalty', 'Allowable Values': 'None, 1 Year, 2 Year, 3 Year, 5 Year' },
+                { Field: 'Property Type', 'Allowable Values': 'SFR, Condo, Townhome, 2-4 Unit, Manufactured' },
+                { Field: 'Secondary Financing', 'Allowable Values': 'None, HELOC, Second Mortgage' },
+                { Field: 'Amortizing Type', 'Allowable Values': 'Fully Am, Interest Only, 15 Year Am, 25 Year Am, 40 Year Am' },
+                { Field: 'Mtg Lates', 'Allowable Values': '0x30x24, 1x30x24, 2x30x24, 0x30x12, 1x30x12' },
+                { Field: 'BK', 'Allowable Values': 'None, Ch7 >4 Years, Ch7 >2 Years, Ch13 >2 Years' },
+                { Field: 'FC', 'Allowable Values': 'None, >4 Years, >2 Years' },
+                { Field: 'SS', 'Allowable Values': 'None, >4 Years, >2 Years' },
+                { Field: 'DIL', 'Allowable Values': 'None, >4 Years, >2 Years' },
+                { Field: 'Escrows', 'Allowable Values': 'Yes, No' },
+                { Field: 'Temp Buydown', 'Allowable Values': 'None, 2-1 Buydown, 1-0 Buydown' },
+                { Field: 'Investor', 'Allowable Values': 'Prime Investor, Alt-A Investor, Non-QM Investor, DSCR Investor, Foreign National Investor' }
+            ];
+
+            // Instructions sheet
+            const instructionsData = [
+                { Step: 1, Instruction: 'Download this template and save it with a new name' },
+                { Step: 2, Instruction: 'Replace the sample data with your actual loan information' },
+                { Step: 3, Instruction: 'Ensure all values match the allowable values in the second sheet' },
+                { Step: 4, Instruction: 'Required fields: First Name, Last Name, Interest Rate, Investor, Credit Score, DTI' },
+                { Step: 5, Instruction: 'Upload the completed file to the LoanNex Automation Portal' },
+                { Step: 6, Instruction: 'Results will be available for download as a detailed Excel report' }
+            ];
+
+            // Create Excel workbook
+            const wb = XLSX.utils.book_new();
+            
+            // Add main template sheet
+            const templateWs = XLSX.utils.json_to_sheet(templateData);
+            XLSX.utils.book_append_sheet(wb, templateWs, 'Loan Template');
+            
+            // Add allowable values sheet
+            const valuesWs = XLSX.utils.json_to_sheet(allowableValuesData);
+            XLSX.utils.book_append_sheet(wb, valuesWs, 'Allowable Values');
+            
+            // Add instructions sheet
+            const instructionsWs = XLSX.utils.json_to_sheet(instructionsData);
+            XLSX.utils.book_append_sheet(wb, instructionsWs, 'Instructions');
+            
+            // Generate filename with timestamp
+            const timestamp = new Date().toISOString().slice(0, 10);
+            const filename = `LoanNex_Template_${timestamp}.xlsx`;
+            
+            // Download the file
+            XLSX.writeFile(wb, filename);
+            
+            console.log('✅ Template Excel file downloaded:', filename);
+        });
+
+        // Validate credentials
+        function validateCredentials() {
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+            
+            if (!username || !password) {
+                alert('Please enter both LoanNex username and password.');
+                return false;
+            }
+            
+            credentials = { username, password };
+            return true;
+        }
+
+        // File upload handler
+        fileUpload.addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            if (!validateCredentials()) {
+                event.target.value = '';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const sheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[sheetName];
+                    const jsonData = XLSX.utils.sheet_to_json(worksheet);
+                    
+                    loans = jsonData;
+                    
+                    // Update UI
+                    fileName.textContent = `✅ ${file.name}`;
+                    loanCount.textContent = `${loans.length} loans ready to process`;
+                    fileStatus.classList.remove('hidden');
+                    processBtn.classList.remove('hidden');
+                    
+                    console.log('File uploaded successfully:', jsonData);
+                } catch (error) {
+                    console.error('Error reading Excel file:', error);
+                    alert('Error reading Excel file. Please check the format.');
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        });
+
+        // Process loans
+        processBtn.addEventListener('click', async function() {
+            console.log('🚀 Starting simple loan processing flow');
+            
+            processingStartTime = new Date();
+            batchStartTime = new Date().toISOString();
+            
+            // Show processing UI
+            uploadSection.classList.add('hidden');
+            processingSection.classList.remove('hidden');
+            
+            // Update initial status
+            totalLoans.textContent = loans.length;
+            currentStatus.textContent = `Triggering automation for ${loans.length} loans...`;
+            statusDetail.textContent = 'Starting workflow processes in GitHub Actions';
+
+            try {
+                // Trigger all loans quickly
+                for (let i = 0; i < loans.length; i++) {
+                    updateStatus(`Triggering loan ${i + 1} of ${loans.length}...`, `Automation workflow ${i + 1} starting`);
+                    
+                    await fetch('https://loannex-backend.vercel.app/api/trigger-loan-with-status', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            loanData: loans[i],
+                            loanIndex: i,
+                            credentials: credentials
+                        })
+                    });
+                    
+                    updateProgress((i + 1) / loans.length * 20);
+                }
+
+                updateStatus('All automations started!', 'Now processing loans in LoanNex - checking progress every 30 seconds');
+                
+                // Start auto-checking
+                startAutoChecking();
+                
+            } catch (error) {
+                console.error('Error triggering loans:', error);
+                updateStatus('Error starting automation', 'Please try again or check your connection');
+            }
+        });
+
+        // Auto-check results
+        function startAutoChecking() {
+            let checkCount = 0;
+            const maxChecks = 30;
+            
+            checkInterval = setInterval(async () => {
+                checkCount++;
+                console.log(`🔍 Auto-check ${checkCount}/${maxChecks}`);
+                
+                updateStatus('Checking automation progress...', `Auto-check ${checkCount} - looking for completed loans`);
+                
+                try {
+                    const response = await fetch('https://loannex-backend.vercel.app/api/check-batch-results', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ batchStartTime: batchStartTime })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        const { summary } = data;
+                        const totalProcessed = summary.totalProcessed;
+                        const expectedTotal = loans.length;
+                        
+                        // Update progress
+                        const progressPercent = 20 + (totalProcessed / expectedTotal) * 80;
+                        updateProgress(progressPercent);
+                        
+                        updateStatus(
+                            `${totalProcessed} of ${expectedTotal} loans completed`,
+                            `${summary.successfulLocks} locked, ${summary.failedLocks} failed`
+                        );
+                        
+                        // Check if all done
+                        if (summary.isComplete && totalProcessed >= expectedTotal) {
+                            console.log('🎉 All loans completed!');
+                            clearInterval(checkInterval);
+                            showResults(data);
+                        }
+                    }
+                    
+                } catch (error) {
+                    console.error('Error checking results:', error);
+                    updateStatus('Continuing to process...', 'Temporary check failed, will try again in 30 seconds');
+                }
+                
+                if (checkCount >= maxChecks) {
+                    clearInterval(checkInterval);
+                    updateStatus('Processing timeout', 'Please check results manually or try again');
+                }
+                
+            }, 30000);
+        }
+
+        // Update processing status
+        function updateStatus(status, detail) {
+            currentStatus.textContent = status;
+            statusDetail.textContent = detail;
+        }
+
+        // Update progress bar
+        function updateProgress(percent) {
+            progressBar.style.width = `${Math.min(percent, 100)}%`;
+        }
+
+        // Show final results
+        function showResults(data) {
+            const { summary, results } = data;
+            
+            // Store detailed results for download
+            detailedResults = results || [];
+            
+            // Hide processing, show results
+            processingSection.classList.add('hidden');
+            resultsSection.classList.remove('hidden');
+            
+            // Update result counts
+            lockedCount.textContent = summary.successfulLocks;
+            failedCount.textContent = summary.failedLocks;
+            successRate.textContent = `${summary.successRate}%`;
+            
+            // Update processing details
+            const endTime = new Date();
+            const totalMinutes = Math.round((endTime - processingStartTime) / 60000);
+            processingTime.textContent = `${totalMinutes} minutes`;
+            completionTime.textContent = endTime.toLocaleString();
+            processedUsername.textContent = credentials.username;
+            
+            console.log('✅ Results displayed with detailed data:', detailedResults);
+        }
+
+        // Download results
+        downloadBtn.addEventListener('click', function() {
+            console.log('📥 Generating enhanced Excel download with failure reasons...');
+            
+            // Create enhanced results data by matching loans with API results
+            const enhancedResultsData = loans.map((loan, index) => {
+                // Try multiple strategies to find matching result
+                let apiResult = null;
+                
+                apiResult = detailedResults.find(r => r.loanIndex === (index + 1));
+                
+                if (!apiResult) {
+                    apiResult = detailedResults.find(r => r.loanIndex === index);
+                }
+                
+                if (!apiResult && detailedResults.length === loans.length) {
+                    apiResult = detailedResults[index];
+                }
+                
+                if (!apiResult && index < detailedResults.length) {
+                    apiResult = detailedResults[index];
+                }
+                
+                // Determine status and failure reason
+                let status, failureReason, lockStatus;
+                
+                if (apiResult && apiResult.locked === true) {
+                    status = 'SUCCESS - LOAN LOCKED';
+                    lockStatus = '🔒 LOCKED';
+                    failureReason = '';
+                } else if (apiResult && apiResult.locked === false) {
+                    status = 'FAILED - NOT LOCKED';
+                    lockStatus = '🔓 NOT LOCKED';
+                    failureReason = apiResult.errorMessage || 'Unknown error occurred';
+                } else {
+                    status = 'PROCESSING ERROR';
+                    lockStatus = '❓ UNKNOWN';
+                    failureReason = apiResult ? 'Could not determine final status' : 'No matching API result found';
+                }
+                
+                return {
+                    // Key results first
+                    'Loan #': index + 1,
+                    'Borrower Name': `${loan['First Name'] || ''} ${loan['Last Name'] || ''}`.trim() || 'Unknown',
+                    'FINAL STATUS': status,
+                    'Lock Status': lockStatus,
+                    'Failure Reason': failureReason,
+                    'GitHub Actions URL': apiResult ? apiResult.githubUrl || '' : '',
+                    
+                    // Loan details
+                    'Interest Rate': loan['Interest Rate'] || '',
+                    'Investor': loan['Investor'] || '',
+                    'Amortizing Type': loan['Amortizing Type'] || '',
+                    'Prepay Penalty': loan['Prepay Penalty'] || '',
+                    'Property Type': loan['Property Type'] || '',
+                    'Loan Amount': loan['Loan Amount'] || '',
+                    'Occupancy': loan['Occupancy'] || '',
+                    'LTV': loan['LTV'] || '',
+                    'Credit Score': loan['Credit Score'] || '',
+                    'DTI': loan['DTI'] || '',
+                    'State': loan['State'] || '',
+                    'County': loan['County'] || '',
+                    
+                    // Processing metadata
+                    'Processing Date': new Date().toLocaleString(),
+                    'Username': credentials.username,
+                    'Workflow ID': apiResult ? apiResult.workflowId || '' : '',
+                    'Completed At': apiResult ? apiResult.completedAt || '' : '',
+                    'Analysis Method': apiResult ? apiResult.status || 'unknown' : 'no_match',
+                    
+                    // All original loan data
+                    ...loan
+                };
+            });
+
+            // Enhanced summary with failure analysis
+            const failureReasons = detailedResults
+                .filter(r => r.locked === false && r.errorMessage)
+                .map(r => r.errorMessage);
+            
+            const failureCounts = {};
+            failureReasons.forEach(reason => {
+                let category = 'Other';
+                if (reason.includes('Investor') && reason.includes('not found')) {
+                    category = 'Investor Not Found';
+                } else if (reason.includes('Prepay Penalty')) {
+                    category = 'Prepay Penalty Issue';
+                } else if (reason.includes('Interest rate') || reason.includes('filtered out')) {
+                    category = 'Interest Rate Mismatch';
+                } else if (reason.includes('Login failed')) {
+                    category = 'Login/Authentication Error';
+                } else if (reason.includes('No loans available')) {
+                    category = 'No Loans Available After Filtering';
+                }
+                
+                failureCounts[category] = (failureCounts[category] || 0) + 1;
+            });
+            
+            const mostCommonFailure = Object.keys(failureCounts).length > 0 
+                ? Object.keys(failureCounts).reduce((a, b) => failureCounts[a] > failureCounts[b] ? a : b)
+                : 'None';
+
+            const summaryData = [{
+                'Total Loans Processed': loans.length,
+                'Successfully Locked': lockedCount.textContent,
+                'Failed to Lock': failedCount.textContent,
+                'Success Rate': successRate.textContent,
+                'Most Common Failure Reason': mostCommonFailure,
+                'Processing Completed': completionTime.textContent,
+                'Username': credentials.username,
+                'Total Processing Time': processingTime.textContent,
+                'Verification Method': 'Real-time GitHub Actions workflow analysis',
+                'Report Generated': new Date().toLocaleString()
+            }];
+
+            // Failure breakdown sheet
+            const failureBreakdownData = Object.keys(failureCounts).map(category => ({
+                'Failure Category': category,
+                'Number of Loans': failureCounts[category],
+                'Percentage': Math.round((failureCounts[category] / failureReasons.length) * 100) + '%'
+            }));
+
+            // Create Excel workbook
+            const wb = XLSX.utils.book_new();
+            
+            const summaryWs = XLSX.utils.json_to_sheet(summaryData);
+            XLSX.utils.book_append_sheet(wb, summaryWs, 'Executive Summary');
+            
+            const resultsWs = XLSX.utils.json_to_sheet(enhancedResultsData);
+            XLSX.utils.book_append_sheet(wb, resultsWs, 'Detailed Results');
+            
+            if (failureBreakdownData.length > 0) {
+                const failureWs = XLSX.utils.json_to_sheet(failureBreakdownData);
+                XLSX.utils.book_append_sheet(wb, failureWs, 'Failure Analysis');
+            }
+            
+            const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
+            const successCount = lockedCount.textContent;
+            const filename = `loannex_results_${successCount}locked_${timestamp}.xlsx`;
+            
+            XLSX.writeFile(wb, filename);
+            
+            console.log('✅ Enhanced Excel file downloaded:', filename);
+        });
+
+        // Reset for new batch
+        resetBtn.addEventListener('click', function() {
+            loans = [];
+            credentials = {};
+            batchStartTime = null;
+            processingStartTime = null;
+            detailedResults = [];
+            
+            if (checkInterval) {
+                clearInterval(checkInterval);
+                checkInterval = null;
+            }
+            
+            resultsSection.classList.add('hidden');
+            uploadSection.classList.remove('hidden');
+            fileStatus.classList.add('hidden');
+            processBtn.classList.add('hidden');
+            
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+            document.getElementById('file-upload').value = '';
+            
+            console.log('🔄 Reset for new batch');
+        });
+
+        console.log('✨ LoanNex Automation Portal with Pipeline Image loaded!');
+
+        // Initialize floating particles
+        function createParticles() {
+            const container = document.getElementById('particles-container');
+            const particleCount = 50;
+
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                
+                // Random starting position
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 20 + 's';
+                particle.style.animationDuration = (20 + Math.random() * 10) + 's';
+                
+                // Random horizontal drift
+                particle.style.setProperty('--drift', (Math.random() - 0.5) * 200 + 'px');
+                
+                container.appendChild(particle);
+            }
+        }
+
+        // Initialize particles when page loads
+        createParticles();
+
+        // Architecture collapse/expand functionality
+        const architectureToggle = document.getElementById('architecture-toggle');
+        const architectureContent = document.getElementById('architecture-content');
+        const expandIcon = document.getElementById('expand-icon');
+
+        architectureToggle.addEventListener('click', function() {
+            const isHidden = architectureContent.classList.contains('hidden');
+            
+            if (isHidden) {
+                // Expand
+                architectureContent.classList.remove('hidden');
+                expandIcon.style.transform = 'rotate(180deg)';
+                architectureToggle.querySelector('span').textContent = 'Click to collapse';
+            } else {
+                // Collapse
+                architectureContent.classList.add('hidden');
+                expandIcon.style.transform = 'rotate(0deg)';
+                architectureToggle.querySelector('span').textContent = 'Click to expand';
+            }
+        });
+    </script>
+</body>
+</html>
