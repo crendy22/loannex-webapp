@@ -1030,63 +1030,91 @@
             console.log('💰 DEBUGGING: Full pricing data structure:', JSON.stringify(results, null, 2));
         }
 
-        // Populate the pricing table
-        function populatePricingTable(results) {
-            pricingTableBody.innerHTML = '';
-            
-            results.forEach((result, index) => {
-                const row = document.createElement('div');
-                row.className = 'loan-row p-4 flex items-center justify-between hover:bg-gray-50 cursor-pointer';
-                row.dataset.loanIndex = index;
-                
-                const borrowerName = result.borrowerName || 'Unknown Borrower';
-                const interestRate = result.interestRate || 'N/A';
-                const loanAmount = result.loanAmount ? `${parseInt(result.loanAmount).toLocaleString()}` : 'N/A';
-                const investor = result.investor || 'N/A';
-                const propertyType = result.propertyType || 'N/A';
-                const amortizingType = result.amortizingType || 'N/A';
-                
-                // Rate highlighting
-                let rateClass = '';
-                const rate = parseFloat(interestRate);
-                if (rate > 0) {
-                    if (rate < 7) rateClass = 'text-green-700 font-bold';
-                    else if (rate < 8) rateClass = 'text-blue-700 font-bold';
-                    else rateClass = 'text-red-700 font-bold';
-                }
-                
-                row.innerHTML = `
-                    <div class="flex items-center space-x-4">
-                        <input type="checkbox" class="loan-checkbox w-5 h-5 text-blue-600" data-loan-index="${index}">
-                        <div class="flex-1">
-                            <div class="font-medium text-gray-900">${borrowerName}</div>
-                            <div class="text-sm text-gray-500">${propertyType} • ${amortizingType}</div>
-                        </div>
-                    </div>
-                    <div class="flex items-center space-x-6">
-                        <div class="text-center">
-                            <div class="${rateClass}">${interestRate}${rate > 0 ? '%' : ''}</div>
-                            <div class="text-xs text-gray-500">Rate</div>
-                        </div>
-                        <div class="text-center">
-                            <div class="text-gray-900">${loanAmount}</div>
-                            <div class="text-xs text-gray-500">Amount</div>
-                        </div>
-                        <div class="text-center">
-                            <div class="text-gray-700">${investor}</div>
-                            <div class="text-xs text-gray-500">Investor</div>
-                        </div>
-                    </div>
-                `;
-                
-                pricingTableBody.appendChild(row);
-            });
-            
-            // Add checkbox event listeners
-            document.querySelectorAll('.loan-checkbox').forEach(checkbox => {
-                checkbox.addEventListener('change', updateSelectedCount);
-            });
+        // Find the populatePricingTable function in your index.html and replace it with this updated version:
+
+// Populate the pricing table
+function populatePricingTable(results) {
+    pricingTableBody.innerHTML = '';
+    
+    results.forEach((result, index) => {
+        const row = document.createElement('div');
+        row.className = 'loan-row p-4 flex items-center justify-between hover:bg-gray-50 cursor-pointer';
+        row.dataset.loanIndex = index;
+        
+        const borrowerName = result.borrowerName || 'Unknown Borrower';
+        const interestRate = result.interestRate || 'N/A';
+        const loanAmount = result.loanAmount ? `${parseInt(result.loanAmount).toLocaleString()}` : 'N/A';
+        const investor = result.investor || 'N/A';
+        const propertyType = result.propertyType || 'N/A';
+        const amortizingType = result.amortizingType || 'N/A';
+        
+        // NEW FIELDS
+        const pricePoints = result.pricePoints || 'N/A';
+        const rateDescription = result.rateDescription || 'N/A';
+        const productType = result.productType || 'N/A';
+        
+        // Rate highlighting
+        let rateClass = '';
+        const rate = parseFloat(interestRate);
+        if (rate > 0) {
+            if (rate < 7) rateClass = 'text-green-700 font-bold';
+            else if (rate < 8) rateClass = 'text-blue-700 font-bold';
+            else rateClass = 'text-red-700 font-bold';
         }
+        
+        // Price highlighting (green for negative points, red for positive points)
+        let priceClass = '';
+        const price = parseFloat(pricePoints);
+        if (!isNaN(price)) {
+            if (price < 0) priceClass = 'text-green-700 font-bold';  // Rebate (good)
+            else if (price > 0) priceClass = 'text-red-700 font-bold';  // Cost (not ideal)
+            else priceClass = 'text-blue-700 font-bold';  // Par pricing
+        }
+        
+        row.innerHTML = `
+            <div class="flex items-center space-x-4">
+                <input type="checkbox" class="loan-checkbox w-5 h-5 text-blue-600" data-loan-index="${index}">
+                <div class="flex-1 min-w-0">
+                    <div class="font-medium text-gray-900 truncate">${borrowerName}</div>
+                    <div class="text-sm text-gray-500">${propertyType} • ${amortizingType}</div>
+                </div>
+            </div>
+            <div class="flex items-center space-x-4 flex-wrap">
+                <div class="text-center min-w-0">
+                    <div class="${rateClass}">${interestRate}${rate > 0 ? '%' : ''}</div>
+                    <div class="text-xs text-gray-500">Rate</div>
+                </div>
+                <div class="text-center min-w-0">
+                    <div class="${priceClass}">${pricePoints}</div>
+                    <div class="text-xs text-gray-500">Price</div>
+                </div>
+                <div class="text-center min-w-0">
+                    <div class="text-gray-900 text-sm">${rateDescription}</div>
+                    <div class="text-xs text-gray-500">Lock Period</div>
+                </div>
+                <div class="text-center min-w-0">
+                    <div class="text-gray-900 text-sm">${productType}</div>
+                    <div class="text-xs text-gray-500">Product</div>
+                </div>
+                <div class="text-center min-w-0">
+                    <div class="text-gray-900">${loanAmount}</div>
+                    <div class="text-xs text-gray-500">Amount</div>
+                </div>
+                <div class="text-center min-w-0">
+                    <div class="text-gray-700 text-sm">${investor}</div>
+                    <div class="text-xs text-gray-500">Investor</div>
+                </div>
+            </div>
+        `;
+        
+        pricingTableBody.appendChild(row);
+    });
+    
+    // Add checkbox event listeners
+    document.querySelectorAll('.loan-checkbox').forEach(checkbox => {
+        checkbox.addEventListener('change', updateSelectedCount);
+    });
+}
 
         // Update selected loan count
         function updateSelectedCount() {
