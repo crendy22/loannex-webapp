@@ -430,7 +430,7 @@
                         <p class="text-gray-600">Review rates and select loans to lock</p>
                      </div>
                      <!-- Pricing Summary Cards -->
-                     <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
                         <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
                            <div class="text-2xl font-bold text-blue-800 mb-1" id="total-pricing-count">0</div>
                            <div class="text-blue-600 text-sm font-medium">Total Priced</div>
@@ -439,35 +439,10 @@
                            <div class="text-2xl font-bold text-green-800 mb-1" id="selected-count">0</div>
                            <div class="text-green-600 text-sm font-medium">Selected to Lock</div>
                         </div>
-                        <div class="bg-purple-50 border border-purple-200 rounded-lg p-4 text-center">
-                           <div class="text-2xl font-bold text-purple-800 mb-1" id="avg-rate">0.00%</div>
-                           <div class="text-purple-600 text-sm font-medium">Average Rate</div>
-                        </div>
-                        <div class="bg-orange-50 border border-orange-200 rounded-lg p-4 text-center">
-                           <div class="text-2xl font-bold text-orange-800 mb-1" id="best-rate">0.00%</div>
-                           <div class="text-orange-600 text-sm font-medium">Best Rate Available</div>
-                        </div>
                      </div>
                      <!-- Filter Controls -->
                      <div class="bg-gray-50 rounded-lg p-4 mb-6">
-                        <div class="flex flex-wrap items-center gap-4">
-                           <div class="flex items-center space-x-2">
-                              <label class="text-sm font-medium text-gray-700">Filter by Rate:</label>
-                              <select id="rate-filter" class="px-3 py-1 border border-gray-300 rounded text-sm">
-                                 <option value="">All Rates</option>
-                                 <option value="low">Under 7%</option>
-                                 <option value="mid">7% - 8%</option>
-                                 <option value="high">Above 8%</option>
-                              </select>
-                           </div>
-                           <div class="flex items-center space-x-2">
-                              <label class="text-sm font-medium text-gray-700">Sort by:</label>
-                              <select id="sort-filter" class="px-3 py-1 border border-gray-300 rounded text-sm">
-                                 <option value="rate">Interest Rate</option>
-                                 <option value="borrower">Borrower Name</option>
-                                 <option value="amount">Loan Amount</option>
-                              </select>
-                           </div>
+                        <div class="flex flex-wrap items-center gap-4 justify-center">
                            <div class="flex items-center space-x-2">
                               <button id="select-all-btn" class="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700">
                               Select All
@@ -594,13 +569,9 @@
          // Pricing review elements
          const totalPricingCount = document.getElementById('total-pricing-count');
          const selectedCount = document.getElementById('selected-count');
-         const avgRate = document.getElementById('avg-rate');
-         const bestRate = document.getElementById('best-rate');
          const pricingTableBody = document.getElementById('pricing-table-body');
          const lockSelectedBtn = document.getElementById('lock-selected-btn');
          const lockCount = document.getElementById('lock-count');
-         const rateFilter = document.getElementById('rate-filter');
-         const sortFilter = document.getElementById('sort-filter');
          const selectAllBtn = document.getElementById('select-all-btn');
          const clearAllBtn = document.getElementById('clear-all-btn');
          
@@ -957,23 +928,12 @@
              totalPricingCount.textContent = results.length;
              selectedCount.textContent = '0';
              
-             // Calculate rates
-             const rates = results.map(r => parseFloat(r.interestRate) || 0).filter(r => r > 0);
-             if (rates.length > 0) {
-                 const avgRateNum = rates.reduce((a, b) => a + b, 0) / rates.length;
-                 const bestRateNum = Math.min(...rates);
-                 avgRate.textContent = avgRateNum.toFixed(2) + '%';
-                 bestRate.textContent = bestRateNum.toFixed(2) + '%';
-             }
-             
              // Populate pricing table
              populatePricingTable(results);
              
              console.log('💰 Pricing results displayed:', results);
              console.log('💰 DEBUGGING: Full pricing data structure:', JSON.stringify(results, null, 2));
          }
-         
-         // Find the populatePricingTable function in your index.html and replace it with this updated version:
          
          // Populate the pricing table
          function populatePricingTable(results) {
@@ -1000,18 +960,18 @@
          let rateClass = '';
          const rate = parseFloat(interestRate);
          if (rate > 0) {
-             if (rate < 7) rateClass = 'text-green-700 font-bold';
-             else if (rate < 8) rateClass = 'text-blue-700 font-bold';
-             else rateClass = 'text-red-700 font-bold';
+             if (rate < 7) rateClass = 'text-green-700 font-bold text-lg';
+             else if (rate < 8) rateClass = 'text-blue-700 font-bold text-lg';
+             else rateClass = 'text-red-700 font-bold text-lg';
          }
          
          // Price highlighting (green for negative points, red for positive points)
          let priceClass = '';
          const price = parseFloat(pricePoints);
          if (!isNaN(price)) {
-             if (price < 0) priceClass = 'text-green-700 font-bold';  // Rebate (good)
-             else if (price > 0) priceClass = 'text-red-700 font-bold';  // Cost (not ideal)
-             else priceClass = 'text-blue-700 font-bold';  // Par pricing
+             if (price < 0) priceClass = 'text-green-700 font-bold text-lg';  // Rebate (good)
+             else if (price > 0) priceClass = 'text-red-700 font-bold text-lg';  // Cost (not ideal)
+             else priceClass = 'text-blue-700 font-bold text-lg';  // Par pricing
          }
          
          row.innerHTML = `
