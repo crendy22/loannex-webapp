@@ -144,26 +144,11 @@
          }
          /* Custom styles for pricing table */
          .pricing-table {
-         max-height: 70vh; /* Back to reasonable height */
-         overflow-y: scroll; /* Force visible scrollbar */
-         overflow-x: auto; /* Handle wide tables */
-         border: 1px solid #e5e7eb; /* Add border to define container */
-         }
-         /* Force scrollbar to be visible */
-         .pricing-table::-webkit-scrollbar {
-         width: 12px;
-         }
-         .pricing-table::-webkit-scrollbar-track {
-         background: #f1f5f9;
-         border-radius: 6px;
-         }
-         .pricing-table::-webkit-scrollbar-thumb {
-         background: #cbd5e1;
-         border-radius: 6px;
-         }
-         .pricing-table::-webkit-scrollbar-thumb:hover {
-         background: #94a3b8;
-         }
+           max-height: 150vh; /* Fixed height for up to ~20-25 loans */
+           overflow-y: auto; /* Add scrollbar when needed */
+           overflow-x: auto; /* Handle wide tables */
+           border: 1px solid #e5e7eb; /* Add border to define container */
+          }
          .rate-highlight {
          background: linear-gradient(135deg, #10b981, #059669);
          color: white;
