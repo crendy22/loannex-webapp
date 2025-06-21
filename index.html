@@ -383,20 +383,27 @@
                         <p class="text-green-600 text-sm" id="loan-count"></p>
                      </div>
                      <!-- TWO PROCESS BUTTONS - THE KEY ADDITION! -->
-                     <div class="text-center space-y-4">
-                        <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-6">
-                           <!-- Original Auto-Process Button -->
-                           <button id="process-btn" class="hidden bg-green-600 text-white px-8 py-4 rounded-lg hover:bg-green-700 transition-colors font-medium text-lg">
-                           🔒 Process & Lock Loans
-                           </button>
-                           <!-- NEW: Price Review Button -->
-                           <button id="price-review-btn" class="hidden bg-blue-600 text-white px-8 py-4 rounded-lg hover:bg-blue-700 transition-colors font-medium text-lg">
-                           💰 Price & Review Loans
-                           </button>
-                        </div>
-                        <div class="text-xs text-gray-500 max-w-2xl mx-auto">
-                           <p><strong>Process & Lock:</strong> Automatically process and lock all loans (original functionality)</p>
-                           <p><strong>Price & Review:</strong> Get pricing first, then review and select which loans to lock</p>
+                     <div class="text-center space-y-6">
+                        <div class="flex flex-col space-y-8">
+                           <!-- Process & Lock Button with Description -->
+                           <div class="flex flex-col items-center space-y-2">
+                              <button id="process-btn" class="hidden bg-green-600 text-white px-8 py-4 rounded-lg hover:bg-green-700 transition-colors font-medium text-lg">
+                              🔒 Process & Lock Loans
+                              </button>
+                              <p class="text-sm text-gray-600 font-medium max-w-md">
+                                 <strong>Process & Lock:</strong> Automatically process and lock all loans
+                              </p>
+                           </div>
+                           
+                           <!-- Price Review Button with Description -->
+                           <div class="flex flex-col items-center space-y-2">
+                              <button id="price-review-btn" class="hidden bg-blue-600 text-white px-8 py-4 rounded-lg hover:bg-blue-700 transition-colors font-medium text-lg">
+                              💰 Price & Review Loans
+                              </button>
+                              <p class="text-sm text-gray-600 font-medium max-w-md">
+                                 <strong>Price & Review:</strong> Get pricing first, then review and select which loans to lock
+                              </p>
+                           </div>
                         </div>
                      </div>
                   </div>
