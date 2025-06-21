@@ -556,7 +556,7 @@
          const loanCount = document.getElementById('loan-count');
          const processBtn = document.getElementById('process-btn');
          const priceReviewBtn = document.getElementById('price-review-btn');
-         const downloadTemplateLink = document.getElementById('download-template-link');
+         const downloadTemplate = document.getElementById('download-template');
          const uploadSection = document.getElementById('upload-section');
          const processingSection = document.getElementById('processing-section');
          const pricingReviewSection = document.getElementById('pricing-review-section');
@@ -585,8 +585,7 @@
          const clearAllBtn = document.getElementById('clear-all-btn');
          
          // Template download handler
-         downloadTemplateLink.addEventListener('click', function(e) {
-             e.preventDefault();
+         downloadTemplate.addEventListener('click', function() {
              console.log('📥 Generating LoanNex template Excel file...');
              
              // Template data with sample rows and all required columns
