@@ -331,7 +331,16 @@
                   </div>
                   <!-- Upload Section -->
                   <div id="upload-section" class="gradient-border rounded-xl shadow-lg p-8 mb-6">
-                     <h2 class="text-2xl font-semibold mb-6 text-center">Process Your Loans</h2>
+                     <h2 class="text-2xl font-semibold mb-3 text-center">Process Your Loans</h2>
+                     <!-- Simple 4 Steps -->
+                     <div class="text-center mb-6">
+                        <p class="text-sm text-gray-600">
+                           <span class="font-medium">1. Enter credentials</span> → 
+                           <span class="font-medium">2. Upload Excel</span> → 
+                           <span class="font-medium">3. Choose workflow</span> → 
+                           <span class="font-medium">4. Download results</span>
+                        </p>
+                     </div>
                      <!-- Credentials -->
                      <div class="mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
@@ -384,24 +393,24 @@
                      </div>
                      <!-- TWO PROCESS BUTTONS - THE KEY ADDITION! -->
                      <div class="text-center">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-                           <!-- Process & Lock Button with Description -->
-                           <div class="flex flex-col items-center space-y-3">
-                              <button id="process-btn" class="hidden bg-green-600 text-white px-8 py-4 rounded-lg hover:bg-green-700 transition-colors font-medium text-lg w-full">
-                              🔒 Process & Lock Loans
-                              </button>
-                              <p class="text-lg text-gray-700 font-semibold">
-                                 Automatically process and lock all loans
-                              </p>
-                           </div>
-                           
-                           <!-- Price Review Button with Description -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+                           <!-- Price Review Button with Description (NOW ON LEFT) -->
                            <div class="flex flex-col items-center space-y-3">
                               <button id="price-review-btn" class="hidden bg-blue-600 text-white px-8 py-4 rounded-lg hover:bg-blue-700 transition-colors font-medium text-lg w-full">
                               💰 Price & Review Loans
                               </button>
-                              <p class="text-lg text-gray-700 font-semibold">
-                                 Get pricing first, then review and select which loans to lock
+                              <p class="text-lg text-gray-700 font-semibold whitespace-nowrap">
+                                 Get pricing, then select loans to lock
+                              </p>
+                           </div>
+                           
+                           <!-- Process & Lock Button with Description (NOW ON RIGHT) -->
+                           <div class="flex flex-col items-center space-y-3">
+                              <button id="process-btn" class="hidden bg-green-600 text-white px-8 py-4 rounded-lg hover:bg-green-700 transition-colors font-medium text-lg w-full">
+                              🔒 Process & Lock Loans
+                              </button>
+                              <p class="text-lg text-gray-700 font-semibold whitespace-nowrap">
+                                 Automatically process and lock all loans
                               </p>
                            </div>
                         </div>
