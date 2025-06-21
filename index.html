@@ -160,9 +160,10 @@
 
         /* Custom styles for pricing table */
         .pricing-table {
-            max-height: 100vh;
-            overflow-y: auto;
-        }
+          max-height: 120vh; /* Keep reasonable viewport height */
+          overflow-y: auto; /* Add scrollbar when needed */
+          overflow-x: auto; /* Handle wide tables */
+         }
 
         .rate-highlight {
             background: linear-gradient(135deg, #10b981, #059669);
