@@ -166,11 +166,121 @@
          background-color: #dbeafe;
          border-left: 4px solid #3b82f6;
          }
-         .validation-row-error { background-color: #fef2f2; border-left: 4px solid #ef4444; }
-         .validation-row-warning { background-color: #fffbeb; border-left: 4px solid #f59e0b; }
-         .validation-row-valid { background-color: #f0fdf4; border-left: 4px solid #10b981; }
-         .validation-slide-in { animation: slideInFromTop 0.5s ease-out; }
-         @keyframes slideInFromTop { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+         /* Enhanced validation styles */
+         .validation-row-error { 
+             background-color: #fef2f2; 
+             border-left: 4px solid #ef4444; 
+             transition: all 0.3s ease;
+         }
+         .validation-row-warning { 
+             background-color: #fffbeb; 
+             border-left: 4px solid #f59e0b; 
+             transition: all 0.3s ease;
+         }
+         .validation-row-valid { 
+             background-color: #f0fdf4; 
+             border-left: 4px solid #10b981; 
+             transition: all 0.3s ease;
+         }
+
+         /* Enhanced animations */
+         .validation-slide-in { 
+             animation: slideInFromTop 0.5s ease-out; 
+         }
+         @keyframes slideInFromTop { 
+             from { opacity: 0; transform: translateY(-20px); } 
+             to { opacity: 1; transform: translateY(0); } 
+         }
+
+         /* Data preview table styles */
+         .data-preview-table {
+             max-height: 400px;
+             overflow-y: auto;
+             border: 1px solid #e5e7eb;
+         }
+
+         .expandable-row {
+             cursor: pointer;
+             transition: all 0.2s ease;
+             border-radius: 4px;
+         }
+         
+         .expandable-row:hover {
+             background-color: #f9fafb !important;
+             transform: translateY(-1px);
+             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+         }
+
+         /* Field validation status colors */
+         .field-valid { 
+             background-color: #f0fdf4; 
+             color: #166534; 
+             padding: 2px 6px;
+             border-radius: 4px;
+         }
+         .field-warning { 
+             background-color: #fffbeb; 
+             color: #a16207; 
+             padding: 2px 6px;
+             border-radius: 4px;
+         }
+         .field-error { 
+             background-color: #fef2f2; 
+             color: #dc2626; 
+             padding: 2px 6px;
+             border-radius: 4px;
+         }
+
+         /* Enhanced summary cards */
+         .validation-summary-card {
+             transition: all 0.3s ease;
+         }
+         
+         .validation-summary-card:hover {
+             transform: translateY(-2px);
+             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+         }
+         
+         /* Success message animation */
+         .success-message {
+             animation: successPulse 0.6s ease-out;
+         }
+         
+         @keyframes successPulse {
+             0% {
+                 opacity: 0;
+                 transform: scale(0.8);
+             }
+             50% {
+                 transform: scale(1.05);
+             }
+             100% {
+                 opacity: 1;
+                 transform: scale(1);
+             }
+         }
+
+         /* Fix button styles */
+         .fix-field-btn, .fix-loan-btn {
+             transition: all 0.2s ease;
+         }
+         
+         .fix-field-btn:hover, .fix-loan-btn:hover {
+             transform: scale(1.05);
+             box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+         }
+         
+         /* Responsive grid for loan details */
+         @media (max-width: 768px) {
+             .data-preview-table .grid-cols-7 {
+                 grid-template-columns: repeat(3, 1fr);
+                 gap: 2px;
+             }
+             
+             .data-preview-table .grid-cols-7 > div:nth-child(n+4) {
+                 display: none;
+             }
+         }
       </style>
    </head>
    <body class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
