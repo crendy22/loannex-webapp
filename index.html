@@ -591,141 +591,25 @@
          const selectAllBtn = document.getElementById('select-all-btn');
          const clearAllBtn = document.getElementById('clear-all-btn');
          
-         // Template download handler
+         // Template download handler - Direct link to hosted template file
          downloadTemplate.addEventListener('click', function() {
-             console.log('📥 Generating LoanNex template Excel file...');
-             
-             // Template data with sample rows and all required columns
-             const templateData = [
-                 {
-                     'Loan Type': 'First Lien',
-                     'Citizenship': 'US Citizen',
-                     'Income Documentation': 'Full Doc',
-                     'Loan Purpose': 'Purchase',
-                     'Occupancy': 'Primary',
-                     'Prepay Penalty': '3 Year',
-                     'Property Type': 'SFR',
-                     'Appraised Value': 500000,
-                     'Purchase Price': 500000,
-                     'Loan Amount': 400000,
-                     'LTV': 80,
-                     'Secondary Financing': 'None',
-                     'State': 'CA',
-                     'County': 'Los Angeles County',
-                     'Credit Score': 750,
-                     'DTI': 35,
-                     'Reserves': 12,
-                     'Mtg Lates': '0x30x24',
-                     'BK': 'None',
-                     'FC': 'None',
-                     'SS': 'None',
-                     'DIL': 'None',
-                     'Escrows': 'Yes',
-                     'Temp Buydown': 'None',
-                     'First Name': 'John',
-                     'Last Name': 'Smith',
-                     'Coborrower First Name': 'Jane',
-                     'Coborrower Last Name': 'Smith',
-                     'Address': '123 Main St',
-                     'City': 'Los Angeles',
-                     'Zip': '90210',
-                     'Amortizing Type': 'Fully Am',
-                     'Interest Rate': 7.5,
-                     'Investor': 'Prime Investor'
-                 },
-                 {
-                     'Loan Type': 'First Lien',
-                     'Citizenship': 'US Citizen',
-                     'Income Documentation': 'Bank Statement',
-                     'Loan Purpose': 'Refinance',
-                     'Occupancy': 'Investment',
-                     'Prepay Penalty': 'No Penalty',
-                     'Property Type': 'Condo',
-                     'Appraised Value': 750000,
-                     'Purchase Price': 750000,
-                     'Loan Amount': 600000,
-                     'LTV': 80,
-                     'Secondary Financing': 'None',
-                     'State': 'FL',
-                     'County': 'Miami-Dade County',
-                     'Credit Score': 700,
-                     'DTI': 45,
-                     'Reserves': 6,
-                     'Mtg Lates': '0x30x24',
-                     'BK': 'None',
-                     'FC': 'None',
-                     'SS': 'None',
-                     'DIL': 'None',
-                     'Escrows': 'No',
-                     'Temp Buydown': 'None',
-                     'First Name': 'Maria',
-                     'Last Name': 'Garcia',
-                     'Coborrower First Name': '',
-                     'Coborrower Last Name': '',
-                     'Address': '456 Ocean Ave',
-                     'City': 'Miami',
-                     'Zip': '33101',
-                     'Amortizing Type': 'Interest Only',
-                     'Interest Rate': 8.25,
-                     'Investor': 'Non-QM Investor'
-                 }
-             ];
-         
-             // Allowable values sheet
-             const allowableValuesData = [
-                 { Field: 'Loan Type', 'Allowable Values': 'First Lien, Second Lien' },
-                 { Field: 'Citizenship', 'Allowable Values': 'US Citizen, Permanent Resident, Foreign National' },
-                 { Field: 'Income Documentation', 'Allowable Values': 'Full Doc, Bank Statement, Asset Depletion, DSCR, No Doc' },
-                 { Field: 'Loan Purpose', 'Allowable Values': 'Purchase, Refinance, Cash Out Refinance' },
-                 { Field: 'Occupancy', 'Allowable Values': 'Primary, Secondary, Investment' },
-                 { Field: 'Prepay Penalty', 'Allowable Values': 'No Penalty, 1 Year, 2 Year, 3 Year, 5 Year' },
-                 { Field: 'Property Type', 'Allowable Values': 'SFR, Condo, Townhome, 2-4 Unit, Manufactured' },
-                 { Field: 'Secondary Financing', 'Allowable Values': 'None, HELOC, Second Mortgage' },
-                 { Field: 'Amortizing Type', 'Allowable Values': 'Fully Am, Interest Only, 15 Year Am, 25 Year Am, 40 Year Am' },
-                 { Field: 'Mtg Lates', 'Allowable Values': '0x30x24, 1x30x24, 2x30x24, 0x30x12, 1x30x12' },
-                 { Field: 'BK', 'Allowable Values': 'None, Ch7 >4 Years, Ch7 >2 Years, Ch13 >2 Years' },
-                 { Field: 'FC', 'Allowable Values': 'None, >4 Years, >2 Years' },
-                 { Field: 'SS', 'Allowable Values': 'None, >4 Years, >2 Years' },
-                 { Field: 'DIL', 'Allowable Values': 'None, >4 Years, >2 Years' },
-                 { Field: 'Escrows', 'Allowable Values': 'Yes, No' },
-                 { Field: 'Temp Buydown', 'Allowable Values': 'None, 2-1 Buydown, 1-0 Buydown' },
-                 { Field: 'Investor', 'Allowable Values': 'Prime Investor, Alt-A Investor, Non-QM Investor, DSCR Investor, Foreign National Investor' }
-             ];
-         
-             // Instructions sheet
-             const instructionsData = [
-                 { Step: 1, Instruction: 'Download this template and save it with a new name' },
-                 { Step: 2, Instruction: 'Replace the sample data with your actual loan information' },
-                 { Step: 3, Instruction: 'Ensure all values match the allowable values in the second sheet' },
-                 { Step: 4, Instruction: 'Required fields: First Name, Last Name, Interest Rate, Investor, Credit Score, DTI' },
-                 { Step: 5, Instruction: 'Upload the completed file to the LoanNex Automation Portal' },
-                 { Step: 6, Instruction: 'Results will be available for download as a detailed Excel report' }
-             ];
-         
-             // Create Excel workbook
-             const wb = XLSX.utils.book_new();
-             
-             // Add main template sheet
-             const templateWs = XLSX.utils.json_to_sheet(templateData);
-             XLSX.utils.book_append_sheet(wb, templateWs, 'Loan Template');
-             
-             // Add allowable values sheet
-             const valuesWs = XLSX.utils.json_to_sheet(allowableValuesData);
-             XLSX.utils.book_append_sheet(wb, valuesWs, 'Allowable Values');
-             
-             // Add instructions sheet
-             const instructionsWs = XLSX.utils.json_to_sheet(instructionsData);
-             XLSX.utils.book_append_sheet(wb, instructionsWs, 'Instructions');
-             
-             // Generate filename with timestamp
-             const timestamp = new Date().toISOString().slice(0, 10);
-             const filename = `LoanNex_Template_${timestamp}.xlsx`;
-             
-             // Download the file
-             XLSX.writeFile(wb, filename);
-             
-             console.log('✅ Template Excel file downloaded:', filename);
-         });
+             console.log('📥 Downloading LoanNex template Excel file...');
+    
+             // Create a temporary link element to trigger download
+             const link = document.createElement('a');
+    
+             // Point to the Template Import.xlsx file in the same directory
+             link.href = './Template Import.xlsx';
+             link.download = 'LoanNex_Template_Import.xlsx';
+             link.target = '_blank';
+    
+             // Trigger the download
+             document.body.appendChild(link);
+             link.click();
+             document.body.removeChild(link);
+    
+             console.log('✅ Template Excel file download initiated');
+});
          
          // Validate credentials
          function validateCredentials() {
