@@ -124,70 +124,88 @@ class ValidationUI {
     }
 
     generateDataPreviewTable(loans, results) {
+        // Only show loans with issues
+        const problemLoans = results.loans.filter(loan => loan.issues.length > 0);
+        
+        if (problemLoans.length === 0) {
+            return `
+                <div class="bg-green-50 border border-green-200 rounded-lg p-8 text-center mb-6">
+                    <div class="text-green-800 text-xl font-medium mb-2">🎉 All loans are valid!</div>
+                    <div class="text-green-600">No validation issues found in your data</div>
+                </div>
+            `;
+        }
+
         return `
             <div class="bg-white rounded-lg border overflow-hidden mb-6">
-                <div class="bg-gray-50 px-6 py-3 border-b">
-                    <h3 class="text-lg font-semibold text-gray-800">📊 Loan Data Preview (click rows to expand)</h3>
-                    <p class="text-sm text-gray-600 mt-1">Review each loan's validation status and fix issues</p>
+                <div class="bg-red-50 px-6 py-3 border-b border-red-200">
+                    <h3 class="text-lg font-semibold text-red-800">❌ Loans Requiring Attention (${problemLoans.length})</h3>
+                    <p class="text-sm text-red-600 mt-1">Only showing loans with validation issues - click to expand details</p>
                 </div>
                 <div class="data-preview-table max-h-96 overflow-y-auto">
-                    ${this.generateDataPreviewRows(loans, results)}
+                    ${this.generateDataPreviewRows(loans, results, true)}
                 </div>
             </div>
         `;
     }
 
-    generateDataPreviewRows(loans, results) {
-        return loans.map((loan, index) => {
-            const loanResult = results.loans[index];
+    generateDataPreviewRows(loans, results, problemsOnly = false) {
+        let loansToShow = results.loans;
+        
+        // If problemsOnly is true, filter to only show loans with issues
+        if (problemsOnly) {
+            loansToShow = results.loans.filter(loan => loan.issues.length > 0);
+        }
+
+        return loansToShow.map((loanResult, resultIndex) => {
+            // Get original loan index from the results
+            const originalIndex = loanResult.loanIndex;
+            const loan = loans[originalIndex];
+            
             const statusIcon = loanResult.status === 'error' ? '❌' : loanResult.status === 'warning' ? '⚠️' : '✅';
             const statusColor = loanResult.status === 'error' ? 'text-red-700' : loanResult.status === 'warning' ? 'text-yellow-700' : 'text-green-700';
             const bgColor = loanResult.status === 'error' ? 'validation-row-error' : loanResult.status === 'warning' ? 'validation-row-warning' : 'validation-row-valid';
             
             const borrowerName = loanResult.borrowerName;
-            const state = loan['State'] || 'N/A';
-            const loanType = loan['Loan Type'] || 'N/A';
-            const interestRate = loan['Interest Rate'] || 'N/A';
-            const creditScore = loan['Credit Score'] || 'N/A';
-            
-            // Determine field validation statuses
-            const stateStatus = this.getFieldValidationStatus('State', state, loanResult);
-            const typeStatus = this.getFieldValidationStatus('Loan Type', loanType, loanResult);
-            const rateStatus = this.getFieldValidationStatus('Interest Rate', interestRate, loanResult);
-            const scoreStatus = this.getFieldValidationStatus('Credit Score', creditScore, loanResult);
+
+            // Only show fields that have issues, plus borrower name
+            const problemFields = loanResult.issues.map(issue => ({
+                name: issue.field,
+                value: issue.value,
+                status: this.getFieldValidationStatus(issue.field, issue.value, loanResult)
+            }));
 
             return `
                 <div class="border-b border-gray-200 ${bgColor}">
-                    <div class="p-4 cursor-pointer hover:bg-gray-50 expandable-row" onclick="toggleLoanDetails(${index})">
-                        <div class="grid grid-cols-7 gap-4 items-center">
-                            <div class="text-center">
-                                <span class="font-medium text-gray-900">#${index + 1}</span>
+                    <div class="p-4 cursor-pointer hover:bg-gray-50 expandable-row" onclick="toggleLoanDetails(${originalIndex})">
+                        <div class="grid grid-cols-1 gap-4">
+                            <!-- Loan Header -->
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-4">
+                                    <span class="font-medium text-gray-900">#${originalIndex + 1}</span>
+                                    <span class="font-medium text-gray-900">${borrowerName}</span>
+                                </div>
+                                <div class="flex items-center space-x-4">
+                                    <span class="${statusColor}">${statusIcon} ${loanResult.issues.length} issue${loanResult.issues.length !== 1 ? 's' : ''}</span>
+                                    <svg class="w-4 h-4 text-gray-400 transform transition-transform" id="expand-icon-${originalIndex}">
+                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                    </svg>
+                                </div>
                             </div>
-                            <div class="text-left">
-                                <div class="font-medium text-gray-900 truncate">${borrowerName}</div>
-                            </div>
-                            <div class="text-center ${stateStatus.class}">
-                                ${stateStatus.icon} ${state}
-                            </div>
-                            <div class="text-center ${typeStatus.class}">
-                                ${typeStatus.icon} ${loanType}
-                            </div>
-                            <div class="text-center ${rateStatus.class}">
-                                ${rateStatus.icon} ${interestRate}${typeof interestRate === 'number' ? '%' : ''}
-                            </div>
-                            <div class="text-center ${scoreStatus.class}">
-                                ${scoreStatus.icon} ${creditScore}
-                            </div>
-                            <div class="text-center">
-                                <span class="${statusColor}">${statusIcon} ${loanResult.issues.length} issue${loanResult.issues.length !== 1 ? 's' : ''}</span>
-                                <svg class="w-4 h-4 text-gray-400 transform transition-transform inline ml-2" id="expand-icon-${index}">
-                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                                </svg>
+                            
+                            <!-- Problem Fields Only -->
+                            <div class="flex flex-wrap gap-3">
+                                ${problemFields.map(field => `
+                                    <div class="flex items-center space-x-2 px-3 py-1 rounded-lg ${field.status.bgClass}">
+                                        <span class="text-xs font-medium text-gray-700">${field.name}:</span>
+                                        <span class="${field.status.class} text-sm font-mono">${field.status.icon} "${field.value}"</span>
+                                    </div>
+                                `).join('')}
                             </div>
                         </div>
                     </div>
-                    <div id="loan-details-${index}" class="hidden bg-gray-50 border-t border-gray-200">
-                        ${this.generateLoanDetailsView(loan, loanResult, index)}
+                    <div id="loan-details-${originalIndex}" class="hidden bg-gray-50 border-t border-gray-200">
+                        ${this.generateLoanDetailsView(loan, loanResult, originalIndex)}
                     </div>
                 </div>
             `;
@@ -198,11 +216,23 @@ class ValidationUI {
         const issue = loanResult.issues.find(i => i.field === fieldName);
         
         if (!issue) {
-            return { icon: '✅', class: 'text-green-700' };
+            return { 
+                icon: '✅', 
+                class: 'text-green-700',
+                bgClass: 'bg-green-100 border-green-200'
+            };
         } else if (issue.type === 'error') {
-            return { icon: '❌', class: 'text-red-700' };
+            return { 
+                icon: '❌', 
+                class: 'text-red-700',
+                bgClass: 'bg-red-100 border-red-200'
+            };
         } else {
-            return { icon: '⚠️', class: 'text-yellow-700' };
+            return { 
+                icon: '⚠️', 
+                class: 'text-yellow-700',
+                bgClass: 'bg-yellow-100 border-yellow-200'
+            };
         }
     }
 
