@@ -7,7 +7,7 @@ class LoanValidator {
             'Loan Type': ['First Lien', 'Second Lien'],
             'Citizenship': ['US Citizen', 'Permanent Resident', 'Foreign National'],
             'Income Documentation': ['Full Doc', 'Bank Statement', 'Asset Depletion', 'DSCR', 'No Doc'],
-            'Loan Purpose': ['Purchase', 'Refinance', 'Cash Out Refinance'],
+            'Loan Purpose': ['Purchase', 'R/T Refi', 'C/O Refi'],
             'Occupancy': ['Primary', 'Secondary', 'Investment'],
             'Prepay Penalty': ['No Penalty', '1 Year', '2 Year', '3 Year', '5 Year'],
             'Property Type': ['SFR', 'Condo', 'Townhome', '2-4 Unit', 'Manufactured'],
@@ -47,11 +47,16 @@ class LoanValidator {
             },
             'Loan Purpose': {
                 'purchase': 'Purchase',
-                'refinance': 'Refinance',
-                'refi': 'Refinance',
-                'cash out refinance': 'Cash Out Refinance',
-                'cash out refi': 'Cash Out Refinance',
-                'cash-out': 'Cash Out Refinance'
+                'refinance': 'R/T Refi',           // Convert generic "refinance" to R/T Refi
+                'refi': 'R/T Refi',
+                'r/t refi': 'R/T Refi',
+                'rate term refi': 'R/T Refi',
+                'rate/term refi': 'R/T Refi',
+                'cash out refinance': 'C/O Refi',
+                'cash out refi': 'C/O Refi',
+                'cash-out': 'C/O Refi',
+                'c/o refi': 'C/O Refi',
+                'cashout refi': 'C/O Refi'
             },
             'Occupancy': {
                 'primary': 'Primary',
