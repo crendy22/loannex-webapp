@@ -172,40 +172,55 @@ class ValidationUI {
             const problemFields = loanResult.issues.map(issue => ({
                 name: issue.field,
                 value: issue.value,
+                suggestion: issue.suggestion,
+                autoFixable: issue.autoFixable,
                 status: this.getFieldValidationStatus(issue.field, issue.value, loanResult)
             }));
 
             return `
-                <div class="border-b border-gray-200 ${bgColor}">
-                    <div class="p-4 cursor-pointer hover:bg-gray-50 expandable-row" onclick="toggleLoanDetails(${originalIndex})">
-                        <div class="grid grid-cols-1 gap-4">
-                            <!-- Loan Header -->
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center space-x-4">
-                                    <span class="font-medium text-gray-900">#${originalIndex + 1}</span>
-                                    <span class="font-medium text-gray-900">${borrowerName}</span>
-                                </div>
-                                <div class="flex items-center space-x-4">
-                                    <span class="${statusColor}">${statusIcon} ${loanResult.issues.length} issue${loanResult.issues.length !== 1 ? 's' : ''}</span>
-                                    <svg class="w-4 h-4 text-gray-400 transform transition-transform" id="expand-icon-${originalIndex}">
-                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                                    </svg>
-                                </div>
-                            </div>
-                            
-                            <!-- Problem Fields Only -->
-                            <div class="flex flex-wrap gap-3">
-                                ${problemFields.map(field => `
-                                    <div class="flex items-center space-x-2 px-3 py-1 rounded-lg ${field.status.bgClass}">
-                                        <span class="text-xs font-medium text-gray-700">${field.name}:</span>
-                                        <span class="${field.status.class} text-sm font-mono">${field.status.icon} "${field.value}"</span>
-                                    </div>
-                                `).join('')}
-                            </div>
+                <div class="border-b border-gray-200 ${bgColor} p-4">
+                    <!-- Loan Header -->
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center space-x-4">
+                            <span class="font-bold text-gray-900">#${originalIndex + 1}</span>
+                            <span class="font-medium text-gray-900">${borrowerName}</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span class="${statusColor}">${statusIcon} ${loanResult.issues.length} issue${loanResult.issues.length !== 1 ? 's' : ''}</span>
+                            ${loanResult.autoFixable ? `
+                                <button class="fix-loan-btn bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700" 
+                                        data-loan-index="${originalIndex}">
+                                    🔧 Fix All
+                                </button>
+                            ` : ''}
                         </div>
                     </div>
-                    <div id="loan-details-${originalIndex}" class="hidden bg-gray-50 border-t border-gray-200">
-                        ${this.generateLoanDetailsView(loan, loanResult, originalIndex)}
+                    
+                    <!-- Problem Fields -->
+                    <div class="grid grid-cols-1 gap-3">
+                        ${problemFields.map(field => `
+                            <div class="flex items-center justify-between p-3 rounded-lg ${field.status.bgClass} border">
+                                <div class="flex-1">
+                                    <div class="flex items-center space-x-2 mb-1">
+                                        <span class="font-medium text-gray-900">${field.name}:</span>
+                                        <span class="${field.status.class} font-mono">${field.status.icon} "${field.value}"</span>
+                                    </div>
+                                    ${field.suggestion ? `
+                                        <div class="text-sm text-green-600">
+                                            Suggested: "<span class="font-mono">${field.suggestion}</span>"
+                                        </div>
+                                    ` : ''}
+                                </div>
+                                ${field.autoFixable ? `
+                                    <button class="fix-field-btn bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600 ml-4"
+                                            data-loan-index="${originalIndex}" 
+                                            data-field="${field.name}" 
+                                            data-suggestion="${field.suggestion}">
+                                        Fix
+                                    </button>
+                                ` : ''}
+                            </div>
+                        `).join('')}
                     </div>
                 </div>
             `;
@@ -481,16 +496,4 @@ class ValidationUI {
     }
 }
 
-// Global function for toggling loan details (called from onclick)
-function toggleLoanDetails(loanIndex) {
-    const details = document.getElementById(`loan-details-${loanIndex}`);
-    const icon = document.getElementById(`expand-icon-${loanIndex}`);
-    
-    if (details.classList.contains('hidden')) {
-        details.classList.remove('hidden');
-        icon.style.transform = 'rotate(180deg)';
-    } else {
-        details.classList.add('hidden');
-        icon.style.transform = 'rotate(0deg)';
-    }
-}
+// Global function removed since we don't need expandable details anymore
