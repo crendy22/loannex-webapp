@@ -628,46 +628,7 @@
              return true;
          }
          
-         // File upload handler
-         fileUpload.addEventListener('change', function(event) {
-             const file = event.target.files[0];
-             if (!file) return;
          
-             if (!validateCredentials()) {
-                 event.target.value = '';
-                 return;
-             }
-         
-             const reader = new FileReader();
-             reader.onload = function(e) {
-                 try {
-                     const data = new Uint8Array(e.target.result);
-                     const workbook = XLSX.read(data, { type: 'array' });
-                     const sheetName = workbook.SheetNames[0];
-                     const worksheet = workbook.Sheets[sheetName];
-                     const jsonData = XLSX.utils.sheet_to_json(worksheet);
-                     
-                     loans = jsonData;
-                     
-                     // Update UI - Show BOTH buttons
-                     fileName.textContent = `✅ ${file.name}`;
-                     loanCount.textContent = `${loans.length} loans ready to process`;
-                     fileStatus.classList.remove('hidden');
-                     processBtn.classList.remove('hidden');
-                     priceReviewBtn.classList.remove('hidden');
-                     
-                     // Show button descriptions when buttons appear
-                     document.getElementById('price-review-desc').classList.remove('hidden');
-                     document.getElementById('process-btn-desc').classList.remove('hidden');
-                     
-                     console.log('File uploaded successfully:', jsonData);
-                 } catch (error) {
-                     console.error('Error reading Excel file:', error);
-                     alert('Error reading Excel file. Please check the format.');
-                 }
-             };
-             reader.readAsArrayBuffer(file);
-         });
          
          // AUTO-PROCESS: Process & Lock All Loans (Original functionality)
          processBtn.addEventListener('click', async function() {
