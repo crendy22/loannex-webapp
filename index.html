@@ -843,7 +843,8 @@
                          body: JSON.stringify({
                              loanData: loans[i],
                              loanIndex: i,
-                             credentials: credentials
+                             credentials: credentials,
+                             shouldSave: shouldSave  // NEW: Add this line
                          })
                      });
                      
