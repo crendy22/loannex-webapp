@@ -1779,12 +1779,28 @@
                      audio.play().catch(e => console.log('Audio play failed:', e));
                  }
                  
-                 // Use browser's speech synthesis for the message
+                 // Use browser's speech synthesis for the message with Australian voice
                  if ('speechSynthesis' in window) {
-                     const utterance = new SpeechSynthesisUtterance('Pricing is complete, review for lock');
-                     utterance.rate = 0.9;
-                     utterance.pitch = 1.1;
-                     utterance.volume = 0.8;
+                     const utterance = new SpeechSynthesisUtterance('G\'day! Your pricing is all done mate. Time to review and lock those loans.');
+                     
+                     // Try to find an Australian voice
+                     const voices = speechSynthesis.getVoices();
+                     const australianVoice = voices.find(voice => 
+                         voice.lang.includes('en-AU') || 
+                         voice.name.toLowerCase().includes('australian') ||
+                         voice.name.toLowerCase().includes('karen') ||
+                         voice.name.toLowerCase().includes('catherine')
+                     );
+                     
+                     if (australianVoice) {
+                         utterance.voice = australianVoice;
+                     }
+                     
+                     // Make it softer and more natural
+                     utterance.rate = 0.8;        // Slower = less robotic
+                     utterance.pitch = 0.9;       // Slightly lower pitch = softer
+                     utterance.volume = 0.7;      // Quieter = softer
+                     
                      speechSynthesis.speak(utterance);
                  }
              } catch (error) {
