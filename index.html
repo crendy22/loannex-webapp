@@ -284,6 +284,10 @@
       </style>
    </head>
    <body class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+    <!-- Add this audio element -->
+    <audio id="pricing-complete-audio" preload="auto">
+        <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmYeBC2Bzfzdn0UNF2y48+OGSA0PVqzn77BdGAg7k9n1unYiBC6Aufzdi0wOGWO28+KNSA0PVKzp8LRgHAU9k9j4w3QiBC7Aufzcik0OF2C1+OWTPAkUY6/q8MV4IBkZgtG8RoaFaDZeqD2/Cm5Y2r7E8PJhAEgpnfXBpjVfOzd5NmlNfnLQcYIVRjLb23/UR13XU+DKjmE/TcNiCCNiRqO1L8jzCe5yLmVk2nKDQiMpOJwm1Xg/FUcQmN0Mnt/7K2xJKhQOGOsNBQdMLtYMdNADQzxD8Lc8Kgc/bgHMK+fKSk9k8r6R3VnG6nnLk+a4vlBELIAVOT3P3VKgvN1Tm7k8YlVHKJ/1Eh5Q" type="audio/wav">
+    </audio>
       <!-- Floating Particles Background -->
       <div class="particles-container" id="particles-container"></div>
       <div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 content-layer">
@@ -881,6 +885,7 @@
                          if (totalPriced >= expectedTotal) {
                              console.log('💰 All pricing completed!');
                              clearInterval(checkInterval);
+                             notifyPricingComplete();  // ADD THIS LINE
                              showPricingResults(data.pricingResults);
                          }
                      }
@@ -1411,6 +1416,46 @@
                  architectureToggle.querySelector('span').textContent = 'Click to expand';
              }
          });
+         // Add this new function to handle notifications
+         function notifyPricingComplete() {
+             // 1. Change tab title with blinking effect
+             const originalTitle = document.title;
+             let isBlinking = true;
+             let blinkCount = 0;
+             const maxBlinks = 6; // Blink 3 times (on/off = 2 blinks per cycle)
+             
+             const blinkInterval = setInterval(() => {
+                 document.title = isBlinking ? '✅ PRICING COMPLETE! - LoanNex' : '⭐ REVIEW FOR LOCK - LoanNex';
+                 isBlinking = !isBlinking;
+                 blinkCount++;
+                 
+                 if (blinkCount >= maxBlinks) {
+                     clearInterval(blinkInterval);
+                     document.title = '✅ PRICING COMPLETE! - LoanNex';
+                 }
+             }, 800); // Blink every 800ms
+             
+             // 2. Play notification sound with text-to-speech
+             try {
+                 const audio = document.getElementById('pricing-complete-audio');
+                 if (audio) {
+                     audio.play().catch(e => console.log('Audio play failed:', e));
+                 }
+                 
+                 // Use browser's speech synthesis for the message
+                 if ('speechSynthesis' in window) {
+                     const utterance = new SpeechSynthesisUtterance('Pricing is complete, review for lock');
+                     utterance.rate = 0.9;
+                     utterance.pitch = 1.1;
+                     utterance.volume = 0.8;
+                     speechSynthesis.speak(utterance);
+                 }
+             } catch (error) {
+                 console.log('Notification audio failed:', error);
+             }
+             
+             console.log('🔔 Pricing completion notifications triggered');
+         }
       </script>
    </body>
 </html>
