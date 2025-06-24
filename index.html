@@ -699,14 +699,6 @@
          let loanValidator = null;
          let validationUI = null;
          
-         // Initialize validation system when DOM is ready
-         document.addEventListener('DOMContentLoaded', function() {
-             console.log('🔍 Initializing LoanNex validation system...');
-             loanValidator = new LoanValidator();
-             validationUI = new ValidationUI(loanValidator);
-             console.log('✅ Validation system ready');
-         });
-         
          // DOM elements
          const fileUpload = document.getElementById('file-upload');
          const fileName = document.getElementById('file-name');
