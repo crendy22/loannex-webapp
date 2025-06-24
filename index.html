@@ -977,11 +977,15 @@
          }
          
          row.innerHTML = `
-             <div class="flex items-center space-x-4">
-                 <input type="checkbox" class="loan-checkbox w-5 h-5 text-blue-600" data-loan-index="${index}">
-                 <div class="flex-1 min-w-0">
-                     <div class="font-medium text-gray-900 truncate">${borrowerName}</div>
-                     <div class="text-sm text-gray-500">${propertyType} • ${amortizingType}</div>
+             <div class="flex-1 min-w-0">
+                 <div class="font-medium text-gray-900 truncate">${borrowerName}</div>
+                 <div class="text-sm text-gray-500">${propertyType} • ${amortizingType}</div>
+                 <div class="text-xs">
+                     💾 
+                     ${result.nex_id && result.nex_id !== 'Not Saved' && result.nex_id !== null ? 
+                         `<a href="https://dev.loannex.com/iframe/loadiframe?page=loans&_id=${result.nex_id}" target="_blank" class="text-green-700 font-bold underline hover:text-blue-800">${result.nex_id}</a>` 
+                         : '<span class="text-gray-600">Not Saved</span>'
+                     }
                  </div>
              </div>
              <div class="flex items-center space-x-4 flex-wrap">
