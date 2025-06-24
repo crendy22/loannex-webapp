@@ -807,53 +807,170 @@
              reader.readAsArrayBuffer(file);
          });
          
-         // Basic validation function (embedded)
+         // Comprehensive validation function (enhanced)
          function validateLoansBasic(loans) {
              const requiredFields = ['First Name', 'Last Name', 'Interest Rate', 'Investor', 'Credit Score', 'DTI', 'Loan Amount'];
              const validStates = ['AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA', 'HI', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME', 'MD', 'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH', 'NJ', 'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC', 'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI', 'WY', 'DC'];
+             
+             const validLoanTypes = ['First Lien', 'Second Lien'];
+             const validCitizenship = ['US Citizen', 'Permanent Resident', 'Foreign National'];
+             const validIncomeDoc = ['Full Doc', 'Bank Statement', 'Asset Depletion', 'DSCR', 'No Doc'];
+             const validLoanPurpose = ['Purchase', 'R/T Refi', 'C/O Refi'];
+             const validOccupancy = ['Primary', 'Secondary', 'Investment'];
+             const validPrepayPenalty = ['No Penalty', '1 Year', '2 Year', '3 Year', '5 Year'];
+             const validPropertyType = ['SFR', 'Condo', 'Townhome', '2-4 Unit', 'Manufactured'];
+             const validSecondaryFinancing = ['None', 'HELOC', 'Second Mortgage'];
+             const validMtgLates = ['0x30x24', '1x30x24', '2x30x24', '0x30x12', '1x30x12'];
+             const validBK = ['None', 'Ch7 >4 Years', 'Ch7 >2 Years', 'Ch13 >2 Years'];
+             const validFC = ['None', '>4 Years', '>2 Years'];
+             const validSS = ['None', '>4 Years', '>2 Years'];
+             const validDIL = ['None', '>4 Years', '>2 Years'];
+             const validEscrows = ['Yes', 'No'];
+             const validTempBuydown = ['None', '2-1 Buydown', '1-0 Buydown'];
+             const validAmortizingType = ['Fully Am', 'Interest Only', '15 Year Am', '25 Year Am', '40 Year Am'];
              
              let valid = 0, warnings = 0, errors = 0;
              const issues = [];
              
              loans.forEach((loan, index) => {
                  const loanIssues = [];
+                 let hasErrors = false;
                  
                  // Check required fields
                  requiredFields.forEach(field => {
                      if (!loan[field] || loan[field].toString().trim() === '') {
-                         loanIssues.push(`Missing ${field}`);
-                         errors++;
+                         loanIssues.push(`Missing required field: ${field}`);
+                         hasErrors = true;
                      }
                  });
                  
                  // Check state
-                 if (loan['State'] && !validStates.includes(loan['State'].toString().trim().toUpperCase())) {
-                     loanIssues.push(`Invalid state: ${loan['State']}`);
-                     errors++;
+                 if (loan['State']) {
+                     const state = loan['State'].toString().trim().toUpperCase();
+                     if (!validStates.includes(state)) {
+                         loanIssues.push(`Invalid state: "${loan['State']}" (use 2-letter code like "CA")`);
+                         hasErrors = true;
+                     }
+                 }
+                 
+                 // Check loan type
+                 if (loan['Loan Type'] && !validLoanTypes.includes(loan['Loan Type'])) {
+                     loanIssues.push(`Invalid Loan Type: "${loan['Loan Type']}" (must be: ${validLoanTypes.join(', ')})`);
+                     hasErrors = true;
+                 }
+                 
+                 // Check citizenship
+                 if (loan['Citizenship'] && !validCitizenship.includes(loan['Citizenship'])) {
+                     loanIssues.push(`Invalid Citizenship: "${loan['Citizenship']}" (must be: ${validCitizenship.join(', ')})`);
+                     hasErrors = true;
+                 }
+                 
+                 // Check income documentation
+                 if (loan['Income Documentation'] && !validIncomeDoc.includes(loan['Income Documentation'])) {
+                     loanIssues.push(`Invalid Income Documentation: "${loan['Income Documentation']}" (must be: ${validIncomeDoc.join(', ')})`);
+                     hasErrors = true;
+                 }
+                 
+                 // Check loan purpose
+                 if (loan['Loan Purpose'] && !validLoanPurpose.includes(loan['Loan Purpose'])) {
+                     loanIssues.push(`Invalid Loan Purpose: "${loan['Loan Purpose']}" (must be: ${validLoanPurpose.join(', ')})`);
+                     hasErrors = true;
+                 }
+                 
+                 // Check occupancy
+                 if (loan['Occupancy'] && !validOccupancy.includes(loan['Occupancy'])) {
+                     loanIssues.push(`Invalid Occupancy: "${loan['Occupancy']}" (must be: ${validOccupancy.join(', ')})`);
+                     hasErrors = true;
+                 }
+                 
+                 // Check prepay penalty
+                 if (loan['Prepay Penalty'] && !validPrepayPenalty.includes(loan['Prepay Penalty'])) {
+                     loanIssues.push(`Invalid Prepay Penalty: "${loan['Prepay Penalty']}" (must be: ${validPrepayPenalty.join(', ')})`);
+                     hasErrors = true;
+                 }
+                 
+                 // Check property type
+                 if (loan['Property Type'] && !validPropertyType.includes(loan['Property Type'])) {
+                     loanIssues.push(`Invalid Property Type: "${loan['Property Type']}" (must be: ${validPropertyType.join(', ')})`);
+                     hasErrors = true;
+                 }
+                 
+                 // Check amortizing type
+                 if (loan['Amortizing Type'] && !validAmortizingType.includes(loan['Amortizing Type'])) {
+                     loanIssues.push(`Invalid Amortizing Type: "${loan['Amortizing Type']}" (must be: ${validAmortizingType.join(', ')})`);
+                     hasErrors = true;
                  }
                  
                  // Check credit score
-                 const creditScore = parseFloat(loan['Credit Score']);
-                 if (loan['Credit Score'] && (isNaN(creditScore) || creditScore < 300 || creditScore > 850)) {
-                     loanIssues.push(`Invalid credit score: ${loan['Credit Score']}`);
-                     errors++;
+                 if (loan['Credit Score']) {
+                     const creditScore = parseFloat(loan['Credit Score']);
+                     if (isNaN(creditScore)) {
+                         loanIssues.push(`Credit Score must be a number: "${loan['Credit Score']}"`);
+                         hasErrors = true;
+                     } else if (creditScore < 300 || creditScore > 850) {
+                         loanIssues.push(`Credit Score out of range: ${loan['Credit Score']} (must be 300-850)`);
+                         hasErrors = true;
+                     }
                  }
                  
                  // Check DTI
-                 const dti = parseFloat(loan['DTI']);
-                 if (loan['DTI'] && (isNaN(dti) || dti < 0 || dti > 100)) {
-                     loanIssues.push(`Invalid DTI: ${loan['DTI']}`);
-                     errors++;
+                 if (loan['DTI']) {
+                     const dti = parseFloat(loan['DTI']);
+                     if (isNaN(dti)) {
+                         loanIssues.push(`DTI must be a number: "${loan['DTI']}"`);
+                         hasErrors = true;
+                     } else if (dti < 0 || dti > 100) {
+                         loanIssues.push(`DTI out of range: ${loan['DTI']} (must be 0-100)`);
+                         hasErrors = true;
+                     }
                  }
                  
-                 if (loanIssues.length === 0) {
-                     valid++;
-                 } else {
+                 // Check LTV
+                 if (loan['LTV']) {
+                     const ltv = parseFloat(loan['LTV']);
+                     if (isNaN(ltv)) {
+                         loanIssues.push(`LTV must be a number: "${loan['LTV']}"`);
+                         hasErrors = true;
+                     } else if (ltv < 0 || ltv > 100) {
+                         loanIssues.push(`LTV out of range: ${loan['LTV']} (must be 0-100)`);
+                         hasErrors = true;
+                     }
+                 }
+                 
+                 // Check interest rate
+                 if (loan['Interest Rate']) {
+                     const rate = parseFloat(loan['Interest Rate']);
+                     if (isNaN(rate)) {
+                         loanIssues.push(`Interest Rate must be a number: "${loan['Interest Rate']}"`);
+                         hasErrors = true;
+                     } else if (rate < 0 || rate > 20) {
+                         loanIssues.push(`Interest Rate seems unrealistic: ${loan['Interest Rate']}% (expected 0-20%)`);
+                         hasErrors = true;
+                     }
+                 }
+                 
+                 // Check loan amount
+                 if (loan['Loan Amount']) {
+                     const amount = parseFloat(loan['Loan Amount']);
+                     if (isNaN(amount)) {
+                         loanIssues.push(`Loan Amount must be a number: "${loan['Loan Amount']}"`);
+                         hasErrors = true;
+                     } else if (amount < 1000 || amount > 50000000) {
+                         loanIssues.push(`Loan Amount seems unrealistic: ${loan['Loan Amount']} (expected $1,000-$50,000,000)`);
+                         hasErrors = true;
+                     }
+                 }
+                 
+                 // Update counters
+                 if (hasErrors) {
+                     errors += loanIssues.length;
                      issues.push({
                          loanIndex: index,
                          borrower: `${loan['First Name'] || ''} ${loan['Last Name'] || ''}`.trim() || 'Unknown',
                          issues: loanIssues
                      });
+                 } else {
+                     valid++;
                  }
              });
              
