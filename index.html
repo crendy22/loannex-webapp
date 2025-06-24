@@ -812,6 +812,10 @@
          priceReviewBtn.addEventListener('click', async function() {
              console.log('💰 Starting PRICING REVIEW workflow');
              currentWorkflowType = 'pricing-review';
+             // Check if save option is enabled
+             const saveCheckbox = document.getElementById('save-after-pricing');
+             const shouldSave = saveCheckbox && saveCheckbox.checked;
+             console.log(`💾 Save after pricing: ${shouldSave ? 'ENABLED' : 'DISABLED'}`);
              
              processingStartTime = new Date();
              batchStartTime = new Date().toISOString();
