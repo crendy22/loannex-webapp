@@ -454,15 +454,7 @@
                   <!-- Upload Section -->
                   <div id="upload-section" class="gradient-border rounded-xl shadow-lg p-8 mb-6">
                      <h2 class="text-2xl font-semibold mb-3 text-center">Process Your Loans</h2>
-                     <!-- Simple 4 Steps -->
-                     <div class="text-center mb-6">
-                        <p class="text-lg text-gray-600">
-                           <span class="font-medium">1. Enter credentials</span> → 
-                           <span class="font-medium">2. Upload Excel</span> → 
-                           <span class="font-medium">3. Choose workflow</span> → 
-                           <span class="font-medium">4. Download results</span>
-                        </p>
-                     </div>
+                     
                      <!-- Credentials -->
                      <div class="mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
@@ -486,6 +478,7 @@
                               >
                         </div>
                      </div>
+                     
                      <!-- File Upload -->
                      <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center mb-6">
                         <svg class="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -508,45 +501,60 @@
                            <p class="text-xs text-gray-500 mt-2">Get the required format with allowable values</p>
                         </div>
                      </div>
-                     <!-- File Status -->
-                     <div id="file-status" class="hidden p-4 bg-green-50 border border-green-200 rounded-lg mb-6">
-                        <p class="text-green-800 font-medium" id="file-name"></p>
-                        <p class="text-green-600 text-sm" id="loan-count"></p>
+
+                     <!-- VALIDATION SECTION (NEW POSITION - AFTER FILE UPLOAD) -->
+                     <div id="validation-section" class="hidden gradient-border-subtle rounded-xl shadow-lg p-6 mb-6 validation-slide-in">
+                        <!-- This content will be populated by JavaScript -->
                      </div>
-                     <!-- TWO PROCESS BUTTONS - THE KEY ADDITION! -->
-                     <div class="text-center">
-                         <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-                             <!-- Price Review Button with Description (NOW ON LEFT) -->
-                             <div class="flex flex-col items-center space-y-3">
-                                 <!-- NEW: Add save checkbox above the pricing button -->
-                                 <div class="mb-3">
-                                     <label class="flex items-center space-x-2 text-sm text-gray-700">
-                                         <input type="checkbox" id="save-after-pricing" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500" checked>
-                                         <span>💾 Auto-save loans in LoanNex after pricing</span>
-                                     </label>
-                                     <p class="text-xs text-gray-500 mt-1 ml-6">Saves each loan and captures NexID for tracking</p>
-                                 </div>
-            
-            <button id="price-review-btn" class="hidden bg-blue-600 text-white px-8 py-4 rounded-lg hover:bg-blue-700 transition-colors font-medium text-lg w-full">
-            💰 Price & Review Loans
-            </button>
-            <p class="hidden text-lg text-gray-700 font-semibold whitespace-nowrap" id="price-review-desc">
-                Get pricing, then select loans to lock
-            </p>
-        </div>
-                           
-                           <!-- Process & Lock Button with Description (NOW ON RIGHT) -->
-                           <div class="flex flex-col items-center space-y-3">
-                              <button id="process-btn" class="hidden bg-green-600 text-white px-8 py-4 rounded-lg hover:bg-green-700 transition-colors font-medium text-lg w-full">
-                              🔒 Process & Lock Loans
-                              </button>
-                              <p class="hidden text-lg text-gray-700 font-semibold whitespace-nowrap" id="process-btn-desc">
-                                 Automatically process and lock all loans
-                              </p>
+
+                     <!-- WORKFLOW BUTTONS SECTION (MOVED UP - AFTER VALIDATION) -->
+                     <div id="workflow-buttons-section" class="hidden">
+                        <!-- Save checkbox -->
+                        <div class="mb-6 text-center">
+                           <label class="flex items-center justify-center space-x-2 text-sm text-gray-700">
+                              <input type="checkbox" id="save-after-pricing" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500" checked>
+                              <span>💾 Auto-save loans in LoanNex after pricing</span>
+                           </label>
+                           <p class="text-xs text-gray-500 mt-1">Saves each loan and captures NexID for tracking</p>
+                        </div>
+
+                        <!-- Simple 4 Steps -->
+                        <div class="text-center mb-6">
+                           <p class="text-lg text-gray-600">
+                              <span class="font-medium">1. Enter credentials</span> → 
+                              <span class="font-medium">2. Upload Excel</span> → 
+                              <span class="font-medium">3. Choose workflow</span> → 
+                              <span class="font-medium">4. Download results</span>
+                           </p>
+                        </div>
+
+                        <!-- TWO PROCESS BUTTONS -->
+                        <div class="text-center">
+                           <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+                              <!-- Price Review Button with Description -->
+                              <div class="flex flex-col items-center space-y-3">
+                                 <button id="price-review-btn" class="bg-blue-600 text-white px-8 py-4 rounded-lg hover:bg-blue-700 transition-colors font-medium text-lg w-full">
+                                 💰 Price & Review Loans
+                                 </button>
+                                 <p class="text-lg text-gray-700 font-semibold whitespace-nowrap">
+                                    Get pricing, then select loans to lock
+                                 </p>
+                              </div>
+                              
+                              <!-- Process & Lock Button with Description -->
+                              <div class="flex flex-col items-center space-y-3">
+                                 <button id="process-btn" class="bg-green-600 text-white px-8 py-4 rounded-lg hover:bg-green-700 transition-colors font-medium text-lg w-full">
+                                 🔒 Process & Lock Loans
+                                 </button>
+                                 <p class="text-lg text-gray-700 font-semibold whitespace-nowrap">
+                                    Automatically process and lock all loans
+                                 </p>
+                              </div>
                            </div>
                         </div>
                      </div>
                   </div>
+
                   <!-- Processing Section -->
                   <div id="processing-section" class="hidden gradient-border-subtle rounded-xl shadow-lg p-8 mb-6">
                      <div class="text-center">
@@ -689,7 +697,6 @@
          
          // DOM elements
          const fileUpload = document.getElementById('file-upload');
-         const fileStatus = document.getElementById('file-status');
          const fileName = document.getElementById('file-name');
          const loanCount = document.getElementById('loan-count');
          const processBtn = document.getElementById('process-btn');
@@ -699,6 +706,8 @@
          const processingSection = document.getElementById('processing-section');
          const pricingReviewSection = document.getElementById('pricing-review-section');
          const resultsSection = document.getElementById('results-section');
+         const workflowButtonsSection = document.getElementById('workflow-buttons-section');
+         const validationSection = document.getElementById('validation-section');
          const totalLoans = document.getElementById('total-loans');
          const progressBar = document.getElementById('progress-bar');
          const currentStatus = document.getElementById('current-status');
@@ -740,7 +749,76 @@
              document.body.removeChild(link);
     
              console.log('✅ Template Excel file download initiated');
-});
+        });
+         
+         // File upload handler - UPDATED to show validation and buttons
+         fileUpload.addEventListener('change', function(event) {
+             const file = event.target.files[0];
+             if (!file) return;
+             
+             console.log('📁 File selected:', file.name);
+             
+             const reader = new FileReader();
+             reader.onload = function(e) {
+                 try {
+                     const data = new Uint8Array(e.target.result);
+                     const workbook = XLSX.read(data, { type: 'array' });
+                     const sheetName = workbook.SheetNames[0];
+                     const worksheet = workbook.Sheets[sheetName];
+                     const jsonData = XLSX.utils.sheet_to_json(worksheet);
+                     
+                     if (jsonData.length === 0) {
+                         alert('The Excel file appears to be empty. Please check your file.');
+                         return;
+                     }
+                     
+                     loans = jsonData;
+                     console.log('✅ Parsed loans:', loans.length);
+                     
+                     // Show validation section and populate it
+                     validationSection.classList.remove('hidden');
+                     validationSection.innerHTML = `
+                        <div class="text-center mb-6">
+                           <h3 class="text-xl font-bold text-gray-900 mb-2">📋 File Validation</h3>
+                           <p class="text-gray-600">Reviewing your loan data for completeness</p>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                           <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
+                              <div class="text-2xl font-bold text-blue-800 mb-1">${loans.length}</div>
+                              <div class="text-blue-600 text-sm font-medium">Total Loans</div>
+                           </div>
+                           <div class="bg-green-50 border border-green-200 rounded-lg p-4 text-center">
+                              <div class="text-2xl font-bold text-green-800 mb-1">✅</div>
+                              <div class="text-green-600 text-sm font-medium">Format Valid</div>
+                           </div>
+                           <div class="bg-purple-50 border border-purple-200 rounded-lg p-4 text-center">
+                              <div class="text-2xl font-bold text-purple-800 mb-1">${file.name}</div>
+                              <div class="text-purple-600 text-sm font-medium">File Ready</div>
+                           </div>
+                        </div>
+                        <div class="bg-gray-50 rounded-lg p-4">
+                           <h4 class="font-semibold text-gray-800 mb-3">📄 Sample Data Preview</h4>
+                           <div class="text-sm text-gray-700">
+                              <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+                                 <div><strong>First Name:</strong> ${loans[0]['First Name'] || 'N/A'}</div>
+                                 <div><strong>Last Name:</strong> ${loans[0]['Last Name'] || 'N/A'}</div>
+                                 <div><strong>Loan Amount:</strong> ${loans[0]['Loan Amount'] || 'N/A'}</div>
+                                 <div><strong>Interest Rate:</strong> ${loans[0]['Interest Rate'] || 'N/A'}</div>
+                              </div>
+                           </div>
+                        </div>
+                     `;
+                     
+                     // Show workflow buttons
+                     workflowButtonsSection.classList.remove('hidden');
+                     
+                 } catch (error) {
+                     console.error('Error parsing Excel file:', error);
+                     alert('Error reading Excel file. Please ensure it\'s a valid .xlsx or .xls file.');
+                 }
+             };
+             reader.readAsArrayBuffer(file);
+         });
          
          // Validate credentials
          function validateCredentials() {
@@ -760,6 +838,8 @@
          
          // AUTO-PROCESS: Process & Lock All Loans (Original functionality)
          processBtn.addEventListener('click', async function() {
+             if (!validateCredentials()) return;
+             
              console.log('🔒 Starting AUTO-PROCESS workflow');
              currentWorkflowType = 'auto-process';
              
@@ -810,6 +890,8 @@
          
          // PRICING REVIEW: Get Pricing Only (New functionality)
          priceReviewBtn.addEventListener('click', async function() {
+             if (!validateCredentials()) return;
+             
              console.log('💰 Starting PRICING REVIEW workflow');
              currentWorkflowType = 'pricing-review';
              // Check if save option is enabled
@@ -1013,6 +1095,9 @@
                      <div class="text-gray-700 text-sm">${investor}</div>
                      <div class="text-xs text-gray-500">Investor</div>
                  </div>
+                 <div class="flex items-center">
+                     <input type="checkbox" class="loan-checkbox" data-loan-index="${index}">
+                 </div>
              </div>
          `;
          
@@ -1202,8 +1287,7 @@
              const totalMinutes = Math.round((endTime - processingStartTime) / 60000);
              processingTime.textContent = `${totalMinutes} minutes`;
              completionTime.textContent = endTime.toLocaleString();
-             processedUsername
-             .textContent = credentials.username;
+             processedUsername.textContent = credentials.username;
              
              console.log('✅ Results displayed with detailed data:', detailedResults);
          }
@@ -1374,10 +1458,10 @@
              
              resultsSection.classList.add('hidden');
              pricingReviewSection.classList.add('hidden');
+             processingSection.classList.add('hidden');
+             validationSection.classList.add('hidden');
+             workflowButtonsSection.classList.add('hidden');
              uploadSection.classList.remove('hidden');
-             fileStatus.classList.add('hidden');
-             processBtn.classList.add('hidden');
-             priceReviewBtn.classList.add('hidden');
              
              document.getElementById('username').value = '';
              document.getElementById('password').value = '';
@@ -1434,6 +1518,7 @@
                  architectureToggle.querySelector('span').textContent = 'Click to expand';
              }
          });
+         
          // Add this new function to handle notifications
          function notifyPricingComplete() {
              // 1. Change tab title with blinking effect
