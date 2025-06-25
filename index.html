@@ -1581,11 +1581,35 @@
                      lockStatus = '❓ UNKNOWN';
                      failureReason = apiResult ? 'Could not determine final status' : 'No matching API result found';
                  }
-                 
+
+                                   // NEW: Extract NexID from various sources
+                 let nexId = 'N/A';
+                  
+                  // Method 1: Check API result for NexID (works for both workflows)
+                 if (apiResult) {
+                     nexId = apiResult.nexId || apiResult.nex_id || apiResult.nexID || nexId;
+                 }
+                  
+                  // Method 2: For pricing-review workflow, check pricing results
+                 if (currentWorkflowType === 'pricing-review' && pricingResults.length > 0) {
+                     const pricingResult = pricingResults.find(pr => 
+                          pr.borrowerName === `${loan['First Name'] || ''} ${loan['Last Name'] || ''}`.trim()
+                     );
+                     if (pricingResult && pricingResult.nex_id) {
+                         nexId = pricingResult.nex_id;
+                     }
+                  }
+                  
+                  // Method 3: Check if loan data was enhanced with NexID (for selective lock)
+                  if (loan.nex_id || loan.nexId) {
+                      nexId = loan.nex_id || loan.nexId;
+                  } 
+                
                  return {
                      // Key results first
                      'Loan #': index + 1,
                      'Borrower Name': `${loan['First Name'] || ''} ${loan['Last Name'] || ''}`.trim() || 'Unknown',
+                     'NexID': nexId,
                      'FINAL STATUS': status,
                      'Lock Status': lockStatus,
                      'Failure Reason': failureReason,
