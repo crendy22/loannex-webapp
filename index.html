@@ -1405,7 +1405,23 @@
                  // Trigger selective locks for selected loans
                  for (let i = 0; i < selectedLoans.length; i++) {
                      const loanIndex = selectedLoans[i];
-                     const loanData = loans[loanIndex];
+                     const originalLoanData = loans[loanIndex];
+                     
+                     // 🔧 NEW: Find corresponding pricing result with NexID
+                     const pricingResult = pricingResults.find(pr => 
+                         pr.borrowerName === `${originalLoanData['First Name'] || ''} ${originalLoanData['Last Name'] || ''}`.trim()
+                     );
+                     
+                     // 🔧 NEW: Enhanced loan data with NexID from pricing results
+                     const enhancedLoanData = {
+                         ...originalLoanData,
+                         nex_id: pricingResult ? pricingResult.nex_id : null,
+                         nexId: pricingResult ? pricingResult.nex_id : null,  // Backup naming
+                         borrower_name: `${originalLoanData['First Name'] || ''} ${originalLoanData['Last Name'] || ''}`.trim(),
+                         pricing_result: pricingResult // Include full pricing data for reference
+                     };
+                     
+                     console.log(`🔒 Loan ${i + 1}: NexID = ${enhancedLoanData.nex_id || 'NOT FOUND'}`);
                      
                      updateStatus(`Locking loan ${i + 1} of ${selectedLoans.length}...`, `Selective lock workflow ${i + 1} starting`);
                      
@@ -1413,10 +1429,10 @@
                          method: 'POST',
                          headers: { 'Content-Type': 'application/json' },
                          body: JSON.stringify({
-                             loanData: loanData,
+                             loanData: enhancedLoanData, // 🔧 CHANGED: Use enhanced data with NexID
                              loanIndex: loanIndex,
                              credentials: credentials,
-                             selectedLoans: selectedLoans
+                             isSelectiveLock: true // 🔧 NEW: Add selective lock flag
                          })
                      });
                      
