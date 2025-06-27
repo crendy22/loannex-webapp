@@ -1561,27 +1561,47 @@ lockSelectedBtn.addEventListener('click', async function() {
              console.log('✅ Results displayed with detailed data:', detailedResults);
          }
          
-         // Download results
+                  // Download results
          downloadBtn.addEventListener('click', function() {
              console.log('📥 Generating enhanced Excel download with failure reasons...');
              
              // Create enhanced results data by matching loans with API results
              const enhancedResultsData = loans.map((loan, index) => {
-                 // Try multiple strategies to find matching result
+                 // Try to find matching result by NexID first (most reliable)
                  let apiResult = null;
                  
-                 apiResult = detailedResults.find(r => r.loanIndex === (index + 1));
+                 // Get loan's NexID from various possible sources
+                 const loanNexId = loan.nex_id || loan.nexId || loan.NexID || loan['NexID'] || '';
                  
+                 // Method 1: Match by NexID (BEST METHOD)
+                 if (loanNexId) {
+                     apiResult = detailedResults.find(r => 
+                         r.nex_id === loanNexId || 
+                         r.nexId === loanNexId || 
+                         r.nexID === loanNexId
+                     );
+                     if (apiResult) {
+                         console.log(`✅ Matched loan ${index + 1} by NexID: ${loanNexId}`);
+                     }
+                 }
+                 
+                 // Method 2: Match by borrower name
                  if (!apiResult) {
-                     apiResult = detailedResults.find(r => r.loanIndex === index);
+                     const borrowerName = `${loan['First Name'] || ''} ${loan['Last Name'] || ''}`.trim();
+                     apiResult = detailedResults.find(r => 
+                         r.borrowerName === borrowerName
+                     );
+                     if (apiResult) {
+                         console.log(`✅ Matched loan ${index + 1} by borrower name: ${borrowerName}`);
+                     }
                  }
                  
-                 if (!apiResult && detailedResults.length === loans.length) {
-                     apiResult = detailedResults[index];
-                 }
-                 
-                 if (!apiResult && index < detailedResults.length) {
-                     apiResult = detailedResults[index];
+                 // Method 3: Try index matching (fallback)
+                 if (!apiResult) {
+                     apiResult = detailedResults.find(r => r.loanIndex === (index + 1));
+                     if (!apiResult) {
+                         apiResult = detailedResults.find(r => r.loanIndex === index);
+                     }
                  }
                  
                  // Determine status and failure reason
@@ -1596,34 +1616,35 @@ lockSelectedBtn.addEventListener('click', async function() {
                      lockStatus = '🔓 NOT LOCKED';
                      failureReason = apiResult.errorMessage || 'Unknown error occurred';
                  } else {
-                     status = 'PROCESSING ERROR';
-                     lockStatus = '❓ UNKNOWN';
-                     failureReason = apiResult ? 'Could not determine final status' : 'No matching API result found';
+                     // No API result = this loan wasn't processed in this batch
+                     status = 'NOT PROCESSED';
+                     lockStatus = '⏭️ SKIPPED';
+                     failureReason = 'Loan was not selected for locking in this batch';
                  }
-
-                                   // NEW: Extract NexID from various sources
+         
+                 // Extract NexID from various sources
                  let nexId = 'N/A';
-                  
-                  // Method 1: Check API result for NexID (works for both workflows)
+                 
+                 // Method 1: Check API result for NexID (works for both workflows)
                  if (apiResult) {
                      nexId = apiResult.nexId || apiResult.nex_id || apiResult.nexID || nexId;
                  }
-                  
-                  // Method 2: For pricing-review workflow, check pricing results
+                 
+                 // Method 2: For pricing-review workflow, check pricing results
                  if (currentWorkflowType === 'pricing-review' && pricingResults.length > 0) {
                      const pricingResult = pricingResults.find(pr => 
-                          pr.borrowerName === `${loan['First Name'] || ''} ${loan['Last Name'] || ''}`.trim()
+                         pr.borrowerName === `${loan['First Name'] || ''} ${loan['Last Name'] || ''}`.trim()
                      );
                      if (pricingResult && pricingResult.nex_id) {
                          nexId = pricingResult.nex_id;
                      }
-                  }
-                  
-                  // Method 3: Check if loan data was enhanced with NexID (for selective lock)
-                  if (loan.nex_id || loan.nexId) {
-                      nexId = loan.nex_id || loan.nexId;
-                  } 
-                
+                 }
+                 
+                 // Method 3: Check if loan data was enhanced with NexID (for selective lock)
+                 if (loan.nex_id || loan.nexId) {
+                     nexId = loan.nex_id || loan.nexId;
+                 }
+                 
                  return {
                      // Key results first
                      'Loan #': index + 1,
@@ -1660,6 +1681,8 @@ lockSelectedBtn.addEventListener('click', async function() {
                      ...loan
                  };
              });
+
+    // Rest of the download function continues...
          
              // Enhanced summary with failure analysis
              const failureReasons = detailedResults
