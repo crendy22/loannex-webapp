@@ -1467,72 +1467,7 @@ lockSelectedBtn.addEventListener('click', async function() {
              updateSelectedCount();
          });
          
-         // Lock selected loans
-         lockSelectedBtn.addEventListener('click', async function() {
-             if (selectedLoans.length === 0) return;
-             
-             console.log(`🔒 Locking ${selectedLoans.length} selected loans`);
-             
-             // Hide pricing review, show processing
-             pricingReviewSection.classList.add('hidden');
-             processingSection.classList.remove('hidden');
-             
-             // Update processing for selective lock
-             processingTitle.textContent = `Locking ${selectedLoans.length} selected loans...`;
-             currentStatus.textContent = `Triggering selective locks for ${selectedLoans.length} loans...`;
-             statusDetail.textContent = 'Starting optimized lock workflows for pre-approved loans';
-             
-             batchStartTime = new Date().toISOString(); // New batch time for locks
-             
-             try {
-                 // Trigger selective locks for selected loans
-                 for (let i = 0; i < selectedLoans.length; i++) {
-                     const loanIndex = selectedLoans[i];
-                     const originalLoanData = loans[loanIndex];
-                     
-                     const pricingResult = pricingResults.find(pr => 
-                         pr.borrowerName === `${originalLoanData['First Name']} ${originalLoanData['Last Name']}`.trim() &&
-                         pr.loan_amount === originalLoanData['Loan Amount'] &&
-                         pr.ltv === originalLoanData['LTV']
-                     );
-                     
-                     // 🔧 NEW: Enhanced loan data with NexID from pricing results
-                     const enhancedLoanData = {
-                         ...originalLoanData,
-                         nex_id: pricingResult ? pricingResult.nex_id : null,
-                         nexId: pricingResult ? pricingResult.nex_id : null,  // Backup naming
-                         borrower_name: `${originalLoanData['First Name'] || ''} ${originalLoanData['Last Name'] || ''}`.trim(),
-                         pricing_result: pricingResult // Include full pricing data for reference
-                     };
-                     
-                     console.log(`🔒 Loan ${i + 1}: NexID = ${enhancedLoanData.nex_id || 'NOT FOUND'}`);
-                     
-                     updateStatus(`Locking loan ${i + 1} of ${selectedLoans.length}...`, `Selective lock workflow ${i + 1} starting`);
-                     
-                     await fetch('https://loannex-backend.vercel.app/api/trigger-selective-locks', {
-                         method: 'POST',
-                         headers: { 'Content-Type': 'application/json' },
-                         body: JSON.stringify({
-                             loanData: enhancedLoanData, // 🔧 CHANGED: Use enhanced data with NexID
-                             loanIndex: loanIndex,
-                             credentials: credentials,
-                             isSelectiveLock: true // 🔧 NEW: Add selective lock flag
-                         })
-                     });
-                     
-                     updateProgress((i + 1) / selectedLoans.length * 20);
-                 }
          
-                 updateStatus('All selective locks started!', 'Now locking pre-approved loans - checking progress every 30 seconds');
-                 
-                 // Start auto-checking for lock results
-                 startAutoChecking();
-                 
-             } catch (error) {
-                 console.error('Error triggering selective locks:', error);
-                 updateStatus('Error starting selective locks', 'Please try again or check your connection');
-             }
-         });
          
          // Auto-check results (works for both auto-process and selective lock)
          function startAutoChecking() {
