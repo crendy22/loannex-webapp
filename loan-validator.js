@@ -39,11 +39,22 @@ class LoanValidator {
             },
             'Income Documentation': {
                 'full doc': 'Full Doc',
-                'bank statement': 'Bank Statement',
-                'bank statements': 'Bank Statement',
-                'asset depletion': 'Asset Depletion',
                 'dscr': 'DSCR',
-                'no doc': 'No Doc'
+                'debt service coverage (dscr)': 'DSCR',
+                'debt service coverage ratio': 'DSCR',
+                'debt service coverage': 'DSCR',
+                'asset depletion': 'Asset Depletion / Utilization',
+                'asset utilization': 'Asset Depletion / Utilization',
+                'asset depletion/utilization': 'Asset Depletion / Utilization',
+                'bank statement 12': 'Bank Stmts: 12 Mo. Personal',
+                'bank statements 12': 'Bank Stmts: 12 Mo. Personal',
+                'bank statement 24': 'Bank Stmts: 24 Mo. Personal',
+                'bank statements 24': 'Bank Stmts: 24 Mo. Personal',
+                '1099 12': '1099: 12 Mo.',
+                '1099 24': '1099: 24 Mo.',
+                'pnl 12': 'PnL: 12 Mo. CPA Prepared',
+                'pnl 24': 'PnL: 24 Mo. CPA Prepared'
+            },
             },
             'Loan Purpose': {
                 'purchase': 'Purchase',
