@@ -10,7 +10,7 @@ class LoanValidator {
             'Loan Purpose': ['Purchase', 'R/T Refi', 'C/O Refi'],
             'Occupancy': ['Primary', 'Secondary', 'Investment'],
             'Prepay Penalty': ['No Penalty', '1 Year', '2 Year', '3 Year', '5 Year'],
-            'Property Type': ['SFR', 'Condo', 'Townhome', '2-4 Unit', 'Manufactured'],
+            'Property Type': ['SFR', 'Condo', 'Townhome', '2-4 Units', 'Manufactured'],
             'Secondary Financing': ['None', 'HELOC', 'Second Mortgage'],
             'State': ['AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA', 'HI', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME', 'MD', 'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH', 'NJ', 'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC', 'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI', 'WY', 'DC'],
             'Mtg Lates': ['0x30x24', '1x30x24', '2x30x24', '0x30x12', '1x30x12'],
@@ -92,7 +92,7 @@ class LoanValidator {
                 'condominium': 'Condo',
                 'townhome': 'Townhome',
                 'townhouse': 'Townhome',
-                '2-4 unit': '2-4 Unit',
+                '2-4 unit': '2-4 Units',
                 'duplex': '2-4 Unit',
                 'manufactured': 'Manufactured',
                 'mobile home': 'Manufactured'
