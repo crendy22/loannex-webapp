@@ -292,21 +292,24 @@
       <div class="particles-container" id="particles-container"></div>
       <div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 content-layer">
       <!-- Non-QM News Ticker -->
+      <!-- Non-QM News Ticker -->
+      <!-- COMMENTED OUT: News ticker
       <div class="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-3 overflow-hidden">
-         <div class="max-w-7xl mx-auto flex items-center">
-            <div class="bg-white text-blue-700 px-3 py-1 rounded-full text-sm font-bold mr-4 flex-shrink-0">
-               📈 NON-QM NEWS
-            </div>
-            <div class="overflow-hidden flex-1">
-               <div id="news-ticker" class="whitespace-nowrap animate-scroll text-sm">
-                  <span class="inline-block mr-12">🚀 2025 predicted to be strongest year for Non-QM market</span>
-                  <span class="inline-block mr-12">💰 A&D Mortgage closes $427M securitization</span>
-                  <span class="inline-block mr-12">📊 Non-QM market now 5% of total mortgage market</span>
-                  <span class="inline-block mr-12">⭐ Average Non-QM credit score: 776</span>
-               </div>
-            </div>
-         </div>
+          <div class="max-w-7xl mx-auto flex items-center">
+              <div class="bg-white text-blue-700 px-3 py-1 rounded-full text-sm font-bold mr-4 flex-shrink-0">
+                  📈 NON-QM NEWS
+              </div>
+              <div class="overflow-hidden flex-1">
+                  <div id="news-ticker" class="whitespace-nowrap animate-scroll text-sm">
+                      <span class="inline-block mr-12">🚀 2025 predicted to be strongest year for Non-QM market</span>
+                      <span class="inline-block mr-12">💰 A&D Mortgage closes $427M securitization</span>
+                      <span class="inline-block mr-12">📊 Non-QM market now 5% of total mortgage market</span>
+                      <span class="inline-block mr-12">⭐ Average Non-QM credit score: 776</span>
+                  </div>
+              </div>
+          </div>
       </div>
+      -->
       <div class="max-w-7xl mx-auto p-6">
          <!-- Collapsible Data Flow Architecture -->
          <div class="mb-6">
@@ -1903,6 +1906,7 @@ lockSelectedBtn.addEventListener('click', async function() {
              }, 800); // Blink every 800ms
              
              // 2. Play notification sound with text-to-speech
+             /* COMMENTED OUT: Audio notifications
              try {
                  const audio = document.getElementById('pricing-complete-audio');
                  if (audio) {
@@ -1936,8 +1940,9 @@ lockSelectedBtn.addEventListener('click', async function() {
              } catch (error) {
                  console.log('Notification audio failed:', error);
              }
+             */
              
-             console.log('🔔 Pricing completion notifications triggered');
+             console.log('🔔 Pricing completion notifications triggered (audio disabled)');
          }
       </script>
       
