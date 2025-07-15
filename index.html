@@ -983,6 +983,43 @@
                  issues: issues
              };
          }
+         // Add auto-correction function to fix common issues
+         function applyBasicAutoCorrections(loans) {
+             return loans.map(loan => {
+                 const corrected = {...loan};
+                 
+                 // Fix Income Documentation
+                 if (corrected['Income Documentation']) {
+                     const incomeDoc = corrected['Income Documentation'].toString().trim();
+                     if (incomeDoc.toLowerCase() === 'asset utilization') {
+                         corrected['Income Documentation'] = 'Asset Depletion / Utilization';
+                     }
+                 }
+                 
+                 // Fix Property Type
+                 if (corrected['Property Type']) {
+                     const propType = corrected['Property Type'].toString().trim();
+                     if (propType === '2-4 Unit') {
+                         corrected['Property Type'] = '2-4 Units';
+                     }
+                 }
+                 
+                 // Fix State codes (convert full names to abbreviations)
+                 if (corrected['State']) {
+                     const state = corrected['State'].toString().trim().toLowerCase();
+                     const stateMap = {
+                         'california': 'CA', 'texas': 'TX', 'florida': 'FL',
+                         'new york': 'NY', 'arizona': 'AZ'
+                         // Add more as needed
+                     };
+                     if (stateMap[state]) {
+                         corrected['State'] = stateMap[state];
+                     }
+                 }
+                 
+                 return corrected;
+             });
+         }
          
          // Show validation results
          function showValidationResults(results) {
