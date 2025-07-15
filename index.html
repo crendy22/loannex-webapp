@@ -785,7 +785,16 @@
                      console.log('✅ Parsed loans:', loans.length);
                      
                      // Run REAL validation (embedded for now)
-                     const validationResults = validateLoansBasic(loans);
+                     let validationResults = validateLoansBasic(loans);
+                     
+                     // Apply auto-corrections if there are issues
+                     if (validationResults.errors > 0 || validationResults.warnings > 0) {
+                         console.log('🔧 Applying auto-corrections...');
+                         loans = applyBasicAutoCorrections(loans);
+                         // Re-validate after corrections
+                         validationResults = validateLoansBasic(loans);
+                         console.log('✅ Re-validated after auto-corrections');
+                     }
                      
                      // Show validation section with REAL validation results
                      showValidationResults(validationResults);
