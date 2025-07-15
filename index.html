@@ -846,12 +846,14 @@
                  let hasErrors = false;
                  
                  // Check required fields
-                 requiredFields.forEach(field => {
-                     if (!loan[field] || loan[field].toString().trim() === '') {
-                         loanIssues.push(`Missing required field: ${field}`);
-                         hasErrors = true;
-                     }
-                 });
+                  requiredFields.forEach(field => {
+                      const value = loan[field];
+                      // Check if value is null, undefined, or empty string (but allow 0)
+                      if (value === null || value === undefined || value.toString().trim() === '') {
+                          loanIssues.push(`Missing required field: ${field}`);
+                          hasErrors = true;
+                      }
+                  });
                  
                  // Check state
                  if (loan['State']) {
