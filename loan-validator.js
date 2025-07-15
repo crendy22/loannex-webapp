@@ -54,8 +54,7 @@ class LoanValidator {
                 '1099 24': '1099: 24 Mo.',
                 'pnl 12': 'PnL: 12 Mo. CPA Prepared',
                 'pnl 24': 'PnL: 24 Mo. CPA Prepared'
-            },
-            },
+            }, // <- This was missing, causing the extra brace below
             'Loan Purpose': {
                 'purchase': 'Purchase',
                 'refinance': 'R/T Refi',           // Convert generic "refinance" to R/T Refi
