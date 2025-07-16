@@ -5,7 +5,7 @@ class LoanValidator {
     constructor() {
         this.validationRules = {
             'Loan Type': ['First Lien', 'Second Lien'],
-            'Citizenship': ['US Citizen', 'Permanent Resident', 'Foreign National', 'Non-Perm. Resident'],
+            'Citizenship': ['US Citizen', 'Perm. Resident', 'Foreign National', 'Non-Perm. Resident'],
             'Income Documentation': ['Full Doc', 'Asset Depletion / Utilization', 'DSCR', 'PnL: 12 Mo. CPA Prepared', 'PnL: 24 Mo. CPA Prepared', 'Full Doc: 12 Mo. (Limited)', '1099: 12 Mo.', '1099: 24 Mo.', 'Bank Stmts: 12 Mo. Personal', 'Bank Stmts: 24 Mo. Personal', 'Bank Stmts: 24 Mo. Business', 'Bank Stmts: 12 Mo. Business'],
             'Loan Purpose': ['Purchase', 'R/T Refi', 'C/O Refi'],
             'Occupancy': ['Primary', 'Secondary', 'Investment'],
@@ -34,7 +34,7 @@ class LoanValidator {
             'Citizenship': {
                 'us citizen': 'US Citizen',
                 'citizen': 'US Citizen',
-                'permanent resident': 'Permanent Resident',
+                'permanent resident': 'Perm. Resident',
                 'foreign national': 'Foreign National'
             },
             'Income Documentation': {
