@@ -1010,10 +1010,13 @@
                      if (incomeDoc.toLowerCase() === 'asset utilization') {
                          corrected['Income Documentation'] = 'Asset Depletion / Utilization';
                      }
-                     // Fix Debt Service Coverage (DSCR) to DSCR
-                     if (incomeDoc === 'Debt Service Coverage (DSCR)' || incomeDoc.toLowerCase() === 'debt service coverage (dscr)') {
-                         corrected['Income Documentation'] = 'DSCR';
-                         console.log('🔧 Converted "Debt Service Coverage (DSCR)" to "DSCR"');
+                     // Fix various DSCR formats to the correct LoanNex format
+                     if (incomeDoc === 'DSCR' || 
+                         incomeDoc.toLowerCase() === 'dscr' || 
+                         incomeDoc === 'Debt Service Coverage (DSCR)' || 
+                         incomeDoc.toLowerCase() === 'debt service coverage (dscr)') {
+                         corrected['Income Documentation'] = 'DSCR / No Ratio DSCR';
+                         console.log('🔧 Converted "' + incomeDoc + '" to "DSCR / No Ratio DSCR"');
                      }
                  }
                  
