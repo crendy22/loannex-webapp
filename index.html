@@ -1000,7 +1000,6 @@
                  issues: issues
              };
          }
-         // Add auto-correction function to fix common issues
          function applyBasicAutoCorrections(loans) {
              return loans.map(loan => {
                  const corrected = {...loan};
@@ -1023,6 +1022,15 @@
                      const propType = corrected['Property Type'].toString().trim();
                      if (propType === '2-4 Unit') {
                          corrected['Property Type'] = '2-4 Units';
+                     }
+                 }
+                 
+                 // ADD THIS NEW SECTION - Fix Occupancy
+                 if (corrected['Occupancy']) {
+                     const occupancy = corrected['Occupancy'].toString().trim();
+                     if (occupancy === 'Second Home' || occupancy.toLowerCase() === 'second home') {
+                         corrected['Occupancy'] = 'Secondary';
+                         console.log('🔧 Converted "Second Home" to "Secondary"');
                      }
                  }
                  
