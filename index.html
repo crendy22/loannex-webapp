@@ -827,21 +827,21 @@
              const requiredFields = ['First Name', 'Last Name', 'Interest Rate', 'Investor', 'Credit Score', 'DTI', 'Loan Amount'];
              const validStates = ['AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA', 'HI', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME', 'MD', 'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH', 'NJ', 'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC', 'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI', 'WY', 'DC'];
              
-             const validLoanTypes = ['First Lien', 'Second Lien'];
-             const validCitizenship = ['US Citizen', 'Permanent Resident', 'Foreign National', 'Non-Perm. Resident'];
+             const validLoanTypes = ['First Lien', 'Closed End Second'];
+             const validCitizenship = ['US Citizen', 'Perm. Resident', 'Foreign National', 'Non-Perm. Resident'];
              const validIncomeDoc = ['Full Doc', 'Asset Depletion / Utilization', 'DSCR', 'PnL: 12 Mo. CPA Prepared', 'PnL: 24 Mo. CPA Prepared', 'Full Doc: 12 Mo. (Limited)', '1099: 12 Mo.', '1099: 24 Mo.', 'Bank Stmts: 12 Mo. Personal', 'Bank Stmts: 24 Mo. Personal', 'Bank Stmts: 24 Mo. Business', 'Bank Stmts: 12 Mo. Business'];
              const validLoanPurpose = ['Purchase', 'R/T Refi', 'C/O Refi'];
              const validOccupancy = ['Primary', 'Secondary', 'Investment'];
              const validPrepayPenalty = ['No Penalty', '1 Year', '2 Year', '3 Year', '5 Year'];
-             const validPropertyType = ['SFR', 'Condo', 'Townhome', '2-4 Units', 'Manufactured', 'PUD', 'Co-Op'];
-             const validSecondaryFinancing = ['None', 'HELOC', 'Second Mortgage'];
-             const validMtgLates = ['0x30x24', '1x30x24', '2x30x24', '0x30x12', '1x30x12'];
+             const validPropertyType = ['SFR', 'Condo', 'Townhome', '2-4 Units', 'Manufactured', 'PUD', 'Co-Op', '5+ Units'];
+             const validSecondaryFinancing = ['None', 'HELOC', 'Closed End Second'];
+             const validMtgLates = ['0x30x24', '1x30x24', '2x30x24', '0x30x12', '1x30x12', '0x30x12'];
              const validBK = ['None', 'Ch7 >4 Years', 'Ch7 >2 Years', 'Ch13 >2 Years'];
              const validFC = ['None', '>4 Years', '>2 Years'];
              const validSS = ['None', '>4 Years', '>2 Years'];
              const validDIL = ['None', '>4 Years', '>2 Years'];
-             const validEscrows = ['Yes', 'No'];
-             const validTempBuydown = ['None', '2-1 Buydown', '1-0 Buydown'];
+             const validEscrows = ['Yes', 'Waived', 'Taxes Only', 'Insurance Only'];
+             const validTempBuydown = ['None', '3-2-1', '2-1', '1-1', '1-0'];
              const validAmortizingType = ['Fully Am', 'Interest Only', '15 Year Am', '25 Year Am', '40 Year Am'];
              
              let valid = 0, warnings = 0, errors = 0;
